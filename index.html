@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloud Storage | Beta</title>
+    <title>Development | Private Storage</title>
     <style>
         :root {
             --bg-dark: #0a0a0c;
-            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-bg: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.1);
             --accent-blue: #0084ff;
             --white: #ffffff;
@@ -25,78 +25,47 @@
             overflow: hidden;
         }
 
-        /* Анимированный фон */
+        /* Анимированный фоновый элемент */
         .blob {
             position: absolute;
-            width: 400px;
-            height: 400px;
+            width: 350px;
+            height: 350px;
             background: var(--accent-blue);
-            filter: blur(150px);
+            filter: blur(140px);
             border-radius: 50%;
-            animation: move 15s infinite alternate;
-            opacity: 0.3;
+            animation: move 12s infinite alternate;
+            opacity: 0.2;
         }
 
         @keyframes move {
-            from { transform: translate(-300px, -200px); }
-            to { transform: translate(300px, 200px); }
+            from { transform: translate(-250px, -150px); }
+            to { transform: translate(250px, 150px); }
         }
 
-        /* Стеклянная карточка */
+        /* Карточка */
         .glass-card {
             background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
-            padding: 40px;
-            border-radius: 25px;
+            padding: 50px;
+            border-radius: 30px;
             text-align: center;
-            width: 350px;
+            width: 320px;
             z-index: 1;
         }
 
-        .status-badge {
+        h1 { margin: 0 0 15px 0; font-size: 20px; text-transform: uppercase; letter-spacing: 2px; }
+        p { opacity: 0.6; font-size: 0.95rem; line-height: 1.5; margin-bottom: 0; }
+        
+        .status-dot {
             display: inline-block;
-            background: rgba(0, 132, 255, 0.2);
-            color: var(--accent-blue);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-
-        h1 { margin: 10px 0; font-size: 24px; }
-        p { opacity: 0.7; font-size: 0.9rem; line-height: 1.6; }
-
-        /* Прогресс-бар для "облака" */
-        .progress-container {
-            width: 100%;
+            width: 8px;
             height: 8px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 4px;
-            margin: 25px 0;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            height: 100%;
             background: var(--accent-blue);
-            width: 45%;
-            animation: loading 3s infinite ease-in-out;
-        }
-
-        @keyframes loading {
-            0% { width: 0%; }
-            50% { width: 70%; }
-            100% { width: 0%; }
-        }
-
-        .footer-note {
-            font-size: 0.75rem;
-            color: rgba(255,255,255,0.4);
-            margin-top: 20px;
+            border-radius: 50%;
+            margin-right: 8px;
+            box-shadow: 0 0 10px var(--accent-blue);
         }
     </style>
 </head>
@@ -105,17 +74,8 @@
     <div class="blob"></div>
 
     <div class="glass-card">
-        <div class="status-badge">В разработке</div>
-        <h1>Cloud Data System</h1>
-        <p>На данный момент сервер используется как закрытое облачное хранилище. Доступ к публичным функциям будет открыт после завершения бета-тестирования.</p>
-        
-        <div class="progress-container">
-            <div class="progress-bar"></div>
-        </div>
-        
-        <p style="font-size: 0.8rem; font-weight: bold;">Синхронизация данных... 45%</p>
-        
-        <div class="footer-note">© 2026 Core Infrastructure. Доступ ограничен.</div>
+        <h1><span class="status-dot"></span>В разработке</h1>
+        <p>Сайт временно закрыт для общего доступа. Сейчас используется исключительно как персональное хранилище файлов.</p>
     </div>
 
 </body>
