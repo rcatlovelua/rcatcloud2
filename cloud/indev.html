@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Development | Rcat cool studio</title>
+    <meta property="og:title" content="rcs - В разработке">
+    <meta property="og:description" content="RCAT COOL STUDIO - your dream to roblox community.">
+    <meta property="og:image" content="https://github.com/rcatlovelua/rcatcloud2/blob/main/cloud/thumbnail.png?raw=true">
+    <meta property="og:url" content="https://rcatcloud2.vercel.app/">
+    <meta property="og:type" content="website">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <style>
+        :root {
+            --bg-dark: #0a0a0c;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent-blue: #0084ff;
+            --white: #ffffff;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--white);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Анимированный фоновый элемент */
+        .blob {
+            position: absolute;
+            width: 350px;
+            height: 350px;
+            background: var(--accent-blue);
+            filter: blur(140px);
+            border-radius: 50%;
+            animation: move 12s infinite alternate;
+            opacity: 0.2;
+        }
+
+        @keyframes move {
+            from { transform: translate(-250px, -150px); }
+            to { transform: translate(250px, 150px); }
+        }
+
+        /* Карточка */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            padding: 50px;
+            border-radius: 30px;
+            text-align: center;
+            width: 320px;
+            z-index: 1;
+        }
+
+        h1 { margin: 0 0 15px 0; font-size: 20px; text-transform: uppercase; letter-spacing: 2px; }
+        p { opacity: 0.6; font-size: 0.95rem; line-height: 1.5; margin-bottom: 0; }
+        
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            margin-right: 8px;
+            box-shadow: 0 0 10px var(--accent-blue);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="blob"></div>
+
+    <div class="glass-card">
+        <h1><span class="status-dot"></span>В разработке</h1>
+        <p>Сайт временно закрыт для общего доступа. Сейчас используется исключительно как персональное хранилище файлов.</p>
+    </div>
+
+</body>
+</html>
