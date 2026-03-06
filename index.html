@@ -3,87 +3,251 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Development | Rcat cool studio</title>
-    <meta property="og:title" content="rcs - В разработке">
-    <meta property="og:description" content="RCAT COOL STUDIO - your dream to roblox community.">
-    <meta property="og:image" content="https://github.com/rcatlovelua/rcatcloud2/blob/main/cloud/thumbnail.png?raw=true">
-    <meta property="og:url" content="https://rcatcloud2.vercel.app/">
-    <meta property="og:type" content="website">
-    
-    <meta name="twitter:card" content="summary_large_image">
+    <title>Rcat's cool studio</title>
     <style>
+        /* Подключение ваших шрифтов */
+        @font-face {
+            font-family: 'GoogleSans';
+            src: url('https://rcatcloud2.vercel.app/cloud/GoogleSans-Bold.ttf');
+            weight: bold;
+        }
+        @font-face {
+            font-family: 'GoogleSans';
+            src: url('https://rcatcloud2.vercel.app/cloud/GoogleSans-SemiBold.ttf');
+            weight: 600;
+        }
+
         :root {
-            --bg-dark: #0a0a0c;
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --accent-blue: #0084ff;
-            --white: #ffffff;
+            --m3-surface: #fef7ff;
+            --m3-primary: #6750a4;
+            --m3-secondary: #e8def8;
+            --m3-on-secondary: #1d192b;
+            --m3-text-main: #1c1b1f;
+            --m3-text-muted: #49454f;
+            --m3-font: 'GoogleSans', sans-serif;
         }
 
         body {
             margin: 0;
-            font-family: 'Segoe UI', sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--white);
+            padding: 0;
+            background-color: var(--m3-surface);
+            font-family: var(--m3-font);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             overflow: hidden;
+            cursor: none; /* Скрываем стандартный курсор */
         }
 
-        /* Анимированный фоновый элемент */
-        .blob {
-            position: absolute;
-            width: 350px;
-            height: 350px;
-            background: var(--accent-blue);
-            filter: blur(140px);
+        /* Кастомный курсор (Розовый) */
+        #custom-cursor {
+            width: 20px;
+            height: 20px;
+            background: #ff66b2; /* Розовый цвет */
             border-radius: 50%;
-            animation: move 12s infinite alternate;
-            opacity: 0.2;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.1s ease-out;
+            /* mix-blend-mode: difference; можно убрать или оставить, с розовым выглядит необычно */
         }
 
-        @keyframes move {
-            from { transform: translate(-250px, -150px); }
-            to { transform: translate(250px, 150px); }
-        }
-
-        /* Карточка */
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid var(--glass-border);
-            padding: 50px;
-            border-radius: 30px;
+        .container {
             text-align: center;
-            width: 320px;
-            z-index: 1;
+            animation: fadeIn 1s ease-out;
+            padding: 20px;
         }
 
-        h1 { margin: 0 0 15px 0; font-size: 20px; text-transform: uppercase; letter-spacing: 2px; }
-        p { opacity: 0.6; font-size: 0.95rem; line-height: 1.5; margin-bottom: 0; }
-        
-        .status-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background: var(--accent-blue);
-            border-radius: 50%;
-            margin-right: 8px;
-            box-shadow: 0 0 10px var(--accent-blue);
+        /* Карточка игры в стиле M3 */
+        .game-card {
+            background: white;
+            border-radius: 28px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-width: 500px; /* Немного расширили для текста */
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .game-img-container {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .game-img {
+            width: 100%;
+            border-radius: 20px;
+            display: block;
+        }
+
+        .img-caption {
+            font-size: 12px;
+            color: var(--m3-text-muted);
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        h1 {
+            color: var(--m3-text-main);
+            margin: 0 0 12px 0;
+            font-size: 32px;
+        }
+
+        .description {
+            font-size: 15px;
+            color: var(--m3-text-muted);
+            line-height: 1.5;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .description b {
+            color: var(--m3-text-main);
+        }
+
+        .links-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .links-container a {
+            color: var(--m3-primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: none; /* Чтобы работал кастомный курсор */
+        }
+
+        .links-container a:hover {
+            text-decoration: underline;
+        }
+
+        /* Material 3 "Pill" Button (Ссылка-кнопка) */
+        .play-button {
+            background-color: var(--m3-secondary);
+            color: var(--m3-on-secondary);
+            border: none;
+            padding: 12px 48px;
+            border-radius: 100px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none; /* Убираем подчеркивание у ссылки */
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .play-button:hover {
+            background-color: #d0bcff;
+            transform: scale(1.05);
+        }
+
+        /* Декоративные Circles (circle.png) */
+        .bg-circle {
+            position: absolute;
+            z-index: -1;
+            opacity: 0.5;
+            animation: float 6s infinite ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
         }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false">
 
-    <div class="blob"></div>
+    <div id="custom-cursor"></div>
 
-    <div class="glass-card">
-        <h1><span class="status-dot"></span>В разработке</h1>
-        <p>Сайт временно закрыт для общего доступа. Сейчас используется исключительно как персональное хранилище файлов.</p>
+    <img src="https://rcatcloud2.vercel.app/cloud/circle.png" class="bg-circle" style="top: 10%; left: 10%; width: 100px;">
+    <img src="https://rcatcloud2.vercel.app/cloud/12-sided-cookie.png" class="bg-circle" style="bottom: 15%; right: 10%; width: 80px; animation-delay: 1s;">
+
+    <div class="container">
+        <div class="game-card">
+            <div class="game-img-container">
+                <img src="https://rcatcloud2.vercel.app/cloud/robotsscreen.png" alt="Robots" class="game-img">
+                <div class="img-caption">Фото от разработчика (обновляется)</div>
+            </div>
+            
+            <h1>Robots</h1>
+            
+            <div class="description">
+    <div class="studio-info">
+        <h3>О студии</h3>
+        <p><b>RCS (Rcat cool studio)</b> — небольшая инди-студия, создающая крутые игры в Roblox. Мы делаем акцент на драйве и качественном пользовательском опыте.</p>
     </div>
 
+    <hr class="divider">
+
+    <div class="game-info">
+        <h3>Об игре</h3>
+        <p><b>Robots</b> — это динамичная игра, где вам предстоит бегать от картинок-мемов (Nextbots), зарабатывать деньги и покупать за них различные классные плюшки!</p>
+        <ul style="padding-left: 20px; margin-top: 8px;">
+            <li>Выживай среди безумных мемов</li>
+            <li>Копи монеты за время на карте</li>
+            <li>Открывай уникальные предметы</li>
+        </ul>
+    </div>
+</div>
+<hr class="divider">
+            <div class="links-container">
+                <a href="https://t.me/rcat4" target="_blank">👤 Карточка основателя канала</a>
+                <a href="https://t.me/rcstu" target="_blank">📢 Канал Rcat stu community</a>
+            </div>
+
+            <a href="https://www.roblox.com/games/78988280725052/unnamed" target="_blank" class="play-button">
+                Играть
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const cursor = document.getElementById('custom-cursor');
+        
+        // Обновление позиции курсора
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX - 10 + 'px';
+            cursor.style.top = e.clientY - 10 + 'px';
+        });
+
+        // Анимация при клике
+        document.addEventListener('mousedown', () => {
+            cursor.style.transform = 'scale(1.5)';
+        });
+
+        document.addEventListener('mouseup', () => {
+            cursor.style.transform = 'scale(1)';
+        });
+
+        // Добавляем увеличение курсора при наведении на ссылки и кнопку
+        const clickableElements = document.querySelectorAll('a, .play-button');
+        clickableElements.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursor.style.transform = 'scale(1.5)';
+                cursor.style.background = 'var(--m3-primary)'; // Меняет цвет при наведении на ссылки
+            });
+            el.addEventListener('mouseleave', () => {
+                cursor.style.transform = 'scale(1)';
+                cursor.style.background = '#ff66b2'; // Возвращает розовый цвет
+            });
+        });
+    </script>
 </body>
 </html>
