@@ -1,70 +1,38 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>My Cloud Storage</title>
-    <style>
-        :root { --bg: #0d1117; --border: #30363d; --text: #c9d1d9; --row-hover: #161b22; }
-        body { background-color: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; margin: 0; padding: 40px; }
-        .container { max-width: 1000px; margin: 0 auto; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
-        .header { background: #161b22; padding: 16px; border-bottom: 1px solid var(--border); font-weight: 600; display: flex; justify-content: space-between; }
-        .file-row { display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); text-decoration: none; color: var(--text); transition: 0.2s; }
-        .file-row:hover { background: var(--row-hover); }
-        .file-row:last-child { border-bottom: none; }
-        .icon { margin-right: 12px; width: 16px; text-align: center; opacity: 0.7; }
-        .file-info { flex-grow: 1; display: flex; justify-content: space-between; font-size: 14px; }
-        .logout { color: #f85149; cursor: pointer; text-decoration: none; font-size: 14px; }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <div class="header">
-        <span>rcatcloud2 / cloud</span>
-        <a class="logout" onclick="logout()">Выйти</a>
-    </div>
-    <div id="file-list">
-        <div style="padding: 20px; text-align: center;">Загрузка файлов...</div>
-    </div>
-</div>
-
-<script>
-    // 1. ПРОВЕРКА КУКИ
-    function getCookie(name) {
-        let matches = document.cookie.match(new RegExp("(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)" ));
-        return matches ? decodeURIComponent(matches[1]) : undefined;
-    }
-
-    if (getCookie("cloud_auth") !== "true") {
-        window.location.href = "cloud/login.html";
-    }
-
-    function logout() {
-        document.cookie = "cloud_auth=; max-age=-1; path=/";
-        window.location.reload();
-    }
-
-    // 2. ЗАГРУЗКА СПИСКА ФАЙЛОВ ИЗ GITHUB
-    // Замени 'rcatcloud2' и 'cloud' на свои данные, если они отличаются
-    const USER = 'rcatcloud2';
-    const REPO = 'cloud'; 
+    const USER = 'rcatlovelua';
+    const REPO = 'rcatcloud2'; // Название репозитория
+    const FOLDER = 'cloud';      // Папка внутри репозитория
+    
+    // Вставь сюда строку, которую выдал btoa()
+    const ENCODED_TOKEN = 'Z2hwX05NZDFSZnhGMHc2cTR4WUlIWnRJTlZNY2YzVjBtSTJ1cFFSbw=='; 
+    const TOKEN = atob(ENCODED_TOKEN); // Декодируем прямо перед использованием
 
     async function loadFiles() {
-        const url = `https://api.github.com/repos/${USER}/${REPO}/contents/`;
+        // Указываем путь к папке в URL API
+        const url = `https://api.github.com/repos/${USER}/${REPO}/contents/${FOLDER}`;
+        
         try {
-            const response = await fetch(url);
-            const files = await response.json();
+            const response = await fetch(url, {
+                headers: {
+                    'Authorization': `token ${TOKEN}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            });
             
+            if (!response.ok) throw new Error("Ошибка доступа. Проверь токен и путь.");
+            
+            const files = await response.json();
             const listElement = document.getElementById('file-list');
-            listElement.innerHTML = ''; // Очистить индикатор загрузки
+            listElement.innerHTML = '';
 
             files.forEach(file => {
-                // Игнорируем сам index.html и login.html, чтобы не путаться
+                // Убираем служебные файлы из списка
                 if (file.name === 'index.html' || file.name === 'login.html') return;
 
                 const row = document.createElement('a');
                 row.className = 'file-row';
-                row.href = file.download_url; // Прямая ссылка на файл
+                
+                // Для приватных репозиториев используем download_url с токеном
+                row.href = file.download_url + (file.download_url.includes('?') ? '&' : '?') + `token=${TOKEN}`; 
                 row.target = '_blank';
 
                 const isImg = /\.(png|jpg|jpeg|gif|svg)$/i.test(file.name);
@@ -80,12 +48,7 @@
                 listElement.appendChild(row);
             });
         } catch (e) {
-            document.getElementById('file-list').innerHTML = '<div style="padding:20px; color:#f85149;">Ошибка загрузки. Возможно, репозиторий приватный.</div>';
+            console.error(e);
+            document.getElementById('file-list').innerHTML = `<div style="padding:20px; color:#f85149;">${e.message}</div>`;
         }
     }
-
-    loadFiles();
-</script>
-
-</body>
-</html>
