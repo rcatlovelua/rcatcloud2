@@ -20,21 +20,28 @@
 
     <script>
         async function checkPass() {
-    const inputPass = document.getElementById('passInput').value.trim(); // Убираем пробелы
+    const inputPass = document.getElementById('passInput').value.trim();
     
+    // Превращаем ввод в хеш
     const msgUint8 = new TextEncoder().encode(inputPass);
     const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const inputHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
-    // Твой правильный хеш для "avdian_ueban_tupoi"
+    // Выводим в консоль для проверки (нажми F12 в браузере)
+    console.log("Введенный пароль:", inputPass);
+    console.log("Его хеш:", inputHash);
+
+    // Это правильный хеш для avdian_ueban_tupoi
     const secretHash = "e758712616f7347a82470691761661d900486064112e4307a56110903328e371";
 
     if (inputHash === secretHash) {
-        document.cookie = "cloud_auth=true; max-age=86400; path=/; SameSite=Strict";
+        // Ставим куку на 1 день
+        document.cookie = "cloud_auth=true; max-age=86400; path=/; SameSite=Lax";
+        console.log("Пароль верный! Переходим...");
         window.location.href = "index.html";
     } else {
-        alert("Неверный пароль! Попробуйте еще раз.");
+        alert("Неверный пароль!");
     }
 }
     </script>
