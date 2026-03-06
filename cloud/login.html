@@ -36,7 +36,7 @@
 
     if (inputHash === secretHash) {
         // Ставим куку на 1 день
-        document.cookie = "cloud_auth=true; max-age=86400; path=/; SameSite=Lax";
+        document.cookie = "cloud_auth_id=1dtrue; max-age=86400; path=/; SameSite=Lax";
         console.log("Пароль верный! Переходим...");
         window.location.href = "index.html";
     } else {
