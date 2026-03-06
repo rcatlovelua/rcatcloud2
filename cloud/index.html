@@ -1,1 +1,43 @@
-Слишком умный, да? это не для глаз обычного пользователя, это просто страница для облака файлов чтобы сайт работал
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Вход в Cloud</title>
+    <meta charset="utf-8">
+    <style>
+        body { background: #0d1117; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .login-box { background: #161b22; padding: 20px; border-radius: 8px; border: 1px solid #30363d; }
+        input { padding: 10px; border-radius: 4px; border: 1px solid #30363d; background: #0d1117; color: white; margin-bottom: 10px; width: 200px; }
+        button { padding: 10px 20px; background: #238636; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h3>Введите пароль</h3>
+        <input type="password" id="passInput" placeholder="Пароль">
+        <br>
+        <button onclick="checkPass()">Войти</button>
+    </div>
+
+    <script>
+        async function checkPass() {
+    const inputPass = document.getElementById('passInput').value;
+    
+ 
+    const msgUint8 = new TextEncoder().encode(inputPass);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const inputHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+    // хеш слова
+    const secretHash = "70f49cc1d36d558c7a715dfe7635dfbd6020477bc67be7f79e2104f6232b1f84";
+
+    if (inputHash === secretHash) {
+        document.cookie = "cloud_auth=true; max-age=86400; path=/; SameSite=Strict";
+        window.location.href = "index.html";
+    } else {
+        alert("Неверный пароль!");
+    }
+}
+    </script>
+</body>
+</html>
