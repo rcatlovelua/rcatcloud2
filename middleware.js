@@ -9,8 +9,8 @@ export default function middleware(req) {
   const url = new URL(req.url);
   const ua = req.headers.get('user-agent') || '';
 
-  // 1. Проверка доступа к папке RACOlie
-  if (url.pathname.startsWith('/RACOlie/')) {
+
+  if (url.pathname.startsWith('/RACOnlie/')) {
     if (!ua.includes('Roblox')) {
       return new Response(
         JSON.stringify({ error: "Access Denied", message: "Roblox-only directory" }), 
