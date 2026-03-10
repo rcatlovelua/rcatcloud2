@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wpotify Startup</title>
+    <style>
+        /* Подключаем шрифты из твоего облака */
+        @font-face {
+            font-family: 'GoogleSans';
+            src: url('https://rcatcloud2.vercel.app/cloud/GoogleSans-SemiBold.ttf') format('truetype');
+            font-weight: 600;
+        }
+        @font-face {
+            font-family: 'GoogleSans';
+            src: url('https://rcatcloud2.vercel.app/cloud/GoogleSans-Bold.ttf') format('truetype');
+            font-weight: 700;
+        }
+
+        :root {
+            /* Material 3 Dark Theme Colors */
+            --md-sys-color-background: #1C1B1F;
+            --md-sys-color-on-background: #E6E1E5;
+            --md-sys-color-surface: rgba(43, 41, 48, 0.7); /* Glassmorphism effect */
+            --md-sys-color-on-surface: #E6E1E5;
+            --md-sys-color-primary: #D0BCFF;
+            --md-sys-color-error: #F2B8B5;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'GoogleSans', sans-serif;
+            background-color: var(--md-sys-color-background);
+            background-image: radial-gradient(circle at top right, #2c2541, #1C1B1F 50%);
+            color: var(--md-sys-color-on-background);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .m3-card {
+            background-color: var(--md-sys-color-surface);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px; /* M3 Extra Large Corner */
+            padding: 32px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        h1 {
+            font-weight: 700;
+            font-size: 24px;
+            margin: 0;
+            letter-spacing: 0px;
+        }
+
+        p {
+            font-weight: 600;
+            font-size: 14px;
+            margin: 0;
+            color: rgba(230, 225, 229, 0.8);
+            line-height: 1.5;
+        }
+
+        .icon {
+            width: 48px;
+            height: 48px;
+            display: none; /* Скрыто по умолчанию */
+        }
+
+        /* Material 3 Circular Progress Indicator */
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(208, 188, 255, 0.2);
+            border-top: 4px solid var(--md-sys-color-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-text {
+            color: var(--md-sys-color-error);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="m3-card" id="main-card">
+        <div id="loading-spinner" class="spinner"></div>
+        <img id="status-icon" class="icon" src="https://rcatcloud2.vercel.app/cloud/warning_24dp_E3E3E3.svg" alt="Warning">
+        <h1 id="status-title">Wpotify</h1>
+        <p id="status-message">Инициализация...</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const appVersion = urlParams.get('v');
+            
+            const uiSpinner = document.getElementById('loading-spinner');
+            const uiIcon = document.getElementById('status-icon');
+            const uiTitle = document.getElementById('status-title');
+            const uiMessage = document.getElementById('status-message');
+
+            // Функция для отображения ошибок в стиле M3
+            function showError(message) {
+                uiSpinner.style.display = 'none';
+                uiIcon.style.display = 'block';
+                uiTitle.innerText = 'Ошибка';
+                uiTitle.classList.add('error-text');
+                uiMessage.innerText = message;
+            }
+
+            async function runStartupChecks() {
+                // 1. Проверка наличия марки (версии) в URL
+                if (!appVersion) {
+                    showError('Приложение не помечает определённые марки');
+                    return;
+                }
+
+                try {
+                    uiMessage.innerText = 'Проверка обновлений...';
+                    
+                    // 2. Проверка обновлений (с твоего Vercel)
+                    // Ожидается что в latest.json лежит что-то вроде: {"version": "1.0"}
+                    const versionResponse = await fetch('https://rcatcloud2.vercel.app/Wpotify/latest.json');
+                    if (!versionResponse.ok) throw new Error('Network response was not ok');
+                    const versionData = await versionResponse.json();
+                    
+                    const latestVersion = versionData.version || versionData.latest; 
+
+                    if (appVersion !== latestVersion) {
+                        showError('Кажется у вас старая версия!');
+                        return;
+                    }
+
+                    uiMessage.innerText = 'Проверка региона...';
+
+                    // 3. Проверка региона
+                    // Используем бесплатный API для определения кода страны по IP
+                    const geoResponse = await fetch('https://ipapi.co/json/');
+                    const geoData = await geoResponse.json();
+                    
+                    // Массив стран, где Spotify официально недоступен (например, Россия, Беларусь и т.д.)
+                    const blockedRegions = ['RU', 'BY', 'KP', 'SY', 'IR', 'CU']; 
+
+                    if (blockedRegions.includes(geoData.country_code)) {
+                        showError('В вашем регионе не доступен Spotify! Попробуйте использовать VPN');
+                        return;
+                    }
+
+                    // 4. Успешный финал - Перенаправление
+                    uiMessage.innerText = 'Подключение...';
+                    setTimeout(() => {
+                        window.location.href = 'https://open.spotify.com/ ';
+                    }, 800);
+
+                } catch (error) {
+                    console.error("Ошибка при выполнении проверок:", error);
+                    showError('Не удалось подключиться к серверам rcatcloud2. Проверьте подключение к сети.');
+                }
+            }
+
+            // Запускаем цепочку проверок
+            runStartupChecks();
+        });
+    </script>
+</body>
+</html>
