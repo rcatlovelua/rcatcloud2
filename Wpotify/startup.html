@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wpotify Startup</title>
     <style>
-        /* Подключаем шрифты из твоего облака */
+        /* Подключаем шрифты */
         @font-face {
             font-family: 'GoogleSans';
             src: url('https://rcatcloud2.vercel.app/cloud/GoogleSans-SemiBold.ttf') format('truetype');
@@ -18,13 +18,12 @@
         }
 
         :root {
-            /* Material 3 Dark Theme Colors */
             --md-sys-color-background: #1C1B1F;
-            --md-sys-color-on-background: #E6E1E5;
-            --md-sys-color-surface: rgba(43, 41, 48, 0.7); /* Glassmorphism effect */
-            --md-sys-color-on-surface: #E6E1E5;
+            --md-sys-color-surface: rgba(43, 41, 48, 0.7);
             --md-sys-color-primary: #D0BCFF;
+            --md-sys-color-on-primary: #381E72;
             --md-sys-color-error: #F2B8B5;
+            --md-sys-color-on-surface: #E6E1E5;
         }
 
         body {
@@ -33,7 +32,7 @@
             font-family: 'GoogleSans', sans-serif;
             background-color: var(--md-sys-color-background);
             background-image: radial-gradient(circle at top right, #2c2541, #1C1B1F 50%);
-            color: var(--md-sys-color-on-background);
+            color: var(--md-sys-color-on-surface);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -41,72 +40,139 @@
             overflow: hidden;
         }
 
+        /* Карточка с Glassmorphism */
         .m3-card {
             background-color: var(--md-sys-color-surface);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 28px; /* M3 Extra Large Corner */
-            padding: 32px;
+            border-radius: 32px; /* Увеличенное скругление M3 */
+            padding: 40px 32px;
             width: 90%;
-            max-width: 400px;
+            max-width: 360px;
             text-align: center;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 16px;
+            gap: 20px;
+            /* Анимация появления самой карточки */
+            animation: scaleUp 0.6s cubic-bezier(0.2, 0, 0, 1) forwards;
+            opacity: 0;
+            transform: scale(0.95);
+        }
+
+        /* Контейнер для иконок, чтобы они не прыгали при смене */
+        .icon-container {
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loader-svg {
+            width: 64px;
+            height: 64px;
+            transition: opacity 0.3s ease;
+        }
+
+        .icon-warning {
+            width: 48px;
+            height: 48px;
+            display: none;
+            opacity: 0;
+            animation: popIn 0.4s cubic-bezier(0.2, 0, 0, 1) forwards;
+        }
+
+        /* Текстовый блок с анимациями */
+        .text-content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-height: 60px; /* Фиксируем высоту, чтобы кнопка не прыгала */
         }
 
         h1 {
             font-weight: 700;
             font-size: 24px;
             margin: 0;
-            letter-spacing: 0px;
+            transition: color 0.3s ease;
         }
 
         p {
             font-weight: 600;
-            font-size: 14px;
+            font-size: 15px;
             margin: 0;
-            color: rgba(230, 225, 229, 0.8);
-            line-height: 1.5;
+            color: rgba(230, 225, 229, 0.7);
+            line-height: 1.4;
+            /* Класс для перезапуска анимации через JS */
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
-        .icon {
-            width: 48px;
-            height: 48px;
-            display: none; /* Скрыто по умолчанию */
-        }
-
-        /* Material 3 Circular Progress Indicator */
-        .spinner {
-            width: 48px;
-            height: 48px;
-            border: 4px solid rgba(208, 188, 255, 0.2);
-            border-top: 4px solid var(--md-sys-color-primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .text-fade {
+            animation: slideUpFade 0.4s cubic-bezier(0.2, 0, 0, 1) forwards;
         }
 
         .error-text {
-            color: var(--md-sys-color-error);
+            color: var(--md-sys-color-error) !important;
+        }
+
+        /* M3 Pill Button */
+        .pill-btn {
+            background-color: var(--md-sys-color-primary);
+            color: var(--md-sys-color-on-primary);
+            font-family: 'GoogleSans', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            border: none;
+            border-radius: 999px; /* Форма таблетки */
+            padding: 12px 24px;
+            cursor: pointer;
+            margin-top: 10px;
+            display: none;
+            opacity: 0;
+            transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+            animation: slideUpFade 0.5s cubic-bezier(0.2, 0, 0, 1) forwards;
+            animation-delay: 0.1s;
+        }
+
+        .pill-btn:hover {
+            background-color: #E8DEF8;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .pill-btn:active {
+            transform: scale(0.96);
+        }
+
+        /* Анимации */
+        @keyframes scaleUp {
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
         }
     </style>
 </head>
 <body>
 
     <div class="m3-card" id="main-card">
-        <div id="loading-spinner" class="spinner"></div>
-        <img id="status-icon" class="icon" src="https://rcatcloud2.vercel.app/cloud/warning_24dp_E3E3E3.svg" alt="Warning">
-        <h1 id="status-title">Wpotify</h1>
-        <p id="status-message">Инициализация...</p>
+        <div class="icon-container">
+            <img id="loading-spinner" class="loader-svg" src="https://rcatcloud2.vercel.app/cloud/ripple-effect.svg" alt="Loading">
+            <img id="status-icon" class="icon-warning" src="https://rcatcloud2.vercel.app/cloud/warning_24dp_E3E3E3.svg" alt="Warning">
+        </div>
+
+        <div class="text-content">
+            <h1 id="status-title">Wpotify</h1>
+            <p id="status-message" class="text-fade">Инициализация...</p>
+        </div>
+
+        <button id="retry-btn" class="pill-btn">Повторить попытку</button>
     </div>
 
     <script>
@@ -118,67 +184,101 @@
             const uiIcon = document.getElementById('status-icon');
             const uiTitle = document.getElementById('status-title');
             const uiMessage = document.getElementById('status-message');
+            const retryBtn = document.getElementById('retry-btn');
 
-            // Функция для отображения ошибок в стиле M3
+            // Вспомогательная функция для обновления текста с анимацией
+            function updateMessage(text) {
+                uiMessage.classList.remove('text-fade');
+                // Небольшой хак для перезапуска CSS-анимации
+                void uiMessage.offsetWidth; 
+                uiMessage.innerText = text;
+                uiMessage.classList.add('text-fade');
+            }
+
+            // Функция для перехода в состояние ошибки
             function showError(message) {
                 uiSpinner.style.display = 'none';
                 uiIcon.style.display = 'block';
+                
                 uiTitle.innerText = 'Ошибка';
                 uiTitle.classList.add('error-text');
-                uiMessage.innerText = message;
+                
+                updateMessage(message);
+                
+                retryBtn.style.display = 'block';
             }
 
+            // Функция для сброса UI в состояние загрузки
+            function resetUI() {
+                uiTitle.innerText = 'Wpotify';
+                uiTitle.classList.remove('error-text');
+                uiIcon.style.display = 'none';
+                uiSpinner.style.display = 'block';
+                retryBtn.style.display = 'none';
+                updateMessage('Повторное подключение...');
+            }
+
+            // Искусственная задержка для красивого отображения анимаций
+            const delay = ms => new Promise(res => setTimeout(res, ms));
+
             async function runStartupChecks() {
-                // 1. Проверка наличия марки (версии) в URL
+                // 1. Проверка версии в URL
                 if (!appVersion) {
+                    await delay(800); // Даем проиграться анимации появления
                     showError('Приложение не помечает определённые марки');
                     return;
                 }
 
                 try {
-                    uiMessage.innerText = 'Проверка обновлений...';
+                    await delay(600);
+                    updateMessage('Проверка обновлений...');
                     
-                    // 2. Проверка обновлений (с твоего Vercel)
-                    // Ожидается что в latest.json лежит что-то вроде: {"version": "1.0"}
+                    // 2. Сверяем с latest.json
                     const versionResponse = await fetch('https://rcatcloud2.vercel.app/Wpotify/latest.json');
-                    if (!versionResponse.ok) throw new Error('Network response was not ok');
+                    if (!versionResponse.ok) throw new Error('Network error');
                     const versionData = await versionResponse.json();
                     
                     const latestVersion = versionData.version || versionData.latest; 
 
+                    await delay(800); // Задержка для красоты
                     if (appVersion !== latestVersion) {
-                        showError('Кажется у вас старая версия!');
+                        showError('Кажется, у вас старая версия!');
                         return;
                     }
 
-                    uiMessage.innerText = 'Проверка региона...';
+                    updateMessage('Проверка региона...');
 
-                    // 3. Проверка региона
-                    // Используем бесплатный API для определения кода страны по IP
+                    // 3. Проверка региона по IP
                     const geoResponse = await fetch('https://ipapi.co/json/');
                     const geoData = await geoResponse.json();
                     
-                    // Массив стран, где Spotify официально недоступен (например, Россия, Беларусь и т.д.)
                     const blockedRegions = ['RU', 'BY', 'KP', 'SY', 'IR', 'CU']; 
 
+                    await delay(800);
                     if (blockedRegions.includes(geoData.country_code)) {
-                        showError('В вашем регионе не доступен Spotify! Попробуйте использовать VPN');
+                        showError('В вашем регионе не доступен Spotify! Попробуйте использовать VPN.');
                         return;
                     }
 
-                    // 4. Успешный финал - Перенаправление
-                    uiMessage.innerText = 'Подключение...';
-                    setTimeout(() => {
-                        window.location.href = 'https://open.spotify.com/ ';
-                    }, 800);
+                    // 4. Финал
+                    updateMessage('Подключение...');
+                    await delay(800);
+                    window.location.href = 'https://open.spotify.com/ ';
 
                 } catch (error) {
-                    console.error("Ошибка при выполнении проверок:", error);
-                    showError('Не удалось подключиться к серверам rcatcloud2. Проверьте подключение к сети.');
+                    console.error("Ошибка:", error);
+                    await delay(800);
+                    showError('Не удалось подключиться к серверам. Проверьте соединение.');
                 }
             }
 
-            // Запускаем цепочку проверок
+            // Обработчик кнопки "Повторить попытку"
+            retryBtn.addEventListener('click', () => {
+                resetUI();
+                runStartupChecks();
+            });
+
+            // Запуск при загрузке страницы
             runStartupChecks();
         });
     </script>
