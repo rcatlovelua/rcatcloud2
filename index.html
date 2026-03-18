@@ -1,327 +1,82 @@
+"Z/{*.jwb��ޮ('�����hʋ��     
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rcat's cool studio</title>
+    <title>Strange Reality</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik+Maze&display=swap" rel="stylesheet">
     <style>
-        @font-face {
-            font-family: 'GoogleSans';
-            src: url('https://rcatcloud2.vercel.app/cloud/GoogleSans-Bold.ttf');
-            weight: bold;
-        }
-        @font-face {
-            font-family: 'GoogleSans';
-            src: url('https://rcatcloud2.vercel.app/cloud/GoogleSans-SemiBold.ttf');
-            weight: 600;
-        }
-
-        :root {
-            --m3-surface: #fef7ff;
-            --m3-primary: #6750a4;
-            --m3-secondary: #e8def8;
-            --m3-on-secondary: #1d192b;
-            --m3-text-main: #1c1b1f;
-            --m3-text-muted: #49454f;
-            --m3-font: 'GoogleSans', sans-serif;
-            
-            /* Цвета для ошибки */
-            --m3-error-container: #ba1a1a;
-            --m3-on-error-container: #ffffff;
-        }
-
         body {
+            background-color: black;
+            display: flex;
+            flex-direction: column; 
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             margin: 0;
-            padding: 0;
-            background-color: var(--m3-surface);
-            font-family: var(--m3-font);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            overflow-x: hidden;
-            cursor: none;
+            overflow: hidden;
         }
 
-        /* Кастомный курсор (Розовый) */
-        #custom-cursor {
-            width: 20px;
-            height: 20px;
-            background: #ff66b2;
-            border-radius: 50%;
-            position: fixed;
-            pointer-events: none;
-            z-index: 9999;
-            transition: transform 0.1s ease-out;
-        }
-
-        .container {
-            text-align: center;
-            animation: fadeIn 1s ease-out;
-            padding: 20px;
-        }
-
-        /* Карточка */
-        .game-card {
-            background: white;
-            border-radius: 28px;
-            padding: 24px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            max-width: 500px; 
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-        }
-
-        .game-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-        }
-
-        .game-img-container {
-            position: relative;
-            margin-bottom: 16px;
-        }
-
-        .game-img {
-            width: 100%;
-            border-radius: 20px;
-            display: block;
-        }
-
-        .img-caption {
-            font-size: 12px;
-            color: var(--m3-text-muted);
-            margin-top: 8px;
-            font-style: italic;
-        }
-
-        h1 {
-            color: var(--m3-text-main);
-            margin: 0 0 12px 0;
-            font-size: 32px;
-        }
-
-        .description {
-            font-size: 15px;
-            color: var(--m3-text-muted);
-            line-height: 1.5;
+        .eye-gif {
+            width: 200px; 
             margin-bottom: 20px;
-            text-align: left;
+            filter: hue-rotate(90deg); 
         }
 
-        .description b {
-            color: var(--m3-text-main);
-        }
-
-        .links-container {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-bottom: 24px;
-            text-align: left;
-        }
-
-        .links-container a {
-            color: var(--m3-primary);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: none;
-        }
-
-        .links-container a:hover {
-            text-decoration: underline;
-        }
-
-        /* Material 3 "Pill" Button (Ссылка-кнопка) */
-        .play-button {
-            background-color: var(--m3-secondary);
-            color: var(--m3-on-secondary);
-            border: none;
-            padding: 12px 48px;
-            border-radius: 100px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            transition: background 0.2s, transform 0.2s;
-            margin-bottom: 16px;
-        }
-
-        .play-button:hover {
-            background-color: #d0bcff;
-            transform: scale(1.05);
-        }
-
-        /* Всплывающее уведомление (Toast) */
-        .toast {
-            visibility: hidden;
-            background-color: var(--m3-error-container);
-            color: var(--m3-on-error-container);
+        .roblox-text {
+            font-family: 'Rubik Maze', system-ui;
+            font-size: 80px; /* Уменьшил, чтобы длинные фразы влезали */
+            color: red;
             text-align: center;
-            border-radius: 12px;
-            padding: 16px 24px;
-            position: fixed;
-            z-index: 10000;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            opacity: 0;
-            transition: opacity 0.3s, bottom 0.3s, visibility 0.3s;
-            font-weight: 600;
+            -webkit-text-stroke: 2px red; 
+            letter-spacing: 2px;
+            transition: all 0.5s ease;
+            max-width: 90vw;
+            word-wrap: break-word;
         }
 
-        .toast.show {
-            visibility: visible;
-            opacity: 1;
-            bottom: 50px;
-        }
-
-        .toast img {
-            width: 24px;
-            height: 24px;
-        }
-
-        /* Декоративные Circles */
-        .bg-circle {
-            position: absolute;
-            z-index: -1;
-            opacity: 0.5;
-            animation: float 6s infinite ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
+        /* Класс для перевернутого текста */
+        .upside-down {
+            display: inline-block;
+            transform: rotate(180deg);
         }
     </style>
 </head>
-<body oncontextmenu="return false">
+<body>
 
-    <div id="custom-cursor"></div>
+    <img src="https://rcatcloud2.vercel.app/cloud/oeil.gif" alt="Eye" class="eye-gif">
 
-    <div id="dev-toast" class="toast">
-        <img src="https://rcatcloud2.vercel.app/cloud/warning_24dp_E3E3E3.svg" alt="Внимание">
-        Игра ещё находится в разработке!
-    </div>
-
-    <img src="https://rcatcloud2.vercel.app/cloud/circle.png" class="bg-circle" style="top: 10%; left: 10%; width: 100px;">
-    <img src="https://rcatcloud2.vercel.app/cloud/12-sided-cookie.png" class="bg-circle" style="bottom: 15%; right: 10%; width: 80px; animation-delay: 1s;">
-
-    <div class="container">
-        <div class="rcatstuheader">
-            <h1>Привет от RCS!</h1>
-        </div>
-        
-        <div class="game-card">
-            <div class="game-img-container">
-                <h1>Robots</h1>
-                <img src="https://rcatcloud2.vercel.app/cloud/robotsscreen.png" alt="Robots" class="game-img">
-                <div class="img-caption">Фото от разработчика (обновляется)</div>
-            </div>
-
-            <div class="game-info">
-                <h3>Об игре</h3>
-                <p><b>Robots</b> — это динамичная игра, где вам предстоит бегать от картинок-мемов (Nextbots), зарабатывать деньги и покупать за них различные классные плюшки!</p>
-            </div>
-            
-            <ul style="padding-left: 20px; margin-top: 8px; text-align: left;">
-                <li>Выживай от некстботов</li>
-                <li>Копи монеты за время на карте</li>
-                <li>Открывай уникальные предметы</li>
-            </ul>
-            
-            <a href="https://www.roblox.com/games/78988280725052/unnamed" target="_blank" class="play-button" id="play-btn">
-                Играть
-            </a>
-            
-            <hr class="divider">
-            
-            <div class="description">
-                <div class="studio-info">
-                    <h3>О студии</h3>
-                    <p><b>RCS (Rcat cool studio)</b> — небольшая инди-студия, создающая крутые игры в Roblox. Мы делаем акцент на драйве и качественном пользовательском опыте.</p>
-                </div>
-            </div>
-
-            <hr class="divider">
-
-            <div class="links-container">
-                <a href="https://t.me/rcat4" target="_blank">👤 Карточка основателя канала</a>
-                <a href="https://t.me/rcstu" target="_blank">📢 Канал Rcat stu community</a>
-            </div>
-        </div>
-    </div>
+    <div id="random-text" class="roblox-text"></div>
 
     <script>
-        // ==========================================
-        // НАСТРОЙКА КНОПКИ "ИГРАТЬ"
-        // Поменяй false на true, когда игра будет готова!
-        const isGameReady = false; 
-        // ==========================================
+        const phrases = [
+            "WIR SIND BEOBACHTER",
+            "DAS ENDE IST NAH",  
+            "NICHTS IST REAL",   
+            "SYSTEMFEHLER 404", 
+            "VOID CALLING",
+            "LOOK BEHIND YOU",
+            "ECHOES OF SILENCE",
+            "01001000 01000101 01001100 01001100 01001111"
+        ];
 
-        const playBtn = document.getElementById('play-btn');
-        const devToast = document.getElementById('dev-toast');
-        let toastTimeout;
+        function flipString(str) {
+            return str.split('').reverse().join('');
+        }
 
-        playBtn.addEventListener('click', (e) => {
-            if (!isGameReady) {
-                // Если игра не готова, отменяем переход по ссылке
-                e.preventDefault(); 
-                
-                // Показываем уведомление
-                devToast.classList.add('show');
-                
-                // Скрываем уведомление через 3 секунды
-                clearTimeout(toastTimeout);
-                toastTimeout = setTimeout(() => {
-                    devToast.classList.remove('show');
-                }, 3000);
-            }
-            // Если isGameReady = true, ничего не блокируем, ссылка откроется как обычно
-        });
-
-        // ==========================================
-        // ЛОГИКА КАСТОМНОГО КУРСОРА
-        // ==========================================
-        const cursor = document.getElementById('custom-cursor');
+        const textElement = document.getElementById('random-text');
         
-        document.addEventListener('mousemove', (e) => {
-            cursor.style.left = e.clientX - 10 + 'px';
-            cursor.style.top = e.clientY - 10 + 'px';
-        });
+        let randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
 
-        document.addEventListener('mousedown', () => {
-            cursor.style.transform = 'scale(1.5)';
-        });
+    
+        textElement.innerHTML = randomPhrase;
+        textElement.classList.add('upside-down');
 
-        document.addEventListener('mouseup', () => {
-            cursor.style.transform = 'scale(1)';
-        });
-
-        const clickableElements = document.querySelectorAll('a, .play-button');
-        clickableElements.forEach(el => {
-            el.addEventListener('mouseenter', () => {
-                cursor.style.transform = 'scale(1.5)';
-                cursor.style.background = 'var(--m3-primary)';
-            });
-            el.addEventListener('mouseleave', () => {
-                cursor.style.transform = 'scale(1)';
-                cursor.style.background = '#ff66b2';
-            });
-        });
+   
+        setInterval(() => {
+            textElement.style.transform = `rotate(180deg) translate(${Math.random() * 50 - 5}px, ${Math.random() * 4 - 2}px)`;
+        }, 100);
     </script>
 </body>
 </html>
