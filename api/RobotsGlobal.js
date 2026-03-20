@@ -1,37 +1,41 @@
-// В реальности лучше хранить это в Environment Variables на Vercel
-const ADMIN_KEY = "rcs_cm9ibG94Y3JlYXRpb25zX3JvYm90c19ldmVudGFwaQ=="; //atob decoded word robloxcreations_robots_eventapi
+// файл: api/events.js
 
-// Временное хранилище (сбросится при обновлении сервера)
-// Для постоянства используй Vercel KV
-let events = {
-  event1: { status: "deacticated", duration: 0, name: "" },
-  event2: { status: "deactivated", duration: 0, name: "" }
+// Временное хранилище эвентов.
+// Важно: при спящем режиме Vercel эти данные могут сбрасываться. 
+// Для надежности позже можно будет подключить бесплатную базу Vercel KV (Redis).
+let eventsData = {
+  "event1": { "status": "activated", "time": 120, "name": "NextbotRush" },
+  "event2": { "status": "deactivated", "time": null, "name": null }
 };
 
-export default async function handler(req, res) {
-  const userKey = req.headers['x-api-key'];
+const API_KEY = "rcs_cm9ibG94Y3JlYXRpb25zX3JvYm90c19ldmVudGFwaQ==";
 
-  // 1. Обработка GET (просмотр из игры)
+export default function handler(req, res) {
+  // Защита: проверяем API-ключ из заголовков
+  const providedKey = req.headers['x-api-key'];
+  
+  if (providedKey !== API_KEY) {
+    return res.status(401).json({ error: "Доступ запрещен. Неверный API ключ!" });
+  }
+
+  // Если Роблокс запрашивает статус эвентов (GET запрос)
   if (req.method === 'GET') {
-    return res.status(200).json(events);
-  }
-
-  // 2. Проверка ключа для изменений (POST/PATCH)
-  if (userKey !== ADMIN_KEY) {
-    return res.status(403).json({ error: "Access denied: Invalid API Key" });
-  }
-
-  if (req.method === 'POST') {
-    const { eventId, status, duration, name } = req.body;
+    return res.status(200).json(eventsData);
+  } 
+  
+  // Если мы хотим изменить эвент (POST запрос)
+  else if (req.method === 'POST') {
+    const { eventId, status, time, name } = req.body;
     
-    if (events[eventId]) {
-      events[eventId] = { status, duration, name };
-      return res.status(200).json({ success: true, updated: events[eventId] });
+    if (eventId) {
+      eventsData[eventId] = { status, time, name };
+      return res.status(200).json({ success: true, message: "Эвент обновлен", data: eventsData });
+    } else {
+      return res.status(400).json({ error: "Не указан eventId" });
     }
-    
-    return res.status(404).json({ error: "Event not found" });
+  } 
+  
+  else {
+    return res.status(405).json({ error: "Метод не разрешен" });
   }
-
-  res.setHeader('Allow', ['GET', 'POST']);
-  res.status(405).end(`Method ${req.method} Not Allowed`);
 }
