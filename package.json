@@ -1,6 +1,8 @@
 {
   "private": true,
   "dependencies": {
-    "@vercel/edge": "^0.1.2"
+    "@vercel/edge": "^0.1.2",
+    "@supabase/supabase-js": "^2.39.0",
+    "node-fetch": "^3.3.2"
   }
 }
