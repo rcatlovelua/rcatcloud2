@@ -1,0 +1,25 @@
+<div class="auth-box">
+    <h2>Connect discord</h2>
+    <input type="text" id="code" placeholder="Введите код от бота">
+    <button onclick="linkAccount()">Подтвердить</button>
+    <p id="status"></p>
+</div>
+
+<script>
+async function linkAccount() {
+    const code = document.getElementById('code').value;
+    const status = document.getElementById('status');
+
+    const response = await fetch('/api/link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            temp_code: code,
+            discord_id: "1485375448333680851" 
+        })
+    });
+
+    const result = await response.json();
+    status.innerText = result.message;
+}
+</script>
