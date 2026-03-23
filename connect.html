@@ -2,150 +2,34 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RCS | Discord Link</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <title>Привязка RCS</title>
     <style>
-        :root {
-            --m3-surface: #f3f3f8;
-            --m3-primary: #4f6bed;
-            --m3-on-primary: #ffffff;
-            --glass-bg: rgba(255, 255, 255, 0.6);
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Roboto', sans-serif;
-            background: linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            color: #1c1b1f;
-        }
-
-        /* Эффект стекла для карточки */
-        .card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 28px; /* Характерное закругление M3 */
-            padding: 40px;
-            width: 100%;
-            max-width: 360px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            text-align: center;
-        }
-
-        h1 {
-            font-size: 24px;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-
-        p {
-            font-size: 14px;
-            color: #49454f;
-            margin-bottom: 32px;
-        }
-
-        /* Поле ввода в стиле Pill */
-        input {
-            width: 100%;
-            padding: 16px 24px;
-            margin-bottom: 20px;
-            border-radius: 30px;
-            border: 2px solid #79747e;
-            background: transparent;
-            box-sizing: border-box;
-            font-size: 16px;
-            outline: none;
-            transition: border 0.2s;
-        }
-
-        input:focus {
-            border-color: var(--m3-primary);
-        }
-
-        /* Кнопка в стиле Material You */
-        .btn-link {
-            width: 100%;
-            padding: 16px;
-            border-radius: 30px;
-            border: none;
-            background-color: var(--m3-primary);
-            color: var(--m3-on-primary);
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.2s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .btn-link:hover {
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            filter: brightness(1.1);
-        }
-
-        .btn-link:active {
-            transform: scale(0.98);
-        }
-
-        #status {
-            margin-top: 16px;
-            font-size: 12px;
-        }
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #121212; color: white; }
+        .card { background: #1e1e1e; padding: 2rem; border-radius: 16px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+        input { padding: 10px; border-radius: 8px; border: none; margin-bottom: 10px; width: 80%; }
+        button { padding: 10px 20px; border-radius: 8px; border: none; background: #5865F2; color: white; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
+    <div class="card">
+        <h2>Привязка Дискорда</h2>
+        <p>Введите код из Роблокса:</p>
+        <input type="text" id="code" placeholder="Например: 123456">
+        <br>
+        <button onclick="startAuth()">Войти через Discord</button>
+    </div>
 
-<div class="card">
-    <h1>Привязка аккаунта</h1>
-    <p>Введите код, полученный от нашего бота в Discord</p>
-    
-    <input type="text" id="linkCode" placeholder="Код (например: XYZ-123)" maxlength="10">
-    
-    <button class="btn-link" onclick="submitCode()">Подтвердить связь</button>
-    
-    <div id="status"></div>
-</div>
-
-<script>
-    async function submitCode() {
-        const code = document.getElementById('linkCode').value;
-        const status = document.getElementById('status');
-        
-        if(!code) {
-            status.innerText = "Пожалуйста, введите код";
-            status.style.color = "red";
-            return;
+    <script>
+        function startAuth() {
+            const code = document.getElementById('code').value;
+            if (!code) return alert('Введите код!');
+            
+            const clientId = "ТВОЙ_CLIENT_ID_СЮДА"; // Можно вписать вручную
+            const redirectUri = encodeURIComponent("https://rcatcloud2.vercel.app/api/discord-callback");
+            
+            // Отправляем пользователя в Дискорд, передавая наш код как state
+            window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=identify&state=${code}`;
         }
-
-        status.innerText = "Проверяем...";
-        status.style.color = "#49454f";
-
-        try {
-            const response = await fetch('/api/link', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ temp_code: code })
-            });
-
-            const result = await response.json();
-            if(result.success) {
-                status.innerText = "✅ Готово! Можете возвращаться в Roblox.";
-                status.style.color = "green";
-            } else {
-                status.innerText = "❌ Ошибка: " + result.message;
-                status.style.color = "red";
-            }
-        } catch (e) {
-            status.innerText = "❌ Ошибка соединения с сервером";
-        }
-    }
-</script>
-
+    </script>
 </body>
 </html>
