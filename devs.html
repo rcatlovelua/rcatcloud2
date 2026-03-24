@@ -310,10 +310,9 @@
 <div id="toastMsg" class="toast-message"></div>
 
 <script>
-    // -------- Material API клиент с обработкой ошибок ----------
     const API_BASE = '/api/post';
 
-    // вспомогательная функция показа уведомлений
+    // Показ уведомлений
     function showToast(message, isError = false) {
         const toast = document.getElementById('toastMsg');
         toast.textContent = message;
@@ -324,11 +323,20 @@
         }, 3000);
     }
 
-    // Функция загрузки постов с индикатором и Material-рендерингом
-    // Обновленная функция загрузки
+    // Защита от XSS
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    // Функция загрузки постов
     async function loadPosts() {
         const feedContainer = document.getElementById('feed');
-        // Используем твою кастомную SVG анимацию
         feedContainer.innerHTML = `
             <div class="loading-spinner">
                 <img src="/cloud/loading.svg" alt="Загрузка..." style="width: 24px; height: 24px;"> 
@@ -380,11 +388,11 @@
         }
     }
 
-    // Обновленная функция отправки (с паролем)
+    // Функция отправки поста
     async function sendPost() {
         const titleInput = document.getElementById('title');
         const contentInput = document.getElementById('content');
-        const passwordInput = document.getElementById('adminPassword'); // Берем пароль
+        const passwordInput = document.getElementById('adminPassword');
         
         const titleRaw = titleInput.value.trim();
         const contentRaw = contentInput.value.trim();
@@ -397,19 +405,19 @@
 
         if (passwordRaw === '') {
             showToast('Введите пароль!', true);
-            passwordInput.style.borderColor = '#b3261e';
-            setTimeout(() => passwordInput.style.borderColor = '#e6e0e9', 1500);
             return;
         }
         
         const postData = {
             title: titleRaw || "(без названия)",
             content: contentRaw || "—",
-            password: passwordRaw // Добавляем пароль в запрос
+            password: passwordRaw
         };
         
         const publishButton = document.getElementById('publishBtn');
         const originalButtonText = publishButton.innerHTML;
+        
+        // Визуальное состояние загрузки
         publishButton.innerHTML = `<img src="/cloud/loading.svg" alt="..." style="width: 18px; height: 18px;"> Отправка...`;
         publishButton.disabled = true;
         
@@ -427,8 +435,6 @@
             
             titleInput.value = '';
             contentInput.value = '';
-            // Пароль не очищаем, чтобы было удобно постить несколько раз подряд
-            
             showToast('Пост опубликован! 🚀', false);
             await loadPosts();
         } catch (error) {
@@ -439,72 +445,13 @@
         }
     }
     
-    // простой escape для защиты от XSS (Material безопасность)
-    function escapeHtml(str) {
-        if (!str) return '';
-        return str
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
-    }
-    
-
-        
-        // блокируем кнопку на время отправки (UX)
-        const publishButton = document.getElementById('publishBtn');
-        const originalButtonText = publishButton.innerHTML;
-        publishButton.innerHTML = `<span class="material-symbols-outlined" style="font-size: 18px; animation: spin 0.8s linear infinite;">progress_activity</span> Отправка...`;
-        publishButton.disabled = true;
-        
-        try {
-            const response = await fetch(API_BASE, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(postData)
-            });
-            
-            if (!response.ok) {
-                let errorDetail = `Ошибка ${response.status}`;
-                try {
-                    const errorBody = await response.text();
-                    if (errorBody) errorDetail += `: ${errorBody}`;
-                } catch(e) { /* игнорируем */ }
-                throw new Error(errorDetail);
-            }
-            
-            // Успех: очищаем поля, показываем тост, обновляем ленту
-            titleInput.value = '';
-            contentInput.value = '';
-            showToast('Пост опубликован! 🚀', false);
-            
-            // Загружаем обновлённую ленту (ждём ответа от сервера)
-            await loadPosts();
-            
-            // Дополнительно: скроллим к началу ленты для удобства
-            const feedElement = document.getElementById('feed');
-            if (feedElement.firstChild) {
-                feedElement.firstChild.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        } catch (error) {
-            console.error('Ошибка при отправке поста:', error);
-            showToast(`Не удалось опубликовать: ${error.message}`, true);
-        } finally {
-            publishButton.innerHTML = originalButtonText;
-            publishButton.disabled = false;
-        }
-    }
-    
-    // Добавляем обработчик для кнопки публикации (чтобы отделить от возможных конфликтов)
+    // Инициализация событий
     document.addEventListener('DOMContentLoaded', () => {
         const publishBtn = document.getElementById('publishBtn');
         if (publishBtn) {
-            // удаляем старый onclick из HTML, чтобы повесить через addEventListener, но т.к. в кнопке нет onclick атрибута — чисто
             publishBtn.addEventListener('click', sendPost);
         }
         
-        // Добавим возможность отправки по Ctrl+Enter в textarea (Material комфорт)
         const textarea = document.getElementById('content');
         if (textarea) {
             textarea.addEventListener('keydown', (e) => {
@@ -515,66 +462,30 @@
             });
         }
         
-        // первоначальная загрузка постов
+        // Обновление по клику на заголовок
+        const appTitleDiv = document.querySelector('.app-title');
+        if (appTitleDiv) {
+            appTitleDiv.addEventListener('click', loadPosts);
+        }
+
         loadPosts();
     });
-    
-    // Добавляем анимацию спиннера в стиле
+
+    // Стили для анимаций
     const styleSheet = document.createElement("style");
     styleSheet.textContent = `
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        .post-card .post-title-icon {
-            font-variation-settings: 'FILL' 1, 'wght' 500;
-        }
-        /* ripple effect для кнопок (лёгкий material touch) */
-        .btn-filled {
-            position: relative;
-            overflow: hidden;
-        }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .post-card .post-title-icon { font-variation-settings: 'FILL' 1, 'wght' 500; }
+        .btn-filled { position: relative; overflow: hidden; }
         .btn-filled::after {
-            content: '';
-            display: block;
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            background-image: radial-gradient(circle, #fff 10%, transparent 10%);
-            background-repeat: no-repeat;
-            background-position: 50%;
-            transform: scale(10);
-            opacity: 0;
-            transition: transform 0.4s, opacity 0.6s;
+            content: ''; display: block; position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none;
+            background-image: radial-gradient(circle, #fff 10%, transparent 10%); background-repeat: no-repeat;
+            background-position: 50%; transform: scale(10); opacity: 0; transition: transform 0.4s, opacity 0.6s;
         }
-        .btn-filled:active::after {
-            transform: scale(0);
-            opacity: 0.3;
-            transition: 0s;
-        }
+        .btn-filled:active::after { transform: scale(0); opacity: 0.3; transition: 0s; }
     `;
     document.head.appendChild(styleSheet);
-    
-    // дополнительно: если сервер возвращает нестандартный формат, можно адаптировать, но оставляем как есть
-    // также функция, чтобы можно было перезагрузить ленту по нажатию на заголовок? добавим легкий жест:
-    const appTitleDiv = document.querySelector('.app-title');
-    if (appTitleDiv) {
-        appTitleDiv.style.cursor = 'pointer';
-        appTitleDiv.addEventListener('click', () => {
-            loadPosts();
-            showToast('Лента обновлена', false);
-        });
-        appTitleDiv.title = 'Нажмите, чтобы обновить ленту';
-    }
-    
-    // добавляем возможность обработки потенциального кэша или повторного вызова loadPosts
-    window.loadPosts = loadPosts; // для отладки, но необязательно
 </script>
 </body>
 </html>
