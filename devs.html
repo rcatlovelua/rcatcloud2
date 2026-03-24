@@ -437,7 +437,7 @@
 <div id="toastMsg" class="toast-message"></div>
 
 <script>
-    const API_BASE = '/api/post';
+    const API_BASE = '/api/post.js';
     let allPosts = [];
 
     function showToast(message, isError = false) {
@@ -521,7 +521,7 @@
         };
 
         try {
-            const response = await fetch('/api/reply', {
+            const response = await fetch('/api/post', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(replyData)
