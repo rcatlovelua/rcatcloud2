@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Devs | Material Feed</title>
+    <title>Devs</title>
     <!-- Material Symbols + Google Fonts (Roboto) -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0,1" />
@@ -271,8 +271,7 @@
         </div>
     </div>
 
-    <!-- Карточка создания поста (Material surface) -->
-    <div class="create-card">
+   <div class="create-card">
         <div class="input-field">
             <label>ЗАГОЛОВОК</label>
             <input type="text" id="title" class="material-input" placeholder="О чем расскажете?" autocomplete="off">
@@ -280,6 +279,10 @@
         <div class="input-field">
             <label>КОНТЕНТ</label>
             <textarea id="content" class="material-textarea" rows="3" placeholder="Что нового? Идеи, код, мысли..."></textarea>
+        </div>
+        <div class="input-field">
+            <label>СЕКРЕТНЫЙ КЛЮЧ</label>
+            <input type="password" id="adminPassword" class="material-input" placeholder="Пароль для публикации">
         </div>
         <div class="button-wrapper">
             <button class="btn-filled" id="publishBtn">
