@@ -1,8 +1,6 @@
 {
-  "env": {
-    "SUPABASE_URL": "ССЫЛКА_ИЗ_SUPABASE",
-    "SUPABASE_ANON_KEY": "КЛЮЧ_ИЗ_SUPABASE",
-    "DISCORD_CLIENT_ID": "ID_ИЗ_ДИСКОРДА",
-    "DISCORD_CLIENT_SECRET": "СЕКРЕТ_ИЗ_ДИСКОРДА"
-  }
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/(.*)", "destination": "/$1" }
+  ]
 }
