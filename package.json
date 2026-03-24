@@ -1,8 +1,10 @@
 {
   "private": true,
+  "type": "module",
   "dependencies": {
     "@vercel/edge": "^0.1.2",
     "@supabase/supabase-js": "^2.39.0",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "@upstash/redis": "^1.34.4"
   }
 }
