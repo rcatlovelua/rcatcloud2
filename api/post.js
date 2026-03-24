@@ -6,17 +6,24 @@ const redis = new Redis({
 })
 
 export default async function handler(req, res) {
+  // Обработка создания поста
   if (req.method === 'POST') {
-    const { title, content } = req.body;
-    const postId = Date.now(); // Простой ID на основе времени
-    
-    await redis.set(`post:${postId}`, JSON.stringify({ title, content }));
-    return res.status(200).json({ success: true, id: postId });
+    const { title, content, password } = req.body;
+
+    // Сверяем пароль из запроса с паролем в Vercel
+    if (password !== process.env.ADMIN_PASSWORD) {
+      return res.status(403).json({ error: 'Неверный пароль' });
+    }
+
+    const id = Date.now();
+    await redis.set(`post:${id}`, JSON.stringify({ title, content }));
+    return res.status(200).json({ success: true });
   }
 
-  // Получение всех постов (пример)
+  // Обработка получения постов
   const keys = await redis.keys('post:*');
+  if (keys.length === 0) return res.status(200).json([]);
+
   const posts = await Promise.all(keys.map(key => redis.get(key)));
-  
   res.status(200).json(posts);
 }
