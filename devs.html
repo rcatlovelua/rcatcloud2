@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Devs</title>
+    <style>
+        body { font-family: sans-serif; background: #121212; color: white; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .container { max-width: 600px; width: 100%; }
+        .post-form { background: #1e1e1e; padding: 20px; border-radius: 16px; margin-bottom: 30px; }
+        input, textarea { width: 100%; background: #2c2c2c; border: none; color: white; padding: 10px; margin-bottom: 10px; border-radius: 8px; box-sizing: border-box; }
+        button { background: #bb86fc; color: black; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        .post { background: #1e1e1e; padding: 15px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid #bb86fc; }
+        h2 { margin-top: 0; color: #bb86fc; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Devs</h1>
+    
+    <div class="post-form">
+        <input type="text" id="title" placeholder="Заголовок поста">
+        <textarea id="content" rows="3" placeholder="Что нового?"></textarea>
+        <button onclick="sendPost()">Опубликовать</button>
+    </div>
+
+    <div id="feed">Загрузка постов...</div>
+</div>
+
+<script>
+    // 1. Функция для загрузки постов
+    async function loadPosts() {
+        const res = await fetch('/api/post');
+        const posts = await res.json();
+        const feed = document.getElementById('feed');
+        feed.innerHTML = ''; // Очистить текст загрузки
+
+        posts.reverse().forEach(post => { // Новые посты сверху
+            feed.innerHTML += `
+                <div class="post">
+                    <h2>${post.title}</h2>
+                    <p>${post.content}</p>
+                </div>
+            `;
+        });
+    }
+
+    // 2. Функция для отправки поста
+    async function sendPost() {
+        const title = document.getElementById('title').value;
+        const content = document.getElementById('content').value;
+
+        await fetch('/api/post', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, content })
+        });
+
+        document.getElementById('title').value = '';
+        document.getElementById('content').value = '';
+        loadPosts(); // Сразу обновляем ленту
+    }
+
+    // Загружаем посты при открытии страницы
+    loadPosts();
+</script>
+
+</body>
+</html>
