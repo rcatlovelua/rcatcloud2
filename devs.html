@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Devs | Material Feed</title>
-    <!-- Material Symbols + Google Fonts (Roboto) -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0,1" />
     <style>
@@ -139,9 +138,21 @@
             cursor: not-allowed;
             transform: none;
         }
+        .btn-outline {
+            background: transparent;
+            color: #6750a4;
+            border: 1px solid #6750a4;
+            padding: 6px 16px;
+            font-size: 0.75rem;
+        }
+        .btn-outline:hover {
+            background: #f3edff;
+            transform: none;
+        }
         .button-wrapper {
             display: flex;
             justify-content: flex-end;
+            gap: 12px;
         }
 
         .feed-title {
@@ -200,9 +211,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-top: 16px;
-            padding-top: 12px;
-            border-top: 1px solid #e6e0e9;
+            margin-top: 12px;
             font-size: 0.85rem;
             color: #6750a4;
         }
@@ -214,6 +223,99 @@
             font-weight: 500;
             color: #381e72;
         }
+        .post-time {
+            font-size: 0.7rem;
+            color: #79747e;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .post-actions {
+            display: flex;
+            gap: 16px;
+            margin-top: 12px;
+            padding-top: 8px;
+            border-top: 1px solid #e6e0e9;
+        }
+        .action-btn {
+            background: none;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            color: #6750a4;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 40px;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .action-btn:hover {
+            background: #f3edff;
+        }
+        .action-btn .material-symbols-outlined {
+            font-size: 1rem;
+        }
+        .replies-section {
+            margin-top: 16px;
+            padding-left: 20px;
+            border-left: 2px solid #eaddff;
+        }
+        .reply-card {
+            background: #fef7ff;
+            border-radius: 20px;
+            padding: 12px 16px;
+            margin-top: 12px;
+            font-size: 0.85rem;
+        }
+        .reply-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+        }
+        .reply-author {
+            font-weight: 600;
+            color: #6750a4;
+        }
+        .reply-time {
+            font-size: 0.65rem;
+            color: #79747e;
+        }
+        .reply-content {
+            color: #49454f;
+            margin-top: 6px;
+        }
+        .reply-form {
+            margin-top: 12px;
+            display: none;
+            gap: 8px;
+            flex-direction: column;
+        }
+        .reply-form.active {
+            display: flex;
+        }
+        .reply-input {
+            width: 100%;
+            background: #f3f1f4;
+            border: 1px solid #e6e0e9;
+            border-radius: 20px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-family: 'Roboto', sans-serif;
+            resize: vertical;
+        }
+        .reply-input:focus {
+            border-color: #6750a4;
+            outline: none;
+        }
+        .small-btn {
+            padding: 6px 16px;
+            font-size: 0.75rem;
+            align-self: flex-end;
+        }
         .empty-state {
             background: #ffffffd9;
             border-radius: 32px;
@@ -221,7 +323,6 @@
             text-align: center;
             color: #79747e;
             font-weight: 500;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
             border: 1px dashed #cac4d0;
         }
         .loading-spinner {
@@ -232,13 +333,14 @@
             color: #6750a4;
             gap: 12px;
         }
-        .meta-line {
+        .info-note {
+            background: #eaddff;
+            padding: 8px 16px;
+            border-radius: 20px;
             font-size: 0.7rem;
-            margin-top: 8px;
-            color: #cac4d0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            color: #381e72;
+            margin-bottom: 16px;
+            display: inline-block;
         }
         @keyframes subtlePop {
             0% { opacity: 0; transform: translateY(12px); }
@@ -246,6 +348,10 @@
         }
         .post-card {
             animation: subtlePop 0.25s ease-out;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
         @media (max-width: 560px) {
             body { padding: 20px 16px; }
@@ -264,21 +370,11 @@
             font-size: 0.85rem;
             font-weight: 500;
             z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             backdrop-filter: blur(8px);
             background: rgba(30,30,40,0.9);
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.2s;
-        }
-        .spinner-small {
-            width: 18px;
-            height: 18px;
-            animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -296,7 +392,11 @@
         </div>
     </div>
 
-    <label>У базы данных память 30 мб, так что фотки добавить проблематично</label>
+    <div class="info-note">
+        <span class="material-symbols-outlined" style="font-size: 14px; vertical-align: middle;">info</span>
+        У базы данных память 30 мб, фотки не поддерживаются
+    </div>
+
     <div class="create-card">
         <div class="input-field">
             <label>ВАШЕ ИМЯ</label>
@@ -338,6 +438,7 @@
 
 <script>
     const API_BASE = '/api/post';
+    let allPosts = [];
 
     function showToast(message, isError = false) {
         const toast = document.getElementById('toastMsg');
@@ -359,7 +460,18 @@
             .replace(/'/g, '&#39;');
     }
 
-    // Получение гравитара или аватара по имени (простая цветная заглушка)
+    function formatTime(timestamp) {
+        if (!timestamp) return 'только что';
+        const date = new Date(timestamp);
+        const now = new Date();
+        const diff = Math.floor((now - date) / 1000);
+        
+        if (diff < 60) return 'только что';
+        if (diff < 3600) return `${Math.floor(diff / 60)} мин назад`;
+        if (diff < 86400) return `${Math.floor(diff / 3600)} ч назад`;
+        return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    }
+
     function getAvatarColor(name) {
         if (!name) return '#6750a4';
         let hash = 0;
@@ -369,6 +481,146 @@
         }
         const colors = ['#6750a4', '#0b57d0', '#e95e2e', '#008b6b', '#b3261e', '#a653b6', '#c96f0e'];
         return colors[Math.abs(hash) % colors.length];
+    }
+
+    function toggleReplyForm(postId) {
+        const form = document.getElementById(`reply-form-${postId}`);
+        if (form) {
+            form.classList.toggle('active');
+            if (form.classList.contains('active')) {
+                form.querySelector('.reply-input')?.focus();
+            }
+        }
+    }
+
+    async function sendReply(postId, parentPost) {
+        const form = document.getElementById(`reply-form-${postId}`);
+        const input = form?.querySelector('.reply-input');
+        const replyContent = input?.value.trim();
+        const authorInput = document.getElementById('authorName');
+        const author = authorInput.value.trim() || 'Аноним';
+        const passwordInput = document.getElementById('adminPassword');
+        const password = passwordInput.value.trim();
+
+        if (!replyContent) {
+            showToast('Напишите текст ответа', true);
+            return;
+        }
+
+        if (!password) {
+            showToast('Введите секретный ключ для ответа', true);
+            return;
+        }
+
+        const replyData = {
+            postId: postId,
+            content: replyContent,
+            author: author,
+            password: password,
+            parentTitle: parentPost?.title || 'пост'
+        };
+
+        try {
+            const response = await fetch('/api/reply', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(replyData)
+            });
+
+            if (!response.ok) {
+                if (response.status === 403) throw new Error('Неверный пароль');
+                throw new Error('Ошибка отправки ответа');
+            }
+
+            input.value = '';
+            form.classList.remove('active');
+            showToast('Ответ опубликован!', false);
+            await loadPosts();
+        } catch (error) {
+            showToast(error.message, true);
+        }
+    }
+
+    function renderPosts(posts) {
+        const feedContainer = document.getElementById('feed');
+        feedContainer.innerHTML = '';
+
+        if (posts.length === 0) {
+            feedContainer.innerHTML = `
+                <div class="empty-state">
+                    <span class="material-symbols-outlined" style="font-size: 48px; margin-bottom: 12px; display: block;">forum</span>
+                    Пока нет постов. Будьте первым!
+                </div>
+            `;
+            return;
+        }
+
+        // Сортируем по timestamp, новые сверху
+        const sortedPosts = [...posts].sort((a, b) => (b.timestamp || b.id || 0) - (a.timestamp || a.id || 0));
+
+        for (const post of sortedPosts) {
+            const title = post.title?.trim() || 'Без заголовка';
+            const content = post.content?.trim() || '✨ Нет содержимого';
+            const author = post.author?.trim() || 'Аноним';
+            const authorColor = getAvatarColor(author);
+            const timestamp = post.timestamp || post.id;
+            const timeStr = formatTime(timestamp);
+            const replies = post.replies || [];
+            const postId = post.id || timestamp;
+
+            const postCard = document.createElement('div');
+            postCard.className = 'post-card';
+            
+            let repliesHtml = '';
+            if (replies.length > 0) {
+                const sortedReplies = [...replies].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+                repliesHtml = `<div class="replies-section">`;
+                for (const reply of sortedReplies) {
+                    const replyAuthor = reply.author || 'Аноним';
+                    const replyTime = formatTime(reply.timestamp);
+                    repliesHtml += `
+                        <div class="reply-card">
+                            <div class="reply-header">
+                                <span class="reply-author">${escapeHtml(replyAuthor)}</span>
+                                <span class="reply-time">${replyTime}</span>
+                            </div>
+                            <div class="reply-content">${escapeHtml(reply.content).replace(/\n/g, '<br>')}</div>
+                        </div>
+                    `;
+                }
+                repliesHtml += `</div>`;
+            }
+
+            postCard.innerHTML = `
+                <div class="post-title">
+                    <span class="material-symbols-outlined post-title-icon">article</span>
+                    ${escapeHtml(title)}
+                </div>
+                <div class="post-content">${escapeHtml(content).replace(/\n/g, '<br>')}</div>
+                <div class="post-author">
+                    <span class="material-symbols-outlined">account_circle</span>
+                    <span class="author-name" style="color: ${authorColor};">${escapeHtml(author)}</span>
+                    <span class="post-time">
+                        <span class="material-symbols-outlined" style="font-size: 14px;">schedule</span>
+                        ${timeStr}
+                    </span>
+                </div>
+                <div class="post-actions">
+                    <button class="action-btn" onclick="toggleReplyForm(${postId})">
+                        <span class="material-symbols-outlined">reply</span>
+                        Ответить (${replies.length})
+                    </button>
+                </div>
+                <div id="reply-form-${postId}" class="reply-form">
+                    <textarea class="reply-input" rows="2" placeholder="Напишите ответ..."></textarea>
+                    <button class="btn-filled small-btn" onclick="sendReply(${postId}, {title: '${escapeHtml(title).replace(/'/g, "\\'")}'})">
+                        Отправить ответ
+                    </button>
+                </div>
+                ${repliesHtml}
+            `;
+            feedContainer.appendChild(postCard);
+        }
     }
 
     async function loadPosts() {
@@ -386,47 +638,24 @@
             let posts = await response.json();
             
             if (!Array.isArray(posts)) posts = posts ? [posts] : [];
-            feedContainer.innerHTML = '';
             
-            if (posts.length === 0) {
-                feedContainer.innerHTML = `
-                    <div class="empty-state">
-                        <span class="material-symbols-outlined" style="font-size: 48px; margin-bottom: 12px; display: block;">forum</span>
-                        Пока нет постов. Будьте первым, кто поделится мыслями!
-                    </div>
-                `;
-                return;
+            // Загружаем ответы для каждого поста
+            for (let post of posts) {
+                try {
+                    const repliesRes = await fetch(`/api/reply?postId=${post.id || post.timestamp}`);
+                    if (repliesRes.ok) {
+                        const replies = await repliesRes.json();
+                        post.replies = Array.isArray(replies) ? replies : [];
+                    } else {
+                        post.replies = [];
+                    }
+                } catch (e) {
+                    post.replies = [];
+                }
             }
             
-            // Новые посты сверху
-            const reversedPosts = [...posts].reverse();
-            for (const post of reversedPosts) {
-                const title = post.title && post.title.trim() !== '' ? post.title : 'Без заголовка';
-                const content = post.content && post.content.trim() !== '' ? post.content : '✨ Нет содержимого';
-                // Имя автора: если пришло с сервера — используем, иначе "Аноним"
-                const author = post.author && post.author.trim() !== '' ? post.author : 'Аноним';
-                const authorColor = getAvatarColor(author);
-                const firstLetter = author.charAt(0).toUpperCase();
-                
-                const postCard = document.createElement('div');
-                postCard.className = 'post-card';
-                postCard.innerHTML = `
-                    <div class="post-title">
-                        <span class="material-symbols-outlined post-title-icon">article</span>
-                        ${escapeHtml(title)}
-                    </div>
-                    <div class="post-content">${escapeHtml(content).replace(/\n/g, '<br>')}</div>
-                    <div class="post-author">
-                        <span class="material-symbols-outlined">account_circle</span>
-                        <span>Автор: <span class="author-name" style="color: ${authorColor};">${escapeHtml(author)}</span></span>
-                    </div>
-                    <div class="meta-line">
-                        <span class="material-symbols-outlined" style="font-size: 14px;">schedule</span>
-                        <span>только что · сообщество Devs</span>
-                    </div>
-                `;
-                feedContainer.appendChild(postCard);
-            }
+            allPosts = posts;
+            renderPosts(posts);
         } catch (error) {
             console.error('Ошибка загрузки:', error);
             feedContainer.innerHTML = `
@@ -453,7 +682,6 @@
         const contentRaw = contentInput.value.trim();
         const passwordRaw = passwordInput.value.trim();
         
-        // Валидация: имя необязательно, но если пустое - ставим "Аноним"
         if (titleRaw === '' && contentRaw === '') {
             showToast('Заполните заголовок или содержание поста', true);
             return;
@@ -464,14 +692,16 @@
             return;
         }
         
-        // Если имя не указано, отправляем "Аноним" (сервер может сохранить)
         const finalAuthor = authorRaw === '' ? 'Аноним' : authorRaw;
+        const timestamp = Date.now();
         
         const postData = {
+            id: timestamp,
             title: titleRaw || "(без названия)",
             content: contentRaw || "—",
             password: passwordRaw,
-            author: finalAuthor
+            author: finalAuthor,
+            timestamp: timestamp
         };
         
         const publishButton = document.getElementById('publishBtn');
@@ -495,7 +725,6 @@
                 throw new Error(`Ошибка ${response.status}`);
             }
             
-            // Очищаем поля после успешной отправки
             authorInput.value = '';
             titleInput.value = '';
             contentInput.value = '';
@@ -504,7 +733,6 @@
             showToast(`Пост опубликован от имени ${escapeHtml(finalAuthor)}! 🚀`, false);
             await loadPosts();
             
-            // Прокрутка к свежему посту
             const feedElement = document.getElementById('feed');
             if (feedElement.firstChild) {
                 feedElement.firstChild.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -518,14 +746,10 @@
         }
     }
     
-    // Инициализация
     document.addEventListener('DOMContentLoaded', () => {
         const publishBtn = document.getElementById('publishBtn');
-        if (publishBtn) {
-            publishBtn.addEventListener('click', sendPost);
-        }
+        if (publishBtn) publishBtn.addEventListener('click', sendPost);
         
-        // Ctrl+Enter для отправки из textarea
         const textarea = document.getElementById('content');
         if (textarea) {
             textarea.addEventListener('keydown', (e) => {
@@ -536,13 +760,9 @@
             });
         }
         
-        // Обновление ленты по клику на заголовок
         const refreshBtn = document.getElementById('refreshFeed');
-        if (refreshBtn) {
-            refreshBtn.addEventListener('click', () => loadPosts());
-        }
+        if (refreshBtn) refreshBtn.addEventListener('click', () => loadPosts());
         
-        // Также можно обновлять по клику на бейдж (опционально)
         const badge = document.querySelector('.badge');
         if (badge) {
             badge.style.cursor = 'pointer';
@@ -552,53 +772,24 @@
         loadPosts();
     });
 
-    // Добавляем стили для анимаций и ripple-эффекта
+    window.toggleReplyForm = toggleReplyForm;
+    window.sendReply = sendReply;
+
     const styleSheet = document.createElement("style");
     styleSheet.textContent = `
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        .post-card .post-title-icon {
-            font-variation-settings: 'FILL' 1, 'wght' 500;
-        }
-        .btn-filled {
-            position: relative;
-            overflow: hidden;
-        }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .btn-filled { position: relative; overflow: hidden; }
         .btn-filled::after {
-            content: '';
-            display: block;
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            background-image: radial-gradient(circle, #fff 10%, transparent 10%);
-            background-repeat: no-repeat;
-            background-position: 50%;
-            transform: scale(10);
-            opacity: 0;
-            transition: transform 0.4s, opacity 0.6s;
+            content: ''; display: block; position: absolute; width: 100%; height: 100%; top: 0; left: 0;
+            pointer-events: none; background-image: radial-gradient(circle, #fff 10%, transparent 10%);
+            background-repeat: no-repeat; background-position: 50%; transform: scale(10);
+            opacity: 0; transition: transform 0.4s, opacity 0.6s;
         }
-        .btn-filled:active::after {
-            transform: scale(0);
-            opacity: 0.3;
-            transition: 0s;
-        }
-        .badge {
-            transition: all 0.2s ease;
-        }
-        .badge:hover {
-            background: #d9c9ff;
-            transform: scale(0.98);
-        }
-        .app-title {
-            transition: opacity 0.2s;
-        }
-        .app-title:hover {
-            opacity: 0.8;
-        }
+        .btn-filled:active::after { transform: scale(0); opacity: 0.3; transition: 0s; }
+        .badge { transition: all 0.2s ease; cursor: pointer; }
+        .badge:hover { background: #d9c9ff; transform: scale(0.98); }
+        .app-title { transition: opacity 0.2s; cursor: pointer; }
+        .app-title:hover { opacity: 0.8; }
     `;
     document.head.appendChild(styleSheet);
 </script>
