@@ -642,7 +642,7 @@
             // Загружаем ответы для каждого поста
             for (let post of posts) {
                 try {
-                    const repliesRes = await fetch(`/api/reply?postId=${post.id || post.timestamp}`);
+                    const repliesRes = await fetch(`/api/post?postId=${post.id || post.timestamp}`);
                     if (repliesRes.ok) {
                         const replies = await repliesRes.json();
                         post.replies = Array.isArray(replies) ? replies : [];
