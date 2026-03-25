@@ -477,19 +477,19 @@
     <div class="create-card">
         <div class="input-field">
             <label>Ihr Name *</label>
-            <input type="text" id="authorName" class="material-input" placeholder="Как вас зовут?" autocomplete="off" maxlength="50">
+            <input type="text" id="authorName" class="material-input" placeholder="Wie heißen Sie?" autocomplete="off" maxlength="50">
         </div>
         <div class="input-field">
             <label>Überschrift</label>
-            <input type="text" id="title" class="material-input" placeholder="О чем расскажете?" autocomplete="off">
+            <input type="text" id="title" class="material-input" placeholder="Worüber erzählen Sie mir?" autocomplete="off">
         </div>
         <div class="input-field">
             <label>INHALT</label>
-            <textarea id="content" class="material-textarea" rows="3" placeholder="Что нового? Идеи, код, мысли..."></textarea>
+            <textarea id="content" class="material-textarea" rows="3" placeholder="Was gibt's Neues? Ideen, Code, Gedanken..."></textarea>
         </div>
         <div class="input-field">
             <label>PRIVATER SCHLÜSSEL *</label>
-            <input type="password" id="adminPassword" class="material-input" placeholder="Пароль для публикации">
+            <input type="password" id="adminPassword" class="material-input" placeholder="Passwort für die Veröffentlichung">
         </div>
         <div class="button-wrapper">
             <button class="btn-filled" id="publishBtn">
@@ -753,7 +753,7 @@
             `;
             const retryBtn = document.getElementById('retryLoadBtn');
             if (retryBtn) retryBtn.addEventListener('click', () => loadPosts());
-            showToast('Ошибка загрузки ленты', true);
+            showToast('Fehler beim Laden des Bandes', true);
         }
     }
 
@@ -819,7 +819,7 @@
             contentInput.value = '';
             passwordInput.value = '';
             
-            showToast('Beitrag veröffentlicht! 🚀`, false);
+            showToast(`Beitrag veröffentlicht! 🚀`, false);
             await loadPosts();
         } catch (error) {
             console.error('Fehler beim Senden:', error);
