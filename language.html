@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Language - RCS</title>
+    <style>
+        /* Подключаем шрифты */
+        @font-face {
+            font-family: 'GoogleSans';
+            src: url('https://orrcs.vercel.app/cloud/GoogleSans-SemiBold.ttf') format('truetype');
+            font-weight: 600;
+        }
+        @font-face {
+            font-family: 'GoogleSans';
+            src: url('https://orrcs.vercel.app/cloud/GoogleSans-Bold.ttf') format('truetype');
+            font-weight: 700;
+        }
+        @font-face {
+            font-family: 'GoogleSansCode';
+            src: url('https://orrcs.vercel.app/cloud/GoogleSansCode-Regular.ttf') format('truetype');
+            font-weight: normal;
+        }
+
+        /* Vercel Style: Black & White Theme */
+        :root {
+            --bg-color: #000000;
+            --text-color: #ffffff;
+            --text-muted: #888888;
+            --border-color: #333333;
+            --hover-border: #ffffff;
+            --card-bg: #0a0a0a;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'GoogleSans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        nav {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: center;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.2rem;
+            letter-spacing: -0.05em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Скрываем main по умолчанию для плавной анимации и скрытия при авто-редиректе */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        /* Класс, который JS добавит, если нужно показать выбор языка */
+        main.visible {
+            opacity: 1;
+            visibility: visible;
+            animation: fadeInMain 0.6s ease-out forwards;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+            letter-spacing: -0.05em;
+        }
+
+        p.subtitle {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+        }
+
+        .lang-grid {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .card-btn {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            min-width: 200px;
+            
+            /* Подготовка к анимации выезда */
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .card-btn:hover {
+            border-color: var(--hover-border);
+            transform: translateY(-2px) !important; /* !important чтобы перебить анимацию */
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
+        }
+
+        .card-btn h2 {
+            font-size: 1.5rem;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .card-btn p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin: 0;
+            font-family: 'GoogleSansCode', monospace;
+        }
+
+        .lang-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .card-btn:hover .lang-icon {
+            opacity: 1;
+        }
+
+        /* Анимации */
+        @keyframes fadeInMain {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUpCard {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Задержка анимации для каждой карточки, чтобы они появлялись по очереди */
+        main.visible .card-btn:nth-child(1) {
+            animation: slideUpCard 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+        }
+        main.visible .card-btn:nth-child(2) {
+            animation: slideUpCard 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">
+            <img src="https://orrcs.vercel.app/cloud/circle.png" alt="RCS Logo" style="width: 20px; height: 20px;">
+            RCS
+        </div>
+    </nav>
+
+    <main id="main-content">
+        <h1>Choose your language</h1>
+        <p class="subtitle">Выберите язык / Wähle eine Sprache</p>
+
+        <div class="lang-grid">
+            <button class="card-btn" onclick="selectLanguage('ru')">
+                <div class="lang-icon">🇷🇺</div>
+                <h2>Русский</h2>
+                <p>ru</p>
+            </button>
+
+            <button class="card-btn" onclick="selectLanguage('de')">
+                <div class="lang-icon">🇩🇪</div>
+                <h2>Deutsch</h2>
+                <p>de</p>
+            </button>
+<p class="subtitle">Возможно ты сюда попал из за того что страница поддерживает много язычность. // Vielleicht bist du hierher gekommen, weil die Seite Mehrsprachigkeit unterstützt</p>
+<p class="subtitle">Soon we add english!</p>
+        </div>
+    </main>
+
+    <script>
+        // Функция для работы с куки (установка)
+        function setCookie(name, value, days) {
+            let expires = "";
+            if (days) {
+                let date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+        }
+
+        // Функция для работы с куки (чтение)
+        function getCookie(name) {
+            let nameEQ = name + "=";
+            let ca = document.cookie.split(';');
+            for(let i=0;i < ca.length;i++) {
+                let c = ca[i];
+                while (c.charAt(0)==' ') c = c.substring(1,c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+            }
+            return null;
+        }
+
+        // Логика редиректа
+        function processRedirect(langCode) {
+            const urlParams = new URLSearchParams(window.location.search);
+            let pageName = urlParams.get('rtp');
+            let targetUrl = '';
+
+            if (!pageName) {
+                // Если параметра rtp нет, кидаем просто на главную, без папки языка
+                targetUrl = `https://orrcs.vercel.app/`;
+            } else {
+                // Если параметр есть, кидаем в нужную папку
+                targetUrl = `https://orrcs.vercel.app/${langCode}/${pageName}`;
+            }
+
+            window.location.replace(targetUrl); // replace, чтобы страница языка не сохранялась в истории 'Назад'
+        }
+
+        // Вызывается при клике на карточку
+        function selectLanguage(langCode) {
+            setCookie('rcs_lang', langCode, 365); // Запоминаем на 365 дней
+            processRedirect(langCode);
+        }
+
+        // Проверка при загрузке страницы
+        window.onload = function() {
+            const savedLang = getCookie('rcs_lang');
+            
+            if (savedLang) {
+                // Если куки есть, сразу редиректим (контент страницы останется скрытым, мерцания не будет)
+                processRedirect(savedLang);
+            } else {
+                // Если куки нет, показываем интерфейс с анимацией
+                document.getElementById('main-content').classList.add('visible');
+            }
+        }
+    </script>
+</body>
+</html>
