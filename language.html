@@ -92,7 +92,10 @@
             color: var(--text-muted);
             margin-bottom: 3rem;
         }
-
+        p.subtitlealt {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+        }
         .lang-grid {
             display: flex;
             gap: 1.5rem;
@@ -190,7 +193,8 @@
     <main id="main-content">
         <h1>Choose your language</h1>
         <p class="subtitle">Выберите язык / Wähle eine Sprache</p>
-
+        <p class="subtitlealt">Achtung: Die gewählte Sprache wird gespeichert und wird immer auf dieser Seite angewendet um manuell in eine andere Sprache zu gelangen, öffnen Sie orrcs.vercel.app/*SPRACHE IN ZWEI BUCHSTABEN*/*SEITE* </p>
+        <p class="subtitlealt">Внимание: выбранный язык будет запомнен и применятся всегда на этой странице чтобы вручную зайти на другой язык открывайте orrcs.vercel.app/*ЯЗЫК В ДВУХ БУКВАХ*/*СТРАНИЦА* </p>
         <div class="lang-grid">
             <button class="card-btn" onclick="selectLanguage('ru')">
                 <div class="lang-icon">🇷🇺</div>
@@ -204,7 +208,7 @@
                 <p>de</p>
             </button>
 <p class="subtitle">Возможно ты сюда попал из за того что страница поддерживает много язычность. // Vielleicht bist du hierher gekommen, weil die Seite Mehrsprachigkeit unterstützt</p>
-<p class="subtitle">Soon we add english!</p>
+<p class="subtitlealt">Soon we add english!</p>
         </div>
     </main>
 
