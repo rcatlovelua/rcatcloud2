@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Devs - место, которое РЕАЛЬНО место.</title>
+    <title>Devs — место, которое РЕАЛЬНО место. Новости сообщества</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0,1" />
     <style>
@@ -107,6 +107,168 @@
             border: 1px solid rgba(0, 0, 0, 0.1);
             font-weight: 500;
         }
+
+        /* НОВОСТНОЙ БЛОК — версия 16:9 */
+.devs-news-section {
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(8px);
+    border-radius: 32px;
+    margin-bottom: 32px;
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.news-header {
+    padding: 20px 28px 12px 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid #edeef5;
+}
+
+.news-header .material-symbols-outlined {
+    font-size: 28px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+.news-header h3 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    background: linear-gradient(135deg, #1a1a2e, #4f46e5);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    margin: 0;
+}
+
+.news-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.news-item {
+    display: flex;
+    gap: 20px;
+    padding: 20px 28px;
+    border-bottom: 1px solid #f0f2fa;
+    transition: background 0.2s;
+    align-items: center;  /* выравнивание по центру вертикально */
+}
+
+.news-item:last-child {
+    border-bottom: none;
+}
+
+.news-item:hover {
+    background: #fafbff;
+}
+
+/* ГЛАВНОЕ ИЗМЕНЕНИЕ — 16:9 */
+.news-image {
+    flex-shrink: 0;
+    width: 160px;          /* ширина */
+    height: 90px;          /* высота = 160 / 16 * 9 = 90px, идеальное 16:9 */
+    border-radius: 12px;
+    object-fit: cover;     /* картинка обрезается, но заполняет весь блок */
+    background: #f1f3f9;
+    border: 1px solid #e4e7f0;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.news-image:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.news-content {
+    flex: 1;
+}
+
+.news-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.news-title .material-symbols-outlined {
+    font-size: 1rem;
+    color: #6366f1;
+}
+
+.news-text {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: #4b5563;
+    margin-bottom: 12px;
+}
+
+.news-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #eef2ff;
+    padding: 6px 14px;
+    border-radius: 40px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #4f46e5;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.news-link:hover {
+    background: #e0e7ff;
+    transform: translateY(-1px);
+    border-color: #cbd5ff;
+}
+
+.news-link .material-symbols-outlined {
+    font-size: 14px;
+}
+
+.news-date {
+    font-size: 0.65rem;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+}
+
+/* Мобильная версия — тоже 16:9 */
+@media (max-width: 640px) {
+    .news-item {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+        padding: 18px 20px;
+    }
+    .news-image {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16 / 9;  /* сохраняет пропорции 16:9 на любых экранах */
+        max-height: 200px;
+        object-fit: cover;
+    }
+    .news-header {
+        padding: 16px 20px;
+    }
+    .news-header h3 {
+        font-size: 1.2rem;
+    }
+}
         
         .create-card {
             background: rgba(255, 255, 255, 0.95);
@@ -535,6 +697,18 @@
         <span class="material-symbols-outlined" style="font-size: 14px;">info</span>
         Devs в Alpha версии! всё может измениться.
     </div>
+
+    <!-- ========= НОВОСТНОЙ БЛОК DEVS ========= -->
+    <div class="devs-news-section" id="devsNewsBlock">
+        <div class="news-header">
+            <span class="material-symbols-outlined">newsmode</span>
+            <h3>Новости Devs / обновления</h3>
+        </div>
+        <div class="news-grid" id="dynamicNewsList">
+            <!-- Новости будут загружаться динамически, но также есть статичный фолбэк -->
+        </div>
+    </div>
+
     <div class="create-card">
         <div class="input-field">
             <label>ВАШЕ ИМЯ *</label>
@@ -708,7 +882,55 @@
             }
         }
     }
-
+    
+    // ----- НОВОСТНОЙ БЛОК: массив с сырыми ссылками и текстом (стиль Devs) -----
+    const devsNewsFeed = [
+        {
+            title: "Devs поддерживает фото!",
+            text: "Теперь можно загружать фото до 32 мб! я не знаю зачем.",
+            imageUrl: "https://orrcs.vercel.app/cloud/imagesannounce.png", 
+            link: "https://orrcs.vercel.app/language.html?rtp=devs.html",
+            date: "2026-03-26"
+        }
+    ];
+    
+    function renderDevsNews() {
+        const newsContainer = document.getElementById('dynamicNewsList');
+        if (!newsContainer) return;
+        
+        if (!devsNewsFeed.length) {
+            newsContainer.innerHTML = `<div style="padding: 28px; text-align: center; color: #9ca3af;">Скоро свежие новости Devs...</div>`;
+            return;
+        }
+        
+        let newsHtml = '';
+        for (let item of devsNewsFeed) {
+            // если нет картинки — заглушка
+            const imgSrc = item.imageUrl && item.imageUrl.trim() !== '' ? item.imageUrl : 'https://placehold.co/400x200?text=Devs+News';
+            newsHtml += `
+                <div class="news-item">
+                    <img class="news-image" src="${escapeHtml(imgSrc)}" alt="news visual" onerror="this.onerror=null; this.src='https://placehold.co/400x200?text=Devs+Raw'">
+                    <div class="news-content">
+                        <div class="news-title">
+                            <span class="material-symbols-outlined">feed</span>
+                            ${escapeHtml(item.title)}
+                        </div>
+                        <div class="news-text">${escapeHtml(item.text)}</div>
+                        <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer" class="news-link">
+                            <span class="material-symbols-outlined">open_in_new</span>
+                            Подробнее
+                        </a>
+                        <div class="news-date">
+                            <span class="material-symbols-outlined" style="font-size: 12px;">calendar_today</span>
+                            ${escapeHtml(item.date)}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        newsContainer.innerHTML = newsHtml;
+    }
+    
     function renderPosts(posts) {
         const feedContainer = document.getElementById('feed');
         feedContainer.innerHTML = '';
@@ -736,7 +958,6 @@
             const replies = post.replies || [];
             const postId = post.id || timestamp;
             
-            // Пробуем разные варианты ключа imageurl
             const rawImageUrl = post.imageurl || post.imageUrl || post.imageURL || null;
             let imageHtml = '';
             if (rawImageUrl && rawImageUrl.trim() !== '' && rawImageUrl !== 'null') {
@@ -916,7 +1137,7 @@
                 const imgbbData = await imgbbResponse.json();
                 if (imgbbData.success) {
                     uploadedImageUrl = imgbbData.data.url;
-                    showToast('Фото загружено! URL: ' + uploadedImageUrl.substring(0, 50) + '...', false);
+                    showToast('Фото загружено!', false);
                 } else {
                     throw new Error('Ошибка ImgBB: ' + JSON.stringify(imgbbData.error));
                 }
@@ -929,12 +1150,10 @@
                 content: content || "—",
                 password: password,
                 author: author,
-                imageurl: uploadedImageUrl,  // Отправляем именно в нижнем регистре
+                imageurl: uploadedImageUrl,
                 timestamp: Date.now()
             };
             
-            // Логируем отправляемые данные
-            console.log('Отправляем данные:', postData);
             debugDiv.style.display = 'block';
             debugDiv.innerHTML = `📤 Отправка: imageurl = ${uploadedImageUrl || 'null'}<br>Размер данных: ${JSON.stringify(postData).length} байт`;
             
@@ -945,23 +1164,11 @@
             });
             
             const responseText = await response.text();
-            console.log('Ответ сервера:', responseText);
-            
             if (!response.ok) {
                 if (response.status === 403) throw new Error("Неверный секретный ключ");
                 throw new Error(`Ошибка сервера: ${response.status} - ${responseText}`);
             }
             
-            let responseData;
-            try {
-                responseData = JSON.parse(responseText);
-                debugDiv.innerHTML += `<br>✅ Успешно! Получено: ${JSON.stringify(responseData)}`;
-                setTimeout(() => { debugDiv.style.display = 'none'; }, 3000);
-            } catch(e) {
-                debugDiv.innerHTML += `<br>✅ Успешно! (ответ не JSON)`;
-            }
-            
-            // Сброс формы
             authorInput.value = '';
             titleInput.value = '';
             contentInput.value = '';
@@ -991,7 +1198,10 @@
     document.getElementById('refreshFeed').addEventListener('click', loadPosts);
     document.getElementById('refreshBadge').addEventListener('click', loadPosts);
     
-    document.addEventListener('DOMContentLoaded', loadPosts);
+    document.addEventListener('DOMContentLoaded', () => {
+        renderDevsNews();   // отрисовываем новости со ссылками на raw-фото и текст
+        loadPosts();
+    });
 </script>
 </body>
 </html>
