@@ -6,6 +6,8 @@
     <title>Devs — место, которое РЕАЛЬНО место.</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0,1" />
+    
+    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async></script>
     <style>
         * {
             margin: 0;
@@ -49,6 +51,7 @@
             gap: 12px;
             cursor: pointer;
             transition: opacity 0.2s;
+            position: relative;
         }
         
         .app-title:hover {
@@ -79,6 +82,32 @@
             transform: scale(0.98);
             background: linear-gradient(135deg, #dddff5, #cfd1ea);
         }
+        
+        /* Кнопка подписки на уведомления */
+        .notify-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .notify-btn:hover {
+            transform: scale(0.98);
+            background: linear-gradient(135deg, #059669, #047857);
+        }
+        
+        .notify-btn.subscribed {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+        }
 
         .info-note {
             background: linear-gradient(135deg, #eef2ff, #e6e9ff);
@@ -108,167 +137,165 @@
             font-weight: 500;
         }
 
-        /* НОВОСТНОЙ БЛОК — версия 16:9 */
-.devs-news-section {
-    background: rgba(255, 255, 255, 0.96);
-    backdrop-filter: blur(8px);
-    border-radius: 32px;
-    margin-bottom: 32px;
-    border: 1px solid rgba(99, 102, 241, 0.25);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
-    overflow: hidden;
-}
+        /* НОВОСТНОЙ БЛОК */
+        .devs-news-section {
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(8px);
+            border-radius: 32px;
+            margin-bottom: 32px;
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
 
-.news-header {
-    padding: 20px 28px 12px 28px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    border-bottom: 1px solid #edeef5;
-}
+        .news-header {
+            padding: 20px 28px 12px 28px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #edeef5;
+        }
 
-.news-header .material-symbols-outlined {
-    font-size: 28px;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-}
+        .news-header .material-symbols-outlined {
+            font-size: 28px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
 
-.news-header h3 {
-    font-size: 1.35rem;
-    font-weight: 700;
-    letter-spacing: -0.3px;
-    background: linear-gradient(135deg, #1a1a2e, #4f46e5);
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-    margin: 0;
-}
+        .news-header h3 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            background: linear-gradient(135deg, #1a1a2e, #4f46e5);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin: 0;
+        }
 
-.news-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-}
+        .news-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
 
-.news-item {
-    display: flex;
-    gap: 20px;
-    padding: 20px 28px;
-    border-bottom: 1px solid #f0f2fa;
-    transition: background 0.2s;
-    align-items: center;  /* выравнивание по центру вертикально */
-}
+        .news-item {
+            display: flex;
+            gap: 20px;
+            padding: 20px 28px;
+            border-bottom: 1px solid #f0f2fa;
+            transition: background 0.2s;
+            align-items: center;
+        }
 
-.news-item:last-child {
-    border-bottom: none;
-}
+        .news-item:last-child {
+            border-bottom: none;
+        }
 
-.news-item:hover {
-    background: #fafbff;
-}
+        .news-item:hover {
+            background: #fafbff;
+        }
 
-/* ГЛАВНОЕ ИЗМЕНЕНИЕ — 16:9 */
-.news-image {
-    flex-shrink: 0;
-    width: 160px;          /* ширина */
-    height: 90px;          /* высота = 160 / 16 * 9 = 90px, идеальное 16:9 */
-    border-radius: 12px;
-    object-fit: cover;     /* картинка обрезается, но заполняет весь блок */
-    background: #f1f3f9;
-    border: 1px solid #e4e7f0;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
+        .news-image {
+            flex-shrink: 0;
+            width: 160px;
+            height: 90px;
+            border-radius: 12px;
+            object-fit: cover;
+            background: #f1f3f9;
+            border: 1px solid #e4e7f0;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
 
-.news-image:hover {
-    transform: scale(1.02);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
+        .news-image:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
 
-.news-content {
-    flex: 1;
-}
+        .news-content {
+            flex: 1;
+        }
 
-.news-title {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #111827;
-    margin-bottom: 8px;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-}
+        .news-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
 
-.news-title .material-symbols-outlined {
-    font-size: 1rem;
-    color: #6366f1;
-}
+        .news-title .material-symbols-outlined {
+            font-size: 1rem;
+            color: #6366f1;
+        }
 
-.news-text {
-    font-size: 0.85rem;
-    line-height: 1.5;
-    color: #4b5563;
-    margin-bottom: 12px;
-}
+        .news-text {
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #4b5563;
+            margin-bottom: 12px;
+        }
 
-.news-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #eef2ff;
-    padding: 6px 14px;
-    border-radius: 40px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: #4f46e5;
-    text-decoration: none;
-    transition: all 0.2s;
-    border: 1px solid transparent;
-}
+        .news-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #eef2ff;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #4f46e5;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
 
-.news-link:hover {
-    background: #e0e7ff;
-    transform: translateY(-1px);
-    border-color: #cbd5ff;
-}
+        .news-link:hover {
+            background: #e0e7ff;
+            transform: translateY(-1px);
+            border-color: #cbd5ff;
+        }
 
-.news-link .material-symbols-outlined {
-    font-size: 14px;
-}
+        .news-link .material-symbols-outlined {
+            font-size: 14px;
+        }
 
-.news-date {
-    font-size: 0.65rem;
-    color: #9ca3af;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    margin-top: 8px;
-}
+        .news-date {
+            font-size: 0.65rem;
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 8px;
+        }
 
-/* Мобильная версия — тоже 16:9 */
-@media (max-width: 640px) {
-    .news-item {
-        flex-direction: column;
-        gap: 12px;
-        align-items: flex-start;
-        padding: 18px 20px;
-    }
-    .news-image {
-        width: 100%;
-        height: auto;
-        aspect-ratio: 16 / 9;  /* сохраняет пропорции 16:9 на любых экранах */
-        max-height: 200px;
-        object-fit: cover;
-    }
-    .news-header {
-        padding: 16px 20px;
-    }
-    .news-header h3 {
-        font-size: 1.2rem;
-    }
-}
+        @media (max-width: 640px) {
+            .news-item {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+                padding: 18px 20px;
+            }
+            .news-image {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 16 / 9;
+                max-height: 200px;
+                object-fit: cover;
+            }
+            .news-header {
+                padding: 16px 20px;
+            }
+            .news-header h3 {
+                font-size: 1.2rem;
+            }
+        }
         
         .create-card {
             background: rgba(255, 255, 255, 0.95);
@@ -358,6 +385,8 @@
         .button-wrapper {
             display: flex;
             justify-content: flex-end;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
         .feed-title {
@@ -683,30 +712,34 @@
             <span class="material-symbols-outlined">developer_mode</span>
             Devs
         </div>
-        <div class="badge" id="refreshBadge">
-            <span class="material-symbols-outlined" style="font-size: 14px;">rss_feed</span> 
-            Перезагрузить ленту...
+        <div style="display: flex; gap: 12px;">
+            <button class="notify-btn" id="notifySubscribeBtn">
+                <span class="material-symbols-outlined" style="font-size: 14px;">notifications</span>
+                Вкл. уведомления
+            </button>
+            <div class="badge" id="refreshBadge">
+                <span class="material-symbols-outlined" style="font-size: 14px;">rss_feed</span> 
+                Перезагрузить
+            </div>
         </div>
     </div>
 
     <div class="info-note">
-        <span class="material-symbols-outlined" style="font-size: 14px;">info</span>
-        База данных: 500 МБ памяти • Изображения (?) МАКС 32 МБ!
+        <span class="material-symbols-outlined" style="font-size: 14px;">notifications_active</span>
+        🔔 Включите уведомления — будьте в курсе новых постов и ответов!
     </div>
     <div class="beta-note">
         <span class="material-symbols-outlined" style="font-size: 14px;">info</span>
-        Devs в Alpha версии! всё может измениться.
+        Devs в Alpha версии! Уведомления приходят на устройство.
     </div>
 
-    <!-- ========= НОВОСТНОЙ БЛОК DEVS ========= -->
+    <!-- НОВОСТНОЙ БЛОК DEVS -->
     <div class="devs-news-section" id="devsNewsBlock">
         <div class="news-header">
             <span class="material-symbols-outlined">newsmode</span>
             <h3>Новости Devs / обновления</h3>
         </div>
-        <div class="news-grid" id="dynamicNewsList">
-            <!-- Новости будут загружаться динамически, но также есть статичный фолбэк -->
-        </div>
+        <div class="news-grid" id="dynamicNewsList"></div>
     </div>
 
     <div class="create-card">
@@ -755,10 +788,95 @@
 <div id="toastMsg" class="toast-message"></div>
 
 <script>
+    // ========== ONESIGNAL PUSH УВЕДОМЛЕНИЯ ==========
+const ONE_SIGNAL_APP_ID = "9020db26-ca50-468f-b861-e436c72e68ee";
+
+window.OneSignal = window.OneSignal || [];
+OneSignal.push(function() {
+    OneSignal.init({
+        appId: ONE_SIGNAL_APP_ID,
+        safari_web_id: null,
+        notifyButton: {
+            enable: false
+        },
+        allowLocalhostAsSecureOrigin: true
+    });
+});
+
+let isSubscribed = false;
+
+// Проверка статуса подписки
+async function checkSubscriptionStatus() {
+    if (window.OneSignal) {
+        const isPushEnabled = await OneSignal.isPushNotificationsEnabled();
+        isSubscribed = isPushEnabled;
+        updateNotifyButtonUI();
+        console.log("Статус подписки:", isSubscribed);
+    }
+}
+
+function updateNotifyButtonUI() {
+    const btn = document.getElementById('notifySubscribeBtn');
+    if (isSubscribed) {
+        btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 14px;">notifications_active</span> Уведомления включены ✅';
+        btn.classList.add('subscribed');
+    } else {
+        btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 14px;">notifications</span> Вкл. уведомления';
+        btn.classList.remove('subscribed');
+    }
+}
+
+async function subscribeToNotifications() {
+    if (!window.OneSignal) {
+        showToast("Загрузка OneSignal...", false);
+        return;
+    }
+    
+    try {
+        await OneSignal.registerForPushNotifications();
+        isSubscribed = true;
+        updateNotifyButtonUI();
+        showToast("🔔 Уведомления включены! Теперь вы будете получать оповещения на устройство", false);
+        
+        // Получаем ID пользователя для отправки уведомлений
+        const userId = await OneSignal.getUserId();
+        console.log("OneSignal User ID:", userId);
+        
+    } catch (error) {
+        console.error("Ошибка подписки:", error);
+        showToast("Не удалось включить уведомления. Разрешите уведомления в браузере", true);
+    }
+}
+
+// Отправка уведомления
+async function sendPushNotification(title, message, url) {
+    if ('Notification' in window && Notification.permission === 'granted') {
+        try {
+            const notification = new Notification(title, { 
+                body: message,
+                icon: 'https://cdn-icons-png.flaticon.com/512/5969/5969145.png'
+            });
+            
+            notification.onclick = function() {
+                window.focus();
+                this.close();
+            };
+        } catch (e) {
+            console.warn("Не удалось показать уведомление", e);
+        }
+    } else {
+        console.log(`📢 ${title}: ${message}`);
+        showToast(`📢 ${title}: ${message.substring(0, 50)}...`, false);
+    }
+}
+    
+    // ========== ОСНОВНАЯ ЛОГИКА ==========
     const API_POSTS = '/api/posts';
     const API_REPLIES = '/api/replies';
     let allPosts = [];
-
+    let lastPostCount = 0;
+    let lastRepliesMap = new Map();
+    
     function showToast(message, isError = false) {
         const toast = document.getElementById('toastMsg');
         toast.textContent = message;
@@ -768,7 +886,7 @@
             toast.style.opacity = '0';
         }, 3000);
     }
-
+    
     function escapeHtml(str) {
         if (!str) return '';
         return str
@@ -778,7 +896,7 @@
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#39;');
     }
-
+    
     function formatTime(timestamp) {
         if (!timestamp) return 'только что';
         const date = new Date(timestamp);
@@ -791,7 +909,7 @@
         if (diff < 604800) return `${Math.floor(diff / 86400)} дн назад`;
         return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
     }
-
+    
     function getAvatarColor(name) {
         if (!name) return '#6366f1';
         let hash = 0;
@@ -802,7 +920,7 @@
         const colors = ['#6366f1', '#8b5cf6', '#ec489a', '#f97316', '#10b981', '#06b6d4', '#ef4444'];
         return colors[Math.abs(hash) % colors.length];
     }
-
+    
     function toggleReplyForm(postId) {
         const form = document.getElementById(`reply-form-${postId}`);
         if (form) {
@@ -813,54 +931,45 @@
             }
         }
     }
-
+    
     async function sendReply(postId, postTitle) {
         const form = document.getElementById(`reply-form-${postId}`);
         const input = form?.querySelector('.reply-input');
         const replyContent = input?.value.trim();
         const authorInput = document.getElementById('authorName');
         const author = authorInput.value.trim();
-        
         const passwordInput = document.getElementById('adminPassword');
         const password = passwordInput.value.trim();
-
+        
         if (!replyContent) {
             showToast('Напишите текст ответа', true);
             return;
         }
-
         if (!author) {
             showToast('Введите ваше имя перед ответом', true);
             authorInput.focus();
             return;
         }
-
         if (!password) {
             showToast('Введите секретный ключ', true);
             return;
         }
-
-        const replyData = {
-            postId: postId,
-            content: replyContent,
-            author: author,
-            password: password
-        };
-
+        
+        const replyData = { postId, content: replyContent, author, password };
         const btn = form?.querySelector('.small-btn');
         const originalText = btn?.innerHTML;
         if (btn) {
             btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 1s linear infinite;">progress_activity</span> Отправка...';
             btn.disabled = true;
         }
-
+        
         try {
             const response = await fetch(API_REPLIES, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(replyData)
             });
-
+            
             if (!response.ok) {
                 if (response.status === 403) {
                     const error = await response.json();
@@ -868,10 +977,13 @@
                 }
                 throw new Error('Ошибка отправки ответа');
             }
-
+            
             if (input) input.value = '';
             form?.classList.remove('active');
             showToast('Ответ опубликован!', false);
+            
+            sendPushNotification(`💬 Новый ответ в "${postTitle}"`, `${author} ответил: ${replyContent.substring(0, 50)}...`, window.location.href);
+            
             await loadPosts();
         } catch (error) {
             showToast(error.message, true);
@@ -883,13 +995,12 @@
         }
     }
     
-    // ----- НОВОСТНОЙ БЛОК: массив с сырыми ссылками и текстом (стиль Devs) -----
     const devsNewsFeed = [
         {
-            title: "Devs поддерживает фото!",
-            text: "Теперь можно загружать фото до 32 мб! я не знаю зачем.",
-            imageUrl: "https://orrcs.vercel.app/cloud/imagesannounce.png", 
-            link: "https://orrcs.vercel.app/language.html?rtp=devs.html",
+            title: "🔔 Уведомления на устройство!",
+            text: "Теперь вы можете включить push-уведомления и получать оповещения о новых постах и ответах прямо на телефон!",
+            imageUrl: "",
+            link: "#",
             date: "2026-03-26"
         }
     ];
@@ -897,29 +1008,18 @@
     function renderDevsNews() {
         const newsContainer = document.getElementById('dynamicNewsList');
         if (!newsContainer) return;
-        
-        if (!devsNewsFeed.length) {
-            newsContainer.innerHTML = `<div style="padding: 28px; text-align: center; color: #9ca3af;">Скоро свежие новости Devs...</div>`;
-            return;
-        }
-        
         let newsHtml = '';
         for (let item of devsNewsFeed) {
-            // если нет картинки — заглушка
-            const imgSrc = item.imageUrl && item.imageUrl.trim() !== '' ? item.imageUrl : 'https://placehold.co/400x200?text=Devs+News';
+            const imgSrc = item.imageUrl && item.imageUrl.trim() !== '' ? item.imageUrl : 'https://placehold.co/400x200?text=Фото+не+поставлено';
             newsHtml += `
                 <div class="news-item">
-                    <img class="news-image" src="${escapeHtml(imgSrc)}" alt="news visual" onerror="this.onerror=null; this.src='https://placehold.co/400x200?text=Devs+Raw'">
+                    <img class="news-image" src="${escapeHtml(imgSrc)}" alt="news visual" onerror="this.onerror=null; this.src='https://placehold.co/400x200?text=Devs'">
                     <div class="news-content">
                         <div class="news-title">
                             <span class="material-symbols-outlined">feed</span>
                             ${escapeHtml(item.title)}
                         </div>
                         <div class="news-text">${escapeHtml(item.text)}</div>
-                        <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer" class="news-link">
-                            <span class="material-symbols-outlined">open_in_new</span>
-                            Подробнее
-                        </a>
                         <div class="news-date">
                             <span class="material-symbols-outlined" style="font-size: 12px;">calendar_today</span>
                             ${escapeHtml(item.date)}
@@ -934,20 +1034,14 @@
     function renderPosts(posts) {
         const feedContainer = document.getElementById('feed');
         feedContainer.innerHTML = '';
-
+        
         if (posts.length === 0) {
-            feedContainer.innerHTML = `
-                <div class="empty-state">
-                    <span class="material-symbols-outlined" style="font-size: 56px; margin-bottom: 16px; display: block;">forum</span>
-                    <p style="margin-bottom: 8px;">Пока нет постов</p>
-                    <p style="font-size: 0.85rem;">Будьте первым, кто поделится идеей!</p>
-                </div>
-            `;
+            feedContainer.innerHTML = `<div class="empty-state"><span class="material-symbols-outlined" style="font-size: 56px;">forum</span><p>Пока нет постов</p></div>`;
             return;
         }
-
+        
         const sortedPosts = [...posts].sort((a, b) => (b.timestamp || b.id || 0) - (a.timestamp || a.id || 0));
-
+        
         for (const post of sortedPosts) {
             const title = post.title?.trim() || 'Без заголовка';
             const content = post.content?.trim() || '—';
@@ -958,31 +1052,22 @@
             const replies = post.replies || [];
             const postId = post.id || timestamp;
             
-            const rawImageUrl = post.imageurl || post.imageUrl || post.imageURL || null;
+            const rawImageUrl = post.imageurl || post.imageUrl || null;
             let imageHtml = '';
             if (rawImageUrl && rawImageUrl.trim() !== '' && rawImageUrl !== 'null') {
-                imageHtml = `
-                    <div style="margin-top: 16px;">
-                        <img src="${escapeHtml(rawImageUrl)}" 
-                             alt="Фото поста" 
-                             class="post-image" 
-                             onerror="this.onerror=null; console.log('Image load failed:', this.src); this.style.display='none';"
-                             loading="lazy">
-                    </div>`;
+                imageHtml = `<div><img src="${escapeHtml(rawImageUrl)}" alt="Фото" class="post-image" onerror="this.style.display='none'"></div>`;
             }
-
+            
             let repliesHtml = '';
             if (replies.length > 0) {
                 const sortedReplies = [...replies].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
                 repliesHtml = `<div class="replies-section">`;
                 for (const reply of sortedReplies) {
-                    const replyAuthor = reply.author || 'Аноним';
-                    const replyTime = formatTime(reply.timestamp);
                     repliesHtml += `
                         <div class="reply-card">
                             <div class="reply-header">
-                                <span class="reply-author">${escapeHtml(replyAuthor)}</span>
-                                <span class="reply-time">• ${replyTime}</span>
+                                <span class="reply-author">${escapeHtml(reply.author || 'Аноним')}</span>
+                                <span class="reply-time">• ${formatTime(reply.timestamp)}</span>
                             </div>
                             <div class="reply-content">${escapeHtml(reply.content).replace(/\n/g, '<br>')}</div>
                         </div>
@@ -1001,14 +1086,8 @@
                 <div class="post-content">${escapeHtml(content).replace(/\n/g, '<br>')}</div>
                 ${imageHtml}
                 <div class="post-meta">
-                    <div class="post-author">
-                        <span class="material-symbols-outlined">account_circle</span>
-                        <span style="color: ${authorColor};">${escapeHtml(author)}</span>
-                    </div>
-                    <div class="post-time">
-                        <span class="material-symbols-outlined" style="font-size: 14px;">schedule</span>
-                        ${timeStr}
-                    </div>
+                    <div class="post-author"><span class="material-symbols-outlined">account_circle</span><span style="color: ${authorColor};">${escapeHtml(author)}</span></div>
+                    <div class="post-time"><span class="material-symbols-outlined" style="font-size: 14px;">schedule</span>${timeStr}</div>
                 </div>
                 <div class="post-actions">
                     <button class="action-btn" onclick="toggleReplyForm(${postId})">
@@ -1018,129 +1097,95 @@
                 </div>
                 <div id="reply-form-${postId}" class="reply-form">
                     <textarea class="reply-input" rows="2" placeholder="Напишите ответ..."></textarea>
-                    <button class="btn-filled small-btn" onclick="sendReply(${postId}, '${escapeHtml(title).replace(/'/g, "\\'")}')">
-                        Отправить ответ
-                    </button>
+                    <button class="btn-filled small-btn" onclick="sendReply(${postId}, '${escapeHtml(title).replace(/'/g, "\\'")}')">Отправить ответ</button>
                 </div>
                 ${repliesHtml}
             `;
             feedContainer.appendChild(postCard);
         }
     }
-
+    
+    function checkForUpdates(newPosts) {
+        if (newPosts.length > lastPostCount && lastPostCount > 0) {
+            const newPostsList = newPosts.slice(0, newPosts.length - lastPostCount);
+            for (const post of newPostsList) {
+                sendPushNotification(`📝 Новый пост в Devs`, `${post.author}: ${post.title || 'Без заголовка'}`, window.location.href);
+            }
+        }
+        
+        for (const post of newPosts) {
+            const postId = post.id || post.timestamp;
+            const currentRepliesCount = (post.replies || []).length;
+            const lastRepliesCount = lastRepliesMap.get(postId) || 0;
+            
+            if (currentRepliesCount > lastRepliesCount && lastRepliesCount > 0) {
+                const newReplies = (post.replies || []).slice(lastRepliesCount);
+                for (const reply of newReplies) {
+                    sendPushNotification(`💬 Новый ответ`, `${reply.author} ответил в "${post.title || 'пост'}": ${reply.content.substring(0, 60)}`, window.location.href);
+                }
+            }
+            lastRepliesMap.set(postId, currentRepliesCount);
+        }
+        
+        lastPostCount = newPosts.length;
+    }
+    
     async function loadPosts() {
         const feedContainer = document.getElementById('feed');
-        feedContainer.innerHTML = `
-            <div class="loading-spinner">
-                <span class="material-symbols-outlined" style="animation: spin 1s linear infinite;">sync</span>
-                <span>Обновление ленты...</span>
-            </div>
-        `;
+        feedContainer.innerHTML = `<div class="loading-spinner"><span class="material-symbols-outlined" style="animation: spin 1s linear infinite;">sync</span><span>Обновление...</span></div>`;
         
         try {
             const response = await fetch(API_POSTS);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const posts = await response.json();
-            allPosts = Array.isArray(posts) ? posts : [];
+            const newPosts = Array.isArray(posts) ? posts : [];
+            
+            checkForUpdates(newPosts);
+            allPosts = newPosts;
             renderPosts(allPosts);
         } catch (error) {
             console.error('Ошибка загрузки:', error);
-            feedContainer.innerHTML = `
-                <div class="empty-state">
-                    <span class="material-symbols-outlined" style="font-size: 48px;">error</span>
-                    <p style="margin-top: 16px;">Не удалось загрузить ленту</p>
-                    <button id="retryLoadBtn" style="margin-top: 20px; background: #6366f1; border: none; border-radius: 40px; padding: 10px 28px; color: white; font-weight: 500; cursor: pointer;">Повторить</button>
-                </div>
-            `;
+            feedContainer.innerHTML = `<div class="empty-state"><span class="material-symbols-outlined">error</span><p>Не удалось загрузить ленту</p><button id="retryLoadBtn" style="margin-top:20px;background:#6366f1;border:none;border-radius:40px;padding:10px 28px;color:white;cursor:pointer;">Повторить</button></div>`;
             const retryBtn = document.getElementById('retryLoadBtn');
             if (retryBtn) retryBtn.addEventListener('click', () => loadPosts());
-            showToast('Ошибка загрузки ленты', true);
         }
     }
-
-    const imageInput = document.getElementById('imageInput');
-    const previewContainer = document.getElementById('imagePreviewContainer');
-    
-    function updateImagePreview() {
-        const file = imageInput.files[0];
-        previewContainer.innerHTML = '';
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.style.maxHeight = '80px';
-                img.style.borderRadius = '12px';
-                img.style.border = '1px solid #e5e7eb';
-                const removeBtn = document.createElement('button');
-                removeBtn.textContent = 'Удалить фото';
-                removeBtn.className = 'remove-preview';
-                removeBtn.type = 'button';
-                removeBtn.onclick = () => {
-                    imageInput.value = '';
-                    previewContainer.style.display = 'none';
-                    previewContainer.innerHTML = '';
-                };
-                previewContainer.appendChild(img);
-                previewContainer.appendChild(removeBtn);
-                previewContainer.style.display = 'flex';
-            };
-            reader.readAsDataURL(file);
-        } else {
-            previewContainer.style.display = 'none';
-        }
-    }
-    imageInput.addEventListener('change', updateImagePreview);
     
     async function sendPost() {
         const authorInput = document.getElementById('authorName');
         const titleInput = document.getElementById('title');
         const contentInput = document.getElementById('content');
         const passwordInput = document.getElementById('adminPassword');
-        const debugDiv = document.getElementById('debugInfo');
         
         const author = authorInput.value.trim();
         const title = titleInput.value.trim();
         const content = contentInput.value.trim();
         const password = passwordInput.value.trim();
-        const imageFile = imageInput.files[0];
+        const imageFile = document.getElementById('imageInput').files[0];
         
         if (!title && !content && !imageFile) {
             showToast('Заполните пост или прикрепите картинку', true);
             return;
         }
-        
         if (!author || !password) {
             showToast('Введите имя и секретный ключ', true);
             return;
         }
         
         const publishButton = document.getElementById('publishBtn');
-        const originalButtonText = publishButton.innerHTML;
+        const originalText = publishButton.innerHTML;
         publishButton.disabled = true;
         
         try {
             let uploadedImageUrl = null;
-            
             if (imageFile) {
-                publishButton.innerHTML = `<span class="material-symbols-outlined" style="animation: spin 1s linear infinite;">cloud_upload</span> Загрузка фото...`;
-                showToast('Отправляем фото на ImgBB...', false);
-                
+                publishButton.innerHTML = `<span class="material-symbols-outlined" style="animation: spin 1s linear infinite;">cloud_upload</span> Загрузка...`;
                 const formData = new FormData();
                 formData.append('image', imageFile);
-                
-                const imgbbResponse = await fetch('https://api.imgbb.com/1/upload?key=14f0aa5d21ba5485745697bdc4028d8f', {
-                    method: 'POST',
-                    body: formData
-                });
-                
+                const imgbbResponse = await fetch('https://api.imgbb.com/1/upload?key=14f0aa5d21ba5485745697bdc4028d8f', { method: 'POST', body: formData });
                 const imgbbData = await imgbbResponse.json();
-                if (imgbbData.success) {
-                    uploadedImageUrl = imgbbData.data.url;
-                    showToast('Фото загружено!', false);
-                } else {
-                    throw new Error('Ошибка ImgBB: ' + JSON.stringify(imgbbData.error));
-                }
+                if (imgbbData.success) uploadedImageUrl = imgbbData.data.url;
+                else throw new Error('Ошибка загрузки фото');
             }
             
             publishButton.innerHTML = `<span class="material-symbols-outlined" style="animation: spin 1s linear infinite;">sync</span> Публикация...`;
@@ -1154,54 +1199,72 @@
                 timestamp: Date.now()
             };
             
-            debugDiv.style.display = 'block';
-            debugDiv.innerHTML = `📤 Отправка: imageurl = ${uploadedImageUrl || 'null'}<br>Размер данных: ${JSON.stringify(postData).length} байт`;
-            
             const response = await fetch(API_POSTS, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(postData)
             });
             
-            const responseText = await response.text();
             if (!response.ok) {
                 if (response.status === 403) throw new Error("Неверный секретный ключ");
-                throw new Error(`Ошибка сервера: ${response.status} - ${responseText}`);
+                throw new Error(`Ошибка: ${response.status}`);
             }
             
             authorInput.value = '';
             titleInput.value = '';
             contentInput.value = '';
             passwordInput.value = '';
-            imageInput.value = '';
-            previewContainer.style.display = 'none';
-            previewContainer.innerHTML = '';
+            document.getElementById('imageInput').value = '';
+            document.getElementById('imagePreviewContainer').style.display = 'none';
             
-            showToast(`Пост опубликован! ${uploadedImageUrl ? 'Фото прикреплено ✅' : ''}`, false);
+            showToast(`Пост опубликован!`, false);
             await loadPosts();
-            
         } catch (error) {
-            console.error('Ошибка:', error);
             showToast(error.message, true);
-            debugDiv.style.display = 'block';
-            debugDiv.innerHTML = `❌ Ошибка: ${error.message}`;
-            setTimeout(() => { debugDiv.style.display = 'none'; }, 5000);
         } finally {
-            publishButton.innerHTML = originalButtonText;
+            publishButton.innerHTML = originalText;
             publishButton.disabled = false;
         }
     }
     
+    // Инициализация
     window.toggleReplyForm = toggleReplyForm;
     window.sendReply = sendReply;
     document.getElementById('publishBtn').addEventListener('click', sendPost);
     document.getElementById('refreshFeed').addEventListener('click', loadPosts);
     document.getElementById('refreshBadge').addEventListener('click', loadPosts);
+    document.getElementById('notifySubscribeBtn').addEventListener('click', subscribeToNotifications);
+    
+    document.getElementById('imageInput').addEventListener('change', function(e) {
+        const container = document.getElementById('imagePreviewContainer');
+        if (e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                container.innerHTML = `<img src="${ev.target.result}" style="max-height:80px;border-radius:12px;"><button type="button" class="remove-preview" onclick="this.parentElement.style.display='none'; document.getElementById('imageInput').value='';">Удалить</button>`;
+                container.style.display = 'flex';
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        } else {
+            container.style.display = 'none';
+        }
+    });
+    
+    // Запрашиваем разрешение на уведомления при загрузке страницы
+    if ('Notification' in window && Notification.permission !== 'denied') {
+        Notification.requestPermission();
+    }
     
     document.addEventListener('DOMContentLoaded', () => {
-        renderDevsNews();   // отрисовываем новости со ссылками на raw-фото и текст
-        loadPosts();
-    });
+    renderDevsNews();
+    loadPosts();
+    
+    // Инициализация уведомлений
+    setTimeout(() => {
+        checkSubscriptionStatus();
+    }, 2000);
+    
+    setInterval(() => loadPosts(), 30000);
+});
 </script>
 </body>
 </html>
