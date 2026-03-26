@@ -362,7 +362,35 @@
             gap: 12px;
             flex-direction: column;
         }
-        
+        /* Стили для картинок в постах */
+.post-image {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 16px;
+    margin-top: 16px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    background-color: #f9fafb;
+}
+
+/* Стили для кнопки загрузки файла */
+input[type="file"]::file-selector-button {
+    background: #eef2ff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    color: #4f46e5;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-right: 12px;
+}
+
+input[type="file"]::file-selector-button:hover {
+    background: #e0e7ff;
+}
         .reply-form.active {
             display: flex;
         }
@@ -468,7 +496,7 @@
 
     <div class="info-note">
         <span class="material-symbols-outlined" style="font-size: 14px;">info</span>
-        База данных: 30 МБ памяти • Изображения не поддерживаются
+        База данных: 500 МБ памяти • Изображения (?) МАКС 32 МБ!
     </div>
     <div class="beta-note">
         <span class="material-symbols-outlined" style="font-size: 14px;">info</span>
@@ -490,6 +518,10 @@
         <div class="input-field">
             <label>СЕКРЕТНЫЙ КЛЮЧ *</label>
             <input type="password" id="adminPassword" class="material-input" placeholder="Пароль для публикации">
+        </div>
+        <div class="input-field">
+            <label>ПРИКРЕПИТЬ ФОТО (ОПЦИОНАЛЬНО)</label>
+            <input type="file" id="imageInput" class="material-input" accept="image/jpeg, image/png, image/gif, image/webp">
         </div>
         <div class="button-wrapper">
             <button class="btn-filled" id="publishBtn">
@@ -660,6 +692,7 @@
         const sortedPosts = [...posts].sort((a, b) => (b.timestamp || b.id || 0) - (a.timestamp || a.id || 0));
 
         for (const post of sortedPosts) {
+            
             const title = post.title?.trim() || 'Без заголовка';
             const content = post.content?.trim() || '—';
             const author = post.author?.trim() || 'Аноним';
@@ -691,14 +724,21 @@
                 }
                 repliesHtml += `</div>`;
             }
+       let imageHtml = ''; 
+            if (post.imageUrl) {
+                imageHtml = `<img src="${escapeHtml(post.imageUrl)}" alt="Фото поста" class="post-image" loading="lazy">`;
+            }
 
-            postCard.innerHTML = `
-                <div class="post-title">
-                    <span class="material-symbols-outlined post-title-icon">article</span>
-                    ${escapeHtml(title)}
-                </div>
-                <div class="post-content">${escapeHtml(content).replace(/\n/g, '<br>')}</div>
-                <div class="post-meta">
+        postCard.innerHTML = `
+            <div class="post-title">
+                <span class="material-symbols-outlined post-title-icon">article</span>
+                ${escapeHtml(title)}
+            </div>
+            <div class="post-content">${escapeHtml(content).replace(/\n/g, '<br>')}</div>
+        
+            ${imageHtml}
+    
+            <div class="post-meta">
                     <div class="post-author">
                         <span class="material-symbols-outlined">account_circle</span>
                         <span style="color: ${authorColor};">${escapeHtml(author)}</span>
@@ -757,104 +797,111 @@
         }
     }
 
-    async function sendPost() {
-        const authorInput = document.getElementById('authorName');
-        const titleInput = document.getElementById('title');
-        const contentInput = document.getElementById('content');
-        const passwordInput = document.getElementById('adminPassword');
-        
-        const author = authorInput.value.trim();
-        const title = titleInput.value.trim();
-        const content = contentInput.value.trim();
-        const password = passwordInput.value.trim();
-        
-        if (!title && !content) {
-            showToast('Заполните заголовок или содержание поста', true);
-            return;
+async function sendPost() {
+    const authorInput = document.getElementById('authorName');
+    const titleInput = document.getElementById('title');
+    const contentInput = document.getElementById('content');
+    const passwordInput = document.getElementById('adminPassword');
+    const imageInput = document.getElementById('imageInput');
+    
+    const author = authorInput.value.trim();
+    const title = titleInput.value.trim();
+    const content = contentInput.value.trim();
+    const password = passwordInput.value.trim();
+    
+    // Проверка на пустоту (с учетом пробелов)
+    if (!title && !content && imageInput.files.length === 0) {
+        showToast('Заполните пост или прикрепите картинку', true);
+        return;
+    }
+
+    if (!author || !password) {
+        showToast('Введите имя и секретный ключ', true);
+        return;
+    }
+    
+    const publishButton = document.getElementById('publishBtn');
+    const originalButtonText = publishButton.innerHTML;
+    
+    // Старт процесса
+    publishButton.disabled = true;
+    
+    try {
+        let uploadedImageUrl = null;
+
+        // ЭТАП 1: Загрузка изображения
+        if (imageInput.files.length > 0) {
+            publishButton.innerHTML = `<span class="material-symbols-outlined" style="animation: spin 1s linear infinite;">cloud_upload</span> Загрузка фото...`;
+            showToast('Отправляем фото на сервер...', false);
+
+            const imageFile = imageInput.files[0];
+            const formData = new FormData();
+            formData.append('image', imageFile);
+
+            const imgbbResponse = await fetch('https://api.imgbb.com/1/upload?key=14f0aa5d21ba5485745697bdc4028d8f', {
+                method: 'POST',
+                body: formData
+            });
+
+            const imgbbData = await imgbbResponse.json();
+            if (imgbbData.success) {
+                uploadedImageUrl = imgbbData.data.url;
+                showToast('Фото успешно загружено!', false);
+            } else {
+                throw new Error('Ошибка ImgBB: ' + (imgbbData.error?.message || 'Неизвестно'));
+            }
         }
 
-        if (!author) {
-            showToast('Введите ваше имя', true);
-            authorInput.focus();
-            return;
-        }
-
-        if (!password) {
-            showToast('Введите секретный ключ', true);
-            passwordInput.focus();
-            return;
-        }
+        // ЭТАП 2: Публикация в твою базу данных
+        publishButton.innerHTML = `<span class="material-symbols-outlined" style="animation: spin 1s linear infinite;">sync</span> Публикация...`;
         
         const postData = {
             title: title || "(без названия)",
             content: content || "—",
             password: password,
             author: author,
+            imageUrl: uploadedImageUrl,
             timestamp: Date.now()
         };
         
-        const publishButton = document.getElementById('publishBtn');
-        const originalButtonText = publishButton.innerHTML;
+        const response = await fetch(API_POSTS, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(postData)
+        });
         
-        publishButton.innerHTML = `<span class="material-symbols-outlined" style="font-size: 18px; animation: spin 0.8s linear infinite;">progress_activity</span> Отправка...`;
-        publishButton.disabled = true;
-        
-        try {
-            const response = await fetch(API_POSTS, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(postData)
-            });
-            
-            if (!response.ok) {
-                if (response.status === 403) {
-                    const error = await response.json();
-                    throw new Error(error.error || "Неверный пароль");
-                }
-                throw new Error(`Ошибка ${response.status}`);
-            }
-            
-            authorInput.value = '';
-            titleInput.value = '';
-            contentInput.value = '';
-            passwordInput.value = '';
-            
-            showToast(`Пост опубликован! 🚀`, false);
-            await loadPosts();
-        } catch (error) {
-            console.error('Ошибка отправки:', error);
-            showToast(error.message, true);
-        } finally {
-            publishButton.innerHTML = originalButtonText;
-            publishButton.disabled = false;
-        }
-    }
-    
-    document.addEventListener('DOMContentLoaded', () => {
-        const publishBtn = document.getElementById('publishBtn');
-        if (publishBtn) publishBtn.addEventListener('click', sendPost);
-        
-        const textarea = document.getElementById('content');
-        if (textarea) {
-            textarea.addEventListener('keydown', (e) => {
-                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                    e.preventDefault();
-                    sendPost();
-                }
-            });
+        if (!response.ok) {
+            if (response.status === 403) throw new Error("Неверный секретный ключ");
+            throw new Error(`Ошибка сервера: ${response.status}`);
         }
         
-        const refreshBtn = document.getElementById('refreshFeed');
-        if (refreshBtn) refreshBtn.addEventListener('click', () => loadPosts());
+        // Сброс формы
+        authorInput.value = '';
+        titleInput.value = '';
+        contentInput.value = '';
+        passwordInput.value = '';
+        imageInput.value = ''; 
         
-        const refreshBadge = document.getElementById('refreshBadge');
-        if (refreshBadge) refreshBadge.addEventListener('click', () => loadPosts());
-        
-        loadPosts();
-    });
+        showToast(`Пост опубликован! 🚀`, false);
+        await loadPosts();
 
+    } catch (error) {
+        console.error('Ошибка:', error);
+        showToast(error.message, true);
+    } finally {
+        publishButton.innerHTML = originalButtonText;
+        publishButton.disabled = false;
+    }
+}
     window.toggleReplyForm = toggleReplyForm;
     window.sendReply = sendReply;
+// Привязываем клики к функциям
+document.getElementById('publishBtn').addEventListener('click', sendPost);
+document.getElementById('refreshFeed').addEventListener('click', loadPosts);
+document.getElementById('refreshBadge').addEventListener('click', loadPosts);
+
+// Загружаем посты при открытии страницы
+document.addEventListener('DOMContentLoaded', loadPosts);
 </script>
 </body>
 </html>
