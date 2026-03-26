@@ -725,20 +725,25 @@ input[type="file"]::file-selector-button:hover {
                 repliesHtml += `</div>`;
             }
        let imageHtml = ''; 
-            if (post.imageUrl) {
-                imageHtml = `<img src="${escapeHtml(post.imageUrl)}" alt="Фото поста" class="post-image" loading="lazy">`;
-            }
+if (post.imageUrl && post.imageUrl.trim() !== '') {
+    imageHtml = `
+        <div style="margin-top: 16px;">
+            <img src="${escapeHtml(post.imageUrl)}" 
+                 alt="Фото поста" 
+                 class="post-image" 
+                 style="display: block;"
+                 onerror="this.style.display='none'" 
+                 loading="lazy">
+        </div>`;
+}
 
         postCard.innerHTML = `
-            <div class="post-title">
-                <span class="material-symbols-outlined post-title-icon">article</span>
-                ${escapeHtml(title)}
-            </div>
-            <div class="post-content">${escapeHtml(content).replace(/\n/g, '<br>')}</div>
-        
-            ${imageHtml}
-    
-            <div class="post-meta">
+    <div class="post-title">
+        <span class="material-symbols-outlined post-title-icon">article</span>
+        ${escapeHtml(title)}
+    </div>
+    <div class="post-content">${escapeHtml(content).replace(/\n/g, '<br>')}</div>
+            ${imageHtml} <div class="post-meta">
                     <div class="post-author">
                         <span class="material-symbols-outlined">account_circle</span>
                         <span style="color: ${authorColor};">${escapeHtml(author)}</span>
