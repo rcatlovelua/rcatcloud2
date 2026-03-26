@@ -13,19 +13,27 @@ export default async function handler(req, res) {
     }
 
     const id = Date.now();
-    const { error } = await supabase
+    
+    // ЛОГ ДЛЯ ОТЛАДКИ (увидишь в консоли Vercel)
+    console.log("Attempting insert with ID:", id);
+
+    const { data, error } = await supabase
       .from('posts')
       .insert([{ 
-        id, 
+        id: id, 
         title: title || "Без заголовка", 
         content: content || "", 
         author: author || "Аноним", 
-        imageUrl: imageUrl || null, 
+        imageurl: imageUrl || null, // Попробуй маленькими буквами на всякий случай
         timestamp: id, 
         replies: [] 
       }]);
 
-    if (error) return res.status(500).json({ error: error.message });
+    if (error) {
+      console.error("SUPABASE ERROR:", error); // ЭТО САМОЕ ВАЖНОЕ
+      return res.status(500).json({ error: error.message, details: error.details });
+    }
+
     return res.status(200).json({ success: true, id });
   }
 
