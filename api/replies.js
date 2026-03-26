@@ -1,9 +1,6 @@
-import { Redis } from '@upstash/redis'
+import { createClient } from '@supabase/supabase-js'
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
-})
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store, max-age=0');
@@ -31,15 +28,17 @@ export default async function handler(req, res) {
   }
 
   try {
-    const postKey = `post:${postId}`;
-    const postData = await redis.get(postKey);
-    
-    if (!postData) {
+    // Получаем текущий пост
+    const { data: post, error: fetchError } = await supabase
+      .from('posts')
+      .select('*')
+      .eq('id', Number(postId))
+      .single();
+
+    if (fetchError || !post) {
       return res.status(404).json({ error: 'Пост не найден' });
     }
 
-    const post = typeof postData === 'string' ? JSON.parse(postData) : postData;
-    
     const newReply = {
       id: Date.now(),
       content: content.trim(),
@@ -48,9 +47,16 @@ export default async function handler(req, res) {
     };
 
     const updatedReplies = post.replies ? [...post.replies, newReply] : [newReply];
-    post.replies = updatedReplies;
     
-    await redis.set(postKey, JSON.stringify(post));
+    // Обновляем пост с новыми ответами
+    const { error: updateError } = await supabase
+      .from('posts')
+      .update({ replies: updatedReplies })
+      .eq('id', Number(postId));
+
+    if (updateError) {
+      return res.status(500).json({ error: updateError.message });
+    }
     
     return res.status(200).json({ success: true, reply: newReply });
   } catch (error) {
