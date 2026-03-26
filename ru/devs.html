@@ -713,10 +713,7 @@
             Devs
         </div>
         <div style="display: flex; gap: 12px;">
-            <button class="notify-btn" id="notifySubscribeBtn">
-                <span class="material-symbols-outlined" style="font-size: 14px;">notifications</span>
-                Вкл. уведомления
-            </button>
+            
             <div class="badge" id="refreshBadge">
                 <span class="material-symbols-outlined" style="font-size: 14px;">rss_feed</span> 
                 Перезагрузить
@@ -724,10 +721,6 @@
         </div>
     </div>
 
-    <div class="info-note">
-        <span class="material-symbols-outlined" style="font-size: 14px;">notifications_active</span>
-        🔔 Включите уведомления — будьте в курсе новых постов и ответов!
-    </div>
     <div class="beta-note">
         <span class="material-symbols-outlined" style="font-size: 14px;">info</span>
         Devs в Alpha версии! Уведомления приходят на устройство.
@@ -788,87 +781,7 @@
 <div id="toastMsg" class="toast-message"></div>
 
 <script>
-    // ========== ONESIGNAL PUSH УВЕДОМЛЕНИЯ ==========
-const ONE_SIGNAL_APP_ID = "9020db26-ca50-468f-b861-e436c72e68ee";
 
-window.OneSignal = window.OneSignal || [];
-OneSignal.push(function() {
-    OneSignal.init({
-        appId: ONE_SIGNAL_APP_ID,
-        safari_web_id: null,
-        notifyButton: {
-            enable: false
-        },
-        allowLocalhostAsSecureOrigin: true
-    });
-});
-
-let isSubscribed = false;
-
-// Проверка статуса подписки
-async function checkSubscriptionStatus() {
-    if (window.OneSignal) {
-        const isPushEnabled = await OneSignal.isPushNotificationsEnabled();
-        isSubscribed = isPushEnabled;
-        updateNotifyButtonUI();
-        console.log("Статус подписки:", isSubscribed);
-    }
-}
-
-function updateNotifyButtonUI() {
-    const btn = document.getElementById('notifySubscribeBtn');
-    if (isSubscribed) {
-        btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 14px;">notifications_active</span> Уведомления включены ✅';
-        btn.classList.add('subscribed');
-    } else {
-        btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 14px;">notifications</span> Вкл. уведомления';
-        btn.classList.remove('subscribed');
-    }
-}
-
-async function subscribeToNotifications() {
-    if (!window.OneSignal) {
-        showToast("Загрузка OneSignal...", false);
-        return;
-    }
-    
-    try {
-        await OneSignal.registerForPushNotifications();
-        isSubscribed = true;
-        updateNotifyButtonUI();
-        showToast("🔔 Уведомления включены! Теперь вы будете получать оповещения на устройство", false);
-        
-        // Получаем ID пользователя для отправки уведомлений
-        const userId = await OneSignal.getUserId();
-        console.log("OneSignal User ID:", userId);
-        
-    } catch (error) {
-        console.error("Ошибка подписки:", error);
-        showToast("Не удалось включить уведомления. Разрешите уведомления в браузере", true);
-    }
-}
-
-// Отправка уведомления
-async function sendPushNotification(title, message, url) {
-    if ('Notification' in window && Notification.permission === 'granted') {
-        try {
-            const notification = new Notification(title, { 
-                body: message,
-                icon: 'https://cdn-icons-png.flaticon.com/512/5969/5969145.png'
-            });
-            
-            notification.onclick = function() {
-                window.focus();
-                this.close();
-            };
-        } catch (e) {
-            console.warn("Не удалось показать уведомление", e);
-        }
-    } else {
-        console.log(`📢 ${title}: ${message}`);
-        showToast(`📢 ${title}: ${message.substring(0, 50)}...`, false);
-    }
-}
     
     // ========== ОСНОВНАЯ ЛОГИКА ==========
     const API_POSTS = '/api/posts';
@@ -997,8 +910,8 @@ async function sendPushNotification(title, message, url) {
     
     const devsNewsFeed = [
         {
-            title: "🔔 Уведомления на устройство!",
-            text: "Теперь вы можете включить push-уведомления и получать оповещения о новых постах и ответах прямо на телефон!",
+            title: "Откат!",
+            text: "Обновление не задалось был откат.",
             imageUrl: "",
             link: "#",
             date: "2026-03-26"
@@ -1258,10 +1171,6 @@ async function sendPushNotification(title, message, url) {
     renderDevsNews();
     loadPosts();
     
-    // Инициализация уведомлений
-    setTimeout(() => {
-        checkSubscriptionStatus();
-    }, 2000);
     
     setInterval(() => loadPosts(), 30000);
 });
