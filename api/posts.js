@@ -6,7 +6,11 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store, max-age=0');
 
   if (req.method === 'POST') {
-    const { title, content, password, author, imageUrl } = req.body;
+    // Исправлено: принимаем оба варианта названия поля для совместимости
+    const { title, content, password, author, imageUrl, imageurl } = req.body;
+    
+    // Нормализуем имя поля - если есть imageUrl (с большой U), используем его, иначе imageurl
+    const finalImageUrl = imageUrl || imageurl || null;
 
     if (password !== process.env.ADMIN_PASSWORD) {
       return res.status(403).json({ error: 'Неверный пароль' });
@@ -14,8 +18,10 @@ export default async function handler(req, res) {
 
     const id = Date.now();
     
-    // ЛОГ ДЛЯ ОТЛАДКИ (увидишь в консоли Vercel)
-    console.log("Attempting insert with ID:", id);
+    // ЛОГ ДЛЯ ОТЛАДКИ
+    console.log("📝 Attempting insert with ID:", id);
+    console.log("🖼️ Image URL received:", finalImageUrl);
+    console.log("📦 Full body:", req.body);
 
     const { data, error } = await supabase
       .from('posts')
@@ -24,17 +30,23 @@ export default async function handler(req, res) {
         title: title || "Без заголовка", 
         content: content || "", 
         author: author || "Аноним", 
-        imageurl: imageUrl || null, // Попробуй маленькими буквами на всякий случай
+        imageurl: finalImageUrl, // Сохраняем в нижнем регистре в базе
         timestamp: id, 
         replies: [] 
-      }]);
+      }])
+      .select(); // Добавляем .select() чтобы получить вставленные данные
 
     if (error) {
-      console.error("SUPABASE ERROR:", error); // ЭТО САМОЕ ВАЖНОЕ
-      return res.status(500).json({ error: error.message, details: error.details });
+      console.error("❌ SUPABASE ERROR:", error);
+      return res.status(500).json({ 
+        error: error.message, 
+        details: error.details,
+        hint: error.hint 
+      });
     }
 
-    return res.status(200).json({ success: true, id });
+    console.log("✅ Successfully inserted post with image:", finalImageUrl);
+    return res.status(200).json({ success: true, id, imageUrl: finalImageUrl });
   }
 
   if (req.method === 'GET') {
@@ -43,7 +55,15 @@ export default async function handler(req, res) {
       .select('*')
       .order('timestamp', { ascending: false });
 
-    if (error) return res.status(500).json({ error: error.message });
+    if (error) {
+      console.error("❌ GET error:", error);
+      return res.status(500).json({ error: error.message });
+    }
+    
+    // Логируем, что есть посты с картинками
+    const postsWithImages = data.filter(post => post.imageurl);
+    console.log(`📸 Found ${postsWithImages.length} posts with images out of ${data.length} total`);
+    
     return res.status(200).json(data);
   }
 
