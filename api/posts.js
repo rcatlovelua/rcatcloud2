@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store, max-age=0');
 
   if (req.method === 'POST') {
-    const { title, content, password, author } = req.body;
+    const { title, content, password, author, imageUrl } = req.body;
 
     if (password !== process.env.ADMIN_PASSWORD) {
       return res.status(403).json({ error: 'Неверный пароль' });
@@ -20,6 +20,7 @@ export default async function handler(req, res) {
         title: title || "Без заголовка", 
         content: content || "", 
         author: author || "Аноним", 
+        imageUrl: imageUrl || null, 
         timestamp: id, 
         replies: [] 
       }]);
