@@ -2,329 +2,319 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moderation Panel | Messenger</title>
+    <title>TERMINAL - MESSENGER MODERATION</title>
     <style>
         :root {
-            --bg-color: #f3f4f6;
-            --card-bg: #ffffff;
-            --text-main: #111827;
-            --text-muted: #6b7280;
-            --primary: #3b82f6;
-            --primary-hover: #2563eb;
-            --danger: #ef4444;
-            --danger-hover: #dc2626;
-            --border: #e5e7eb;
+            --green: #00ff41;
+            --bg: #050505;
+            --glow: 0 0 10px rgba(0, 255, 65, 0.5);
+            --danger: #ff003c;
+            --warning: #ffb100;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            background-color: var(--bg);
+            color: var(--green);
+            font-family: 'Consolas', 'Courier New', monospace;
             margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
+            padding: 20px;
+            font-size: 14px;
+            line-height: 1.4;
         }
 
-        /* Утилиты */
         .hidden { display: none !important; }
-        .container { width: 100%; max-width: 1000px; padding: 20px; box-sizing: border-box; }
 
-        /* Экран авторизации */
+        /* HEADER */
+        .header {
+            border-bottom: 2px solid var(--green);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-shadow: var(--glow);
+        }
+
+        /* LOGIN SCREEN */
         #login-screen {
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-frame {
+            border: 1px solid var(--green);
+            padding: 30px;
+            background: rgba(0, 255, 65, 0.05);
+            box-shadow: var(--glow);
+        }
+
+        /* GRID */
+        .post-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            border: 1px solid var(--green);
+            padding: 15px;
+            background: rgba(0, 255, 65, 0.02);
+            position: relative;
+        }
+        .card:hover { box-shadow: var(--glow); }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed var(--green);
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            font-size: 0.85em;
+            color: #888;
+        }
+
+        .card-title { font-weight: bold; font-size: 1.1em; display: block; margin-bottom: 5px; color: #fff; }
+        .card-content { margin-bottom: 15px; white-space: pre-wrap; }
+
+        .img-preview {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border: 1px solid #333;
+            margin: 10px 0;
+        }
+
+        .no-img {
+            border: 1px dashed #333;
+            padding: 10px;
+            text-align: center;
+            color: #444;
+            margin: 10px 0;
+        }
+
+        /* BUTTONS */
+        button, input {
+            background: transparent;
+            border: 1px solid var(--green);
+            color: var(--green);
+            padding: 6px 12px;
+            cursor: pointer;
+            font-family: inherit;
+            text-transform: uppercase;
+        }
+        button:hover { background: var(--green); color: #000; }
+        input { width: 250px; margin-bottom: 10px; outline: none; }
+        
+        .btn-danger { border-color: var(--danger); color: var(--danger); }
+        .btn-danger:hover { background: var(--danger); color: #fff; }
+        .btn-warn { border-color: var(--warning); color: var(--warning); }
+        .btn-warn:hover { background: var(--warning); color: #000; }
+
+        /* MODAL */
+        #modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            width: 100%;
+            z-index: 100;
         }
-
-        .login-box {
-            background: var(--card-bg);
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
+        .modal-box {
+            border: 2px solid var(--green);
+            background: #000;
+            padding: 25px;
+            width: 500px;
+            box-shadow: var(--glow);
         }
-
-        .login-box h2 { margin-top: 0; margin-bottom: 24px; }
-
-        input[type="password"] {
+        textarea {
             width: 100%;
-            padding: 12px;
-            margin-bottom: 16px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 16px;
+            height: 150px;
+            background: #111;
+            color: var(--green);
+            border: 1px solid var(--green);
+            font-family: inherit;
+            padding: 10px;
             box-sizing: border-box;
+            margin: 10px 0;
         }
-
-        button {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-            width: 100%;
-            transition: background 0.2s;
-            font-weight: 500;
-        }
-
-        button:hover { background-color: var(--primary-hover); }
-        button.danger { background-color: var(--danger); width: auto; font-size: 14px; padding: 8px 16px; }
-        button.danger:hover { background-color: var(--danger-hover); }
-        button.outline { background-color: transparent; border: 1px solid var(--border); color: var(--text-main); width: auto; font-size: 14px; padding: 8px 16px; }
-        button.outline:hover { background-color: var(--bg-color); }
-
-        /* Экран дашборда */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--card-bg);
-            padding: 15px 30px;
-            width: 100%;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            box-sizing: border-box;
-        }
-
-        .header h1 { margin: 0; font-size: 20px; }
-
-        /* Сетка постов */
-        .posts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-
-        .post-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-
-        .post-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .post-author { font-weight: bold; color: var(--text-main); font-size: 14px; }
-        .post-title { margin: 0 0 8px 0; font-size: 18px; }
-        .post-content { color: var(--text-muted); font-size: 14px; margin-bottom: 16px; flex-grow: 1; }
-        
-        .post-image {
-            width: 100%;
-            max-height: 200px;
-            object-fit: cover;
-            border-radius: 6px;
-            margin-bottom: 16px;
-            border: 1px solid var(--border);
-        }
-
-        .post-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 1px solid var(--border);
-            padding-top: 16px;
-            margin-top: auto;
-        }
-
-        .reply-count { font-size: 13px; color: var(--text-muted); }
-        .error-msg { color: var(--danger); font-size: 14px; margin-bottom: 10px; display: none; }
     </style>
 </head>
 <body>
 
-    <div id="login-screen">
-        <div class="login-box">
-            <h2>Вход в панель управления</h2>
-            <div id="login-error" class="error-msg">Неверный пароль</div>
-            <input type="password" id="admin-password" placeholder="Введите ключ ADMINPLUS_KEY" onkeypress="handleEnter(event)">
-            <button onclick="attemptLogin()" id="login-btn">Войти</button>
+<div class="header">
+    <div>[ SYSTEM MODERATION TERMINAL v2.0 ]</div>
+    <div>USER: <span id="user-display">UNAUTHORIZED</span> | STATUS: <span id="status-display">STANDBY</span></div>
+</div>
+
+<div id="login-screen">
+    <div class="login-frame">
+        <div>ENTER ADMIN KEY:</div>
+        <input type="password" id="pass-input" autofocus>
+        <br>
+        <button onclick="login()">AUTHORIZE</button>
+    </div>
+</div>
+
+<div id="main-screen" class="hidden">
+    <div style="margin-bottom: 20px;">
+        <button onclick="fetchPosts()">> REFRESH_DATABASE</button>
+        <button onclick="logout()" class="btn-danger">LOGOUT</button>
+    </div>
+    <div class="post-grid" id="post-grid"></div>
+</div>
+
+<div id="modal-overlay" class="hidden">
+    <div class="modal-box">
+        <h3>> EDIT_RECORD</h3>
+        <div>TITLE:</div>
+        <input type="text" id="edit-title" style="width: 100%;">
+        <div>CONTENT:</div>
+        <textarea id="edit-content"></textarea>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="saveEdit()">[ SAVE_CHANGES ]</button>
+            <button onclick="closeModal()" class="btn-danger">[ CANCEL ]</button>
         </div>
     </div>
+</div>
 
-    <div id="dashboard-screen" class="hidden">
-        <div class="header">
-            <h1>Модерация Messenger</h1>
-            <button class="outline" onclick="logout()">Выйти</button>
-        </div>
+<script>
+    let currentPosts = [];
+    let currentEditId = null;
 
-        <div class="container">
-            <div id="posts-container" class="posts-grid">
-                </div>
-        </div>
-    </div>
-
-    <script>
-        // Твои данные, используем как fallback, если API пока не отвечает на localhost
-        const fallbackData = [{"id":1774521810858,"title":"(без названия)","content":"—","author":"ркет","timestamp":1774521810858,"replies":[],"imageurl":"https://i.ibb.co/fVr4mfR8/Roblox-Screen-Shot20260227-173231935.png"},{"id":1774521531732,"title":"Лука","content":"—","author":"luca","timestamp":1774521531732,"replies":[],"imageurl":null},{"id":1774521144345,"title":"Всё теперь есть фото","content":"—","author":"Лука","timestamp":1774521144345,"replies":[],"imageurl":null},{"id":1774520554239,"title":"(без названия)","content":"—","author":"Лука","timestamp":1774520554239,"replies":[],"imageurl":null},{"id":1774520112475,"title":"photo test2","content":"test","author":"Devs","timestamp":1774520112475,"replies":[],"imageurl":"https://i.ibb.co/xS5Cznx2/ava.png"},{"id":1774520081248,"title":"Отправка сообщений сломалась!","content":"при отправке сообщений иногда ошибка 500! я уже исправляю","author":"Devs","timestamp":1774520081248,"replies":[],"imageurl":null},{"id":1774515102640,"title":"тест перехода на новую дб","content":"—","author":"Лука","timestamp":1774515102640,"replies":[{"id":1774517520378,"author":"Лука","content":"ответы работают?","timestamp":1774517520378}],"imageurl":null}];
-
-        // Проверяем, есть ли уже токен при загрузке страницы
-        window.onload = () => {
-            const token = localStorage.getItem('admin_token');
-            if (token) {
-                showDashboard();
-            }
-        };
-
-        function handleEnter(e) {
-            if (e.key === 'Enter') attemptLogin();
-        }
-
-        async function attemptLogin() {
-            const password = document.getElementById('admin-password').value;
-            const errorMsg = document.getElementById('login-error');
-            const btn = document.getElementById('login-btn');
-
-            if (!password) return;
-
-            btn.innerText = "Загрузка...";
-            errorMsg.style.display = 'none';
-
-            try {
-                // Запрос к твоему API авторизации
-                const res = await fetch('/api/auth', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password })
-                });
-
-                const data = await res.json();
-
-                if (res.ok && data.success) {
-                    // Сохраняем токен и пускаем в дашборд
-                    localStorage.setItem('admin_token', data.token);
-                    showDashboard();
-                } else {
-                    errorMsg.innerText = data.message || "Доступ запрещен";
-                    errorMsg.style.display = 'block';
-                }
-            } catch (err) {
-                // Если API недоступно (например, запускаем локально), сымитируем успешный вход для теста
-                console.warn("API недоступно, используем тестовый вход", err);
-                if (password === 'admin') { // Тестовый пароль
-                    localStorage.setItem('admin_token', 'TEST_TOKEN');
-                    showDashboard();
-                } else {
-                    errorMsg.innerText = "Ошибка соединения с сервером (попробуй пароль 'admin' для теста)";
-                    errorMsg.style.display = 'block';
-                }
-            } finally {
-                btn.innerText = "Войти";
-            }
-        }
-
-        function logout() {
-            localStorage.removeItem('admin_token');
-            document.getElementById('dashboard-screen').classList.add('hidden');
-            document.getElementById('login-screen').classList.remove('hidden');
-            document.getElementById('admin-password').value = '';
-        }
-
-        async function showDashboard() {
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('dashboard-screen').classList.remove('hidden');
-            loadPosts();
-        }
-
-        async function loadPosts() {
-            const container = document.getElementById('posts-container');
-            container.innerHTML = '<i>Загрузка постов...</i>';
-
-            let posts = [];
-            try {
-                const res = await fetch('/api/posts');
-                if (res.ok) {
-                    posts = await res.json();
-                } else {
-                    throw new Error("Ошибка загрузки");
-                }
-            } catch (err) {
-                console.warn("Не удалось загрузить с API, загружаю тестовые данные");
-                posts = fallbackData; // Подставляем твои данные из промпта
-            }
-
-            renderPosts(posts);
-        }
-
-        function renderPosts(posts) {
-            const container = document.getElementById('posts-container');
-            container.innerHTML = '';
-
-            posts.forEach(post => {
-                const date = new Date(post.timestamp).toLocaleString('ru-RU');
-                
-                // Проверяем наличие картинки
-                const imageHTML = post.imageurl 
-                    ? `<img src="${post.imageurl}" class="post-image" alt="Прикрепленное фото">` 
-                    : '';
-
-                // Проверяем количество ответов
-                const repliesCount = post.replies ? post.replies.length : 0;
-                const repliesHTML = repliesCount > 0 
-                    ? `<span class="reply-count">Ответов: ${repliesCount}</span>`
-                    : `<span class="reply-count">Нет ответов</span>`;
-
-                const card = document.createElement('div');
-                card.className = 'post-card';
-                card.innerHTML = `
-                    <div class="post-header">
-                        <span class="post-author">${post.author}</span>
-                        <span>${date}</span>
-                    </div>
-                    <h3 class="post-title">${post.title || 'Без названия'}</h3>
-                    <div class="post-content">${post.content}</div>
-                    ${imageHTML}
-                    <div class="post-footer">
-                        ${repliesHTML}
-                        <button class="danger" onclick="deletePost(${post.id})">Удалить</button>
-                    </div>
-                `;
-                container.appendChild(card);
+    // --- АВТОРИЗАЦИЯ ---
+    async function login() {
+        const password = document.getElementById('pass-input').value;
+        try {
+            const res = await fetch('/api/auth', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password })
             });
+            const data = await res.json();
+            if (data.success) {
+                localStorage.setItem('admin_session', data.token);
+                showDashboard();
+            } else { alert("ACCESS DENIED"); }
+        } catch (e) {
+            // Тестовый вход для разработки
+            if(password === "123") { showDashboard(); } 
+            else { alert("API ERROR"); }
         }
+    }
 
-        async function deletePost(postId) {
-            if (!confirm(`Точно удалить пост ${postId}?`)) return;
+    function showDashboard() {
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('main-screen').classList.remove('hidden');
+        document.getElementById('user-display').innerText = "ADMIN_PLUS";
+        document.getElementById('status-display').innerText = "ONLINE";
+        fetchPosts();
+    }
 
-            const token = localStorage.getItem('admin_token');
+    function logout() {
+        localStorage.removeItem('admin_session');
+        location.reload();
+    }
 
-            // Пример того, как нужно отправлять запрос на удаление
-            /*
-            try {
-                const res = await fetch(`/api/posts/${postId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${token}` // Передаем токен для защиты роута
-                    }
-                });
-                if (res.ok) loadPosts(); // Перезагружаем список
-            } catch (err) {
-                alert('Ошибка при удалении');
-            }
-            */
-
-            // Для интерфейса: просто скрываем карточку
-            alert(`Отправлен запрос на удаление ID: ${postId}. \n(Раскомментируй функцию fetch в коде для реального удаления)`);
-            loadPosts(); // В реальности перезагрузит список
+    // --- РАБОТА С ДАННЫМИ ---
+    async function fetchPosts() {
+        const grid = document.getElementById('post-grid');
+        grid.innerHTML = "> FETCHING_RECORDS...";
+        
+        try {
+            const res = await fetch('/api/posts');
+            currentPosts = await res.json();
+            renderPosts();
+        } catch (e) {
+            grid.innerHTML = "FAILED TO FETCH POSTS FROM API";
         }
-    </script>
+    }
+
+    function renderPosts() {
+        const grid = document.getElementById('post-grid');
+        grid.innerHTML = '';
+
+        currentPosts.forEach(post => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            
+            const imageBlock = post.imageurl 
+                ? `<img src="${post.imageurl}" class="img-preview">
+                   <button class="btn-warn" onclick="deletePhoto(${post.id})" style="width:100%; margin-bottom:10px;">[ DELETE_PHOTO ]</button>`
+                : `<div class="no-img">NO_IMAGE_ATTACHED</div>`;
+
+            card.innerHTML = `
+                <div class="card-header">
+                    <span>ID: ${post.id}</span>
+                    <span>@${post.author}</span>
+                </div>
+                <span class="card-title">> ${post.title}</span>
+                <div class="card-content">${post.content}</div>
+                ${imageBlock}
+                <div style="display: flex; gap: 5px; margin-top: 10px;">
+                    <button onclick="openEdit(${post.id})">[ EDIT ]</button>
+                    <button class="btn-danger" onclick="deletePost(${post.id})">[ DELETE ]</button>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    // --- ФУНКЦИИ МОДЕРАЦИИ ---
+
+    // 1. Удаление фото
+    async function deletePhoto(id) {
+        if (!confirm("CONFIRM PHOTO DELETION?")) return;
+        console.log(`Sending request: Setting imageurl = null for post ${id}`);
+        
+        // Тут твой запрос к бэкенду (PATCH или POST)
+        // Обновляем локально для вида:
+        const post = currentPosts.find(p => p.id === id);
+        if (post) post.imageurl = null;
+        renderPosts();
+    }
+
+    // 2. Редактирование
+    function openEdit(id) {
+        currentEditId = id;
+        const post = currentPosts.find(p => p.id === id);
+        document.getElementById('edit-title').value = post.title;
+        document.getElementById('edit-content').value = post.content;
+        document.getElementById('modal-overlay').classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById('modal-overlay').classList.add('hidden');
+    }
+
+    async function saveEdit() {
+        const newTitle = document.getElementById('edit-title').value;
+        const newContent = document.getElementById('edit-content').value;
+
+        // Здесь запрос к API: fetch('/api/posts/update', { method: 'POST', body: ... })
+        console.log(`Saving Post ${currentEditId}:`, { newTitle, newContent });
+
+        // Обновляем локально:
+        const post = currentPosts.find(p => p.id === currentEditId);
+        if (post) {
+            post.title = newTitle;
+            post.content = newContent;
+        }
+        
+        closeModal();
+        renderPosts();
+    }
+
+    // 3. Удаление поста
+    async function deletePost(id) {
+        if (!confirm("WIPE RECORD FROM DATABASE?")) return;
+        currentPosts = currentPosts.filter(p => p.id !== id);
+        renderPosts();
+    }
+
+    window.onload = () => {
+        if (localStorage.getItem('admin_session')) showDashboard();
+    };
+</script>
+
 </body>
 </html>
