@@ -2,203 +2,329 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>TERMINAL - SECURE ACCESS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moderation Panel | Messenger</title>
     <style>
         :root {
-            --green: #00ff41;
-            --bg: #050505;
-            --glow: 0 0 8px rgba(0, 255, 65, 0.4);
-            --danger: #ff003c;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --border: #e5e7eb;
         }
 
         body {
-            background-color: var(--bg);
-            color: var(--green);
-            font-family: 'Consolas', 'Courier New', monospace;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             margin: 0;
-            padding: 20px;
-            font-size: 14px;
-        }
-
-        .header {
-            border-bottom: 2px solid var(--green);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            text-shadow: var(--glow);
-        }
-
-        .stats {
+            padding: 0;
             display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-            font-size: 0.9em;
-            color: #888;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
         }
 
-        .post-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-            gap: 20px;
-        }
+        /* Утилиты */
+        .hidden { display: none !important; }
+        .container { width: 100%; max-width: 1000px; padding: 20px; box-sizing: border-box; }
 
-        .card {
-            border: 1px solid var(--green);
-            padding: 15px;
-            background: rgba(0, 255, 65, 0.02);
-            position: relative;
-            transition: 0.3s;
-        }
-
-        .card:hover {
-            box-shadow: var(--glow);
-            background: rgba(0, 255, 65, 0.05);
-        }
-
-        .card-id {
-            color: #888;
-            font-size: 0.8em;
-            margin-bottom: 10px;
-        }
-
-        .btn-group {
+        /* Экран авторизации */
+        #login-screen {
             display: flex;
-            gap: 10px;
-            margin-top: 15px;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100%;
+        }
+
+        .login-box {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-box h2 { margin-top: 0; margin-bottom: 24px; }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
         }
 
         button {
-            background: transparent;
-            border: 1px solid var(--green);
-            color: var(--green);
-            padding: 8px 12px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 16px;
             cursor: pointer;
-            text-transform: uppercase;
-            font-weight: bold;
-            transition: 0.2s;
-            font-family: inherit;
+            width: 100%;
+            transition: background 0.2s;
+            font-weight: 500;
         }
 
-        button:hover {
-            background: var(--green);
-            color: #000;
+        button:hover { background-color: var(--primary-hover); }
+        button.danger { background-color: var(--danger); width: auto; font-size: 14px; padding: 8px 16px; }
+        button.danger:hover { background-color: var(--danger-hover); }
+        button.outline { background-color: transparent; border: 1px solid var(--border); color: var(--text-main); width: auto; font-size: 14px; padding: 8px 16px; }
+        button.outline:hover { background-color: var(--bg-color); }
+
+        /* Экран дашборда */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            padding: 15px 30px;
+            width: 100%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-sizing: border-box;
         }
 
-        button.delete {
-            border-color: var(--danger);
-            color: var(--danger);
-        }
+        .header h1 { margin: 0; font-size: 20px; }
 
-        button.delete:hover {
-            background: var(--danger);
-            color: #fff;
-        }
-
-        #loader {
-            color: yellow;
-            margin-bottom: 20px;
-        }
-
-        .log-panel {
+        /* Сетка постов */
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
             margin-top: 30px;
-            border-top: 1px dashed #333;
-            padding-top: 10px;
-            color: #555;
-            height: 100px;
-            overflow-y: auto;
         }
+
+        .post-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .post-author { font-weight: bold; color: var(--text-main); font-size: 14px; }
+        .post-title { margin: 0 0 8px 0; font-size: 18px; }
+        .post-content { color: var(--text-muted); font-size: 14px; margin-bottom: 16px; flex-grow: 1; }
+        
+        .post-image {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .post-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border);
+            padding-top: 16px;
+            margin-top: auto;
+        }
+
+        .reply-count { font-size: 13px; color: var(--text-muted); }
+        .error-msg { color: var(--danger); font-size: 14px; margin-bottom: 10px; display: none; }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <div>[ SYSTEM ADMINISTRATION INTERFACE ]</div>
-    <div>NODE: orrcs.api.proxy | ACCESS_LEVEL: SECURE_TOKEN_REQUIRED</div>
-</div>
-
-<div class="stats" id="stats">
-    <span>UPTIME: 99.9%</span>
-    <span>STATUS: <span style="color: yellow">CONNECTING...</span></span>
-</div>
-
-<div id="loader">> INITIALIZING_CONNECTION...</div>
-
-<div class="post-grid" id="postGrid">
+    <div id="login-screen">
+        <div class="login-box">
+            <h2>Вход в панель управления</h2>
+            <div id="login-error" class="error-msg">Неверный пароль</div>
+            <input type="password" id="admin-password" placeholder="Введите ключ ADMINPLUS_KEY" onkeypress="handleEnter(event)">
+            <button onclick="attemptLogin()" id="login-btn">Войти</button>
+        </div>
     </div>
 
-<div class="log-panel" id="logPanel">
-    > SYSTEM STANDBY...<br>
-</div>
+    <div id="dashboard-screen" class="hidden">
+        <div class="header">
+            <h1>Модерация Messenger</h1>
+            <button class="outline" onclick="logout()">Выйти</button>
+        </div>
 
-<script>
-    // 1. Тестовые данные (потом мы заменим это на реальный fetch запрос к твоему API)
-    let mockDatabase = [
-        { id: 'uuid-101', title: 'Взлом Пентагона (Учебный)', content: 'Процесс завершен на 42%...' },
-        { id: 'uuid-102', title: 'Дамп логов сервера', content: 'Обнаружена подозрительная активность в секторе 7.' },
-        { id: 'uuid-103', title: 'Резервная копия', content: 'Бэкап базы данных успешно создан.' }
-    ];
-
-    const loader = document.getElementById('loader');
-    const grid = document.getElementById('postGrid');
-    const logPanel = document.getElementById('logPanel');
-    const statsStatus = document.querySelector('#stats span:nth-child(2)');
-
-    // Функция для добавления логов в консоль внизу
-    function addLog(message) {
-        const time = new Date().toLocaleTimeString();
-        logPanel.innerHTML += `[${time}] ${message}<br>`;
-        logPanel.scrollTop = logPanel.scrollHeight;
-    }
-
-    // 2. Функция отрисовки данных
-    function renderPosts() {
-        grid.innerHTML = '';
-        mockDatabase.forEach(post => {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `
-                <div class="card-id">ID: ${post.id}</div>
-                <h3 style="margin: 0 0 10px 0;">> ${post.title}</h3>
-                <p style="margin: 0; color: #ccc;">${post.content}</p>
-                <div class="btn-group">
-                    <button onclick="editPost('${post.id}')">EDIT</button>
-                    <button class="delete" onclick="deletePost('${post.id}')">DELETE</button>
+        <div class="container">
+            <div id="posts-container" class="posts-grid">
                 </div>
-            `;
-            grid.appendChild(card);
-        });
-    }
+        </div>
+    </div>
 
-    // 3. Заглушки для будущих API-запросов (с ключом ADMINPLUS_KEY)
-    function deletePost(id) {
-        addLog(`WARN: Инициировано удаление записи [${id}]...`);
-        
-        // Позже здесь будет: fetch('/api/admin/delete', { headers: { 'Authorization': 'твой_ключ' } })
-        setTimeout(() => {
-            mockDatabase = mockDatabase.filter(p => p.id !== id);
-            renderPosts();
-            addLog(`SUCCESS: Запись [${id}] уничтожена.`);
-        }, 500);
-    }
+    <script>
+        // Твои данные, используем как fallback, если API пока не отвечает на localhost
+        const fallbackData = [{"id":1774521810858,"title":"(без названия)","content":"—","author":"ркет","timestamp":1774521810858,"replies":[],"imageurl":"https://i.ibb.co/fVr4mfR8/Roblox-Screen-Shot20260227-173231935.png"},{"id":1774521531732,"title":"Лука","content":"—","author":"luca","timestamp":1774521531732,"replies":[],"imageurl":null},{"id":1774521144345,"title":"Всё теперь есть фото","content":"—","author":"Лука","timestamp":1774521144345,"replies":[],"imageurl":null},{"id":1774520554239,"title":"(без названия)","content":"—","author":"Лука","timestamp":1774520554239,"replies":[],"imageurl":null},{"id":1774520112475,"title":"photo test2","content":"test","author":"Devs","timestamp":1774520112475,"replies":[],"imageurl":"https://i.ibb.co/xS5Cznx2/ava.png"},{"id":1774520081248,"title":"Отправка сообщений сломалась!","content":"при отправке сообщений иногда ошибка 500! я уже исправляю","author":"Devs","timestamp":1774520081248,"replies":[],"imageurl":null},{"id":1774515102640,"title":"тест перехода на новую дб","content":"—","author":"Лука","timestamp":1774515102640,"replies":[{"id":1774517520378,"author":"Лука","content":"ответы работают?","timestamp":1774517520378}],"imageurl":null}];
 
-    function editPost(id) {
-        addLog(`INFO: Запрос доступа к редактированию [${id}]...`);
-        alert(`Здесь откроется модальное окно для радактирования поста: ${id}`);
-    }
+        // Проверяем, есть ли уже токен при загрузке страницы
+        window.onload = () => {
+            const token = localStorage.getItem('admin_token');
+            if (token) {
+                showDashboard();
+            }
+        };
 
-    // 4. Имитация загрузки и подключения к нашему безопасному серверу
-    setTimeout(() => {
-        loader.innerText = '> FETCHING_DATA_FROM_SECURE_API...';
-        addLog('Установка защищенного соединения...');
-        
-        setTimeout(() => {
-            loader.style.display = 'none';
-            statsStatus.innerHTML = 'STATUS: <span style="color: var(--green)">ONLINE / SECURE</span>';
-            addLog('Соединение установлено. Данные получены.');
-            renderPosts();
-        }, 800);
-        
-    }, 1000);
+        function handleEnter(e) {
+            if (e.key === 'Enter') attemptLogin();
+        }
 
-</script>
+        async function attemptLogin() {
+            const password = document.getElementById('admin-password').value;
+            const errorMsg = document.getElementById('login-error');
+            const btn = document.getElementById('login-btn');
+
+            if (!password) return;
+
+            btn.innerText = "Загрузка...";
+            errorMsg.style.display = 'none';
+
+            try {
+                // Запрос к твоему API авторизации
+                const res = await fetch('/api/auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    // Сохраняем токен и пускаем в дашборд
+                    localStorage.setItem('admin_token', data.token);
+                    showDashboard();
+                } else {
+                    errorMsg.innerText = data.message || "Доступ запрещен";
+                    errorMsg.style.display = 'block';
+                }
+            } catch (err) {
+                // Если API недоступно (например, запускаем локально), сымитируем успешный вход для теста
+                console.warn("API недоступно, используем тестовый вход", err);
+                if (password === 'admin') { // Тестовый пароль
+                    localStorage.setItem('admin_token', 'TEST_TOKEN');
+                    showDashboard();
+                } else {
+                    errorMsg.innerText = "Ошибка соединения с сервером (попробуй пароль 'admin' для теста)";
+                    errorMsg.style.display = 'block';
+                }
+            } finally {
+                btn.innerText = "Войти";
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('admin_token');
+            document.getElementById('dashboard-screen').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('admin-password').value = '';
+        }
+
+        async function showDashboard() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('dashboard-screen').classList.remove('hidden');
+            loadPosts();
+        }
+
+        async function loadPosts() {
+            const container = document.getElementById('posts-container');
+            container.innerHTML = '<i>Загрузка постов...</i>';
+
+            let posts = [];
+            try {
+                const res = await fetch('/api/posts');
+                if (res.ok) {
+                    posts = await res.json();
+                } else {
+                    throw new Error("Ошибка загрузки");
+                }
+            } catch (err) {
+                console.warn("Не удалось загрузить с API, загружаю тестовые данные");
+                posts = fallbackData; // Подставляем твои данные из промпта
+            }
+
+            renderPosts(posts);
+        }
+
+        function renderPosts(posts) {
+            const container = document.getElementById('posts-container');
+            container.innerHTML = '';
+
+            posts.forEach(post => {
+                const date = new Date(post.timestamp).toLocaleString('ru-RU');
+                
+                // Проверяем наличие картинки
+                const imageHTML = post.imageurl 
+                    ? `<img src="${post.imageurl}" class="post-image" alt="Прикрепленное фото">` 
+                    : '';
+
+                // Проверяем количество ответов
+                const repliesCount = post.replies ? post.replies.length : 0;
+                const repliesHTML = repliesCount > 0 
+                    ? `<span class="reply-count">Ответов: ${repliesCount}</span>`
+                    : `<span class="reply-count">Нет ответов</span>`;
+
+                const card = document.createElement('div');
+                card.className = 'post-card';
+                card.innerHTML = `
+                    <div class="post-header">
+                        <span class="post-author">${post.author}</span>
+                        <span>${date}</span>
+                    </div>
+                    <h3 class="post-title">${post.title || 'Без названия'}</h3>
+                    <div class="post-content">${post.content}</div>
+                    ${imageHTML}
+                    <div class="post-footer">
+                        ${repliesHTML}
+                        <button class="danger" onclick="deletePost(${post.id})">Удалить</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        async function deletePost(postId) {
+            if (!confirm(`Точно удалить пост ${postId}?`)) return;
+
+            const token = localStorage.getItem('admin_token');
+
+            // Пример того, как нужно отправлять запрос на удаление
+            /*
+            try {
+                const res = await fetch(`/api/posts/${postId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}` // Передаем токен для защиты роута
+                    }
+                });
+                if (res.ok) loadPosts(); // Перезагружаем список
+            } catch (err) {
+                alert('Ошибка при удалении');
+            }
+            */
+
+            // Для интерфейса: просто скрываем карточку
+            alert(`Отправлен запрос на удаление ID: ${postId}. \n(Раскомментируй функцию fetch в коде для реального удаления)`);
+            loadPosts(); // В реальности перезагрузит список
+        }
+    </script>
 </body>
 </html>
