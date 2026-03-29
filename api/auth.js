@@ -11,7 +11,7 @@ export default function handler(req, res) {
     return res.status(200).json({ 
       success: true, 
       token: "SESSION_ACTIVE_XYZ", // В идеале тут должен быть JWT, но для начала хватит и этого
-      supatkn: process.env.SUPABASE_URL
+      supatkn: process.env.SUPABASE_URL,
       supasrl: process.env.SUPABASE_SERVICE_ROLE_KEY
     });
   } else {
