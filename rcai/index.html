@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Workspace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --m3-surface: #f3f4f9;
+            --m3-primary: #6750a4;
+            --glass: rgba(255, 255, 255, 0.6);
+            --font-main: 'Inter', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #1c1b1f;
+        }
+
+        /* Glassmorphism Card */
+        .container {
+            background: var(--glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 28px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .hidden { display: none; }
+
+        h2 { margin-top: 0; font-weight: 600; }
+
+        /* Material 3 Inputs & Buttons */
+        input {
+            width: calc(100% - 24px);
+            padding: 14px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.1);
+            background: rgba(255,255,255,0.8);
+            margin-bottom: 12px;
+            outline: none;
+            font-family: var(--font-main);
+            font-size: 15px;
+            transition: border 0.2s;
+        }
+
+        input:focus { border-color: var(--m3-primary); }
+
+        button {
+            background: var(--m3-primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: var(--font-main);
+            font-weight: 500;
+            font-size: 15px;
+            transition: transform 0.1s, opacity 0.2s;
+            width: 100%;
+        }
+
+        button:active { transform: scale(0.98); }
+        button:hover { opacity: 0.9; }
+
+        #chat-log {
+            text-align: left;
+            height: 300px;
+            overflow-y: auto;
+            background: rgba(255,255,255,0.4);
+            padding: 15px;
+            border-radius: 16px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            line-height: 1.5;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .msg { padding: 10px 14px; border-radius: 16px; max-width: 80%; }
+        .msg.user { background: var(--m3-primary); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .msg.ai { background: white; color: black; align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+        .error-box { color: #b3261e; background: #f9dedc; padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+<div class="container" id="auth-section">
+    <h2>Вход в Workspace</h2>
+    <p>Введите ADMINPLUS_KEY</p>
+    <input type="password" id="admin-password" placeholder="Пароль...">
+    <button onclick="loginWithPassword()">Войти</button>
+    <div id="auth-error" class="error-box hidden">Неверный пароль или ошибка сервера.</div>
+</div>
+
+<div class="container hidden" id="app-section">
+    <h2>AI Assistant</h2>
+    
+    <div id="chat-log"></div>
+    <div id="error-display" class="hidden"></div>
+    
+    <div style="display: flex; gap: 10px;">
+        <input type="text" id="ai-input" placeholder="Введите запрос..." style="margin-bottom: 0;">
+        <button onclick="askAI()" style="width: auto;">Отправить</button>
+    </div>
+</div>
+
+<script>
+    let supabaseClient = null;
+    let sessionToken = null;
+
+    const authSection = document.getElementById('auth-section');
+    const appSection = document.getElementById('app-section');
+    const chatLog = document.getElementById('chat-log');
+
+    // 1. Авторизация через твой Vercel API
+    async function loginWithPassword() {
+        const password = document.getElementById('admin-password').value;
+        const errorBox = document.getElementById('auth-error');
+        errorBox.classList.add('hidden');
+
+        try {
+            // Укажи тут полный URL твоего Vercel, если тестируешь локально
+            const res = await fetch('/api/auth', { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password })
+            });
+            
+            const data = await res.json();
+
+            if (data.success) {
+                // Инициализируем Supabase ключами, полученными с бэкенда
+                supabaseClient = supabase.createClient(data.supatkn, data.supanon);
+                sessionToken = data.token;
+                showApp();
+                loadHistory();
+            } else {
+                errorBox.classList.remove('hidden');
+            }
+        } catch (err) {
+            console.error(err);
+            errorBox.innerText = "Ошибка соединения с сервером.";
+            errorBox.classList.remove('hidden');
+        }
+    }
+
+    function showApp() {
+        authSection.classList.add('hidden');
+        appSection.classList.remove('hidden');
+    }
+
+    // 2. Отправка сообщения и сохранение в БД
+    async function askAI() {
+        const inputField = document.getElementById('ai-input');
+        const msg = inputField.value.trim();
+        const errorDisplay = document.getElementById('error-display');
+        
+        if(!msg) return;
+
+        // Отображаем на экране
+        appendMessage('user', msg);
+        inputField.value = '';
+        
+        // Сохраняем запрос пользователя в Supabase
+        await saveMessageToDB('user', msg);
+
+        try {
+            // Запрос к твоему AI API
+            const response = await fetch(`https://orrcs.vercel.app/api/ai?token=rcai&role=user&msg=${encodeURIComponent(msg)}&model=default`);
+            const data = await response.json();
+
+            if (data.status === "success" || data.reply) {
+                const aiReply = data.reply || data.response; // зависит от точного ответа твоего API
+                appendMessage('ai', aiReply);
+                errorDisplay.classList.add('hidden');
+                
+                // Сохраняем ответ AI в Supabase
+                await saveMessageToDB('ai', aiReply);
+            } else {
+                throw new Error("Ошибка API");
+            }
+        } catch (err) {
+            errorDisplay.classList.remove('hidden');
+            errorDisplay.innerHTML = `<div class="error-box">Ошибка: ${err.message}. Возможно статус 402.</div>`;
+        }
+    }
+
+    // Функция отрисовки сообщений в UI
+    function appendMessage(role, text) {
+        const div = document.createElement('div');
+        div.className = `msg ${role}`;
+        div.innerText = text;
+        chatLog.appendChild(div);
+        chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    // Функция сохранения в Supabase
+    async function saveMessageToDB(role, content) {
+        if(!supabaseClient) return;
+        
+        const { error } = await supabaseClient
+            .from('ai_chats')
+            .insert([{ session_token: sessionToken, role: role, content: content }]);
+            
+        if (error) console.error("Ошибка сохранения в БД:", error);
+    }
+
+    // Загрузка истории (опционально)
+    async function loadHistory() {
+        if(!supabaseClient) return;
+        
+        const { data, error } = await supabaseClient
+            .from('ai_chats')
+            .select('*')
+            .eq('session_token', sessionToken)
+            .order('created_at', { ascending: true });
+
+        if (data && data.length > 0) {
+            data.forEach(row => appendMessage(row.role, row.content));
+        }
+    }
+</script>
+</body>
+</html>
