@@ -93,17 +93,17 @@ h1 {
 </div>
 
 <script>
-const userId = localStorage.getItem("telegram_id");
-
+// Основная функция загрузки профиля
 async function loadProfile() {
-    // 1. Пытаемся взять ID из localStorage
+    const params = new URLSearchParams(window.location.search);
     let userId = localStorage.getItem("telegram_id");
 
-    // 2. Если ID нет в памяти, но он есть в ссылке (после входа) — берем из ссылки
-    const params = new URLSearchParams(window.location.search);
-    if (!userId && params.get("id")) {
+    // Если мы только что пришли после логина (параметры в URL)
+    if (params.get("id")) {
         userId = params.get("id");
         localStorage.setItem("telegram_id", userId);
+        // Очищаем URL от параметров для красоты
+        window.history.replaceState({}, document.title, window.location.pathname);
     }
 
     if (!userId) {
@@ -112,88 +112,68 @@ async function loadProfile() {
     }
 
     try {
-        // Запрос к твоему новому API на Vercel
+        // Стучимся в твой API на Vercel
         const res = await fetch(`/api/getUser?id=${userId}`);
-        const data = await res.json();
-
-        if (data.exists === false) {
+        
+        if (!res.ok) {
             showGuest();
             return;
         }
 
-        // Показываем профиль
-        showUser(data);
+        const data = await res.json();
 
-        // Показываем золотой значок Плюса, если в базе true
-        if (data.has_plus) {
-            document.getElementById("plusBadge").style.display = "inline-block";
+        if (data.exists) {
+            renderUser(data);
+            // Если есть Плюс — включаем значок
+            if (data.has_plus) {
+                document.getElementById("plusBadge").style.display = "inline-block";
+            }
+        } else {
+            showGuest();
         }
 
     } catch (err) {
-        console.error("Ошибка сети:", err);
+        console.error("Ошибка API:", err);
         showGuest();
     }
 }
 
-function showUser(user) {
+// Отрисовка профиля (Material 3 style)
+function renderUser(user) {
     document.getElementById("content").innerHTML = `
-        <div class="profile">
-            <h2 style="margin-bottom:5px;">${user.first_name || user.username}</h2>
-            <p style="color: #888; font-size: 14px;">@${user.username}</p>
-            <div style="margin-top: 20px; padding: 15px; border: 1px solid #2c2c2c; border-radius: 12px;">
-                <span style="color: #888;">ID:</span> ${user.telegram_id}
+        <div class="profile" style="animation: fadeIn 0.5s ease;">
+            <h2 style="margin-bottom:5px; font-weight: 600;">${user.first_name || user.username}</h2>
+            <p style="color: #888; font-size: 14px; margin-bottom: 20px;">@${user.username}</p>
+            
+            <div style="background: rgba(255,255,255,0.03); padding: 16px; border: 1px solid #2c2c2c; border-radius: 16px; margin-bottom: 24px;">
+                <p style="color: #666; font-size: 12px; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px;">Telegram ID</p>
+                <code style="font-family: monospace; font-size: 16px; color: #fff;">${user.telegram_id}</code>
             </div>
-            <button onclick="logout()" class="btn" style="background: transparent; color: #ff4444; border: 1px solid #442222; margin-top: 20px;">Выйти</button>
+
+            <button onclick="logout()" class="btn" style="background: transparent; color: #ff4444; border: 1px solid #442222;">
+                Выйти из аккаунта
+            </button>
         </div>
     `;
 }
 
+// Состояние гостя
+function showGuest() {
+    document.getElementById("content").innerHTML = `
+        <div class="ghost" style="margin-bottom: 10px;">👻</div>
+        <p style="color: #888; margin-bottom: 20px;">Вы не авторизованы или аккаунт не найден</p>
+        <a href="Auth.html" class="btn">Войти через Telegram</a>
+    `;
+}
+
+// Выход
 function logout() {
     localStorage.removeItem("telegram_id");
     window.location.href = "Auth.html";
 }
 
-const params = new URLSearchParams(window.location.search);
-
-const user = {
-    id: params.get("id"),
-    username: params.get("username"),
-    first_name: params.get("first_name"),
-    hash: params.get("hash")
-};
-
-if (user.id) {
-    console.log("LOGGED IN:", user);
-
-    // можно сохранить в базу
-    fetch("/api/createUser", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(user)
-    });
-}
-
-// 👻 гость
-function showGuest() {
-    document.getElementById("content").innerHTML = `
-        <div class="ghost">👻</div>
-        <p>Вы не вошли</p>
-        <a href="/Portal/Auth.html" class="btn">Войти в портал</a>
-    `;
-}
-
-// 👤 пользователь
-function showUser(user) {
-    document.getElementById("content").innerHTML = `
-        <div class="profile">
-            <h2>${user.username}</h2>
-            <p>ID: ${user.id}</p>
-        </div>
-    `;
-}
-
-// запуск
-loadProfile();
+// Точка входа
+document.addEventListener("DOMContentLoaded", loadProfile);
 </script>
 
 </body>
