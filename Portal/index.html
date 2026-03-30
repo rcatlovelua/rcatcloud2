@@ -118,6 +118,25 @@ async function loadProfile() {
         showGuest();
     }
 }
+const params = new URLSearchParams(window.location.search);
+
+const user = {
+    id: params.get("id"),
+    username: params.get("username"),
+    first_name: params.get("first_name"),
+    hash: params.get("hash")
+};
+
+if (user.id) {
+    console.log("LOGGED IN:", user);
+
+    // можно сохранить в базу
+    fetch("/api/createUser", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(user)
+    });
+}
 
 // 👻 гость
 function showGuest() {
