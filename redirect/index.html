@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Авто-редирект</title>
+</head>
+<body>
+    <script>
+        // ===== НАСТРОЙКИ =====
+        const delaySeconds = 3;  // Задержка в секундах
+        // ======================
+        
+        // Получаем параметр redirect из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        let targetUrl = urlParams.get('redirect');
+        
+        // Если параметр есть - делаем редирект
+        if (targetUrl) {
+            // Добавляем https:// если нет протокола
+            if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
+                targetUrl = 'https://' + targetUrl;
+            }
+            
+            if (delaySeconds > 0) {
+                document.write('<div style="text-align:center; padding:50px; font-family:sans-serif;">Редирект через ' + delaySeconds + ' секунд...</div>');
+                setTimeout(function() {
+                    window.location.href = targetUrl;
+                }, delaySeconds * 1000);
+            } else {
+                window.location.href = targetUrl;
+            }
+        } else {
+            // Если параметр не указан - показываем ошибку
+            document.write('<div style="text-align:center; padding:50px; font-family:sans-serif;">Ошибка: не указан параметр redirect<br><br>Пример: page.html?redirect=https://google.com</div>');
+        }
+    </script>
+</body>
+</html>
