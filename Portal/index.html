@@ -93,31 +93,66 @@ h1 {
 </div>
 
 <script>
-// 👇 получаем ID (можешь передавать через URL или localStorage)
 const userId = localStorage.getItem("telegram_id");
 
-// ⚡ API
 async function loadProfile() {
+    // 1. Пытаемся взять ID из localStorage
+    let userId = localStorage.getItem("telegram_id");
+
+    // 2. Если ID нет в памяти, но он есть в ссылке (после входа) — берем из ссылки
+    const params = new URLSearchParams(window.location.search);
+    if (!userId && params.get("id")) {
+        userId = params.get("id");
+        localStorage.setItem("telegram_id", userId);
+    }
+
     if (!userId) {
         showGuest();
         return;
     }
 
     try {
-        const res = await fetch(`https://orrcs.vercel.app/api/getUser?id=${userId}`);
+        // Запрос к твоему новому API на Vercel
+        const res = await fetch(`/api/getUser?id=${userId}`);
         const data = await res.json();
 
-        if (!data || !data.telegram_id) {
+        if (data.exists === false) {
             showGuest();
             return;
         }
 
+        // Показываем профиль
         showUser(data);
 
-    } catch {
+        // Показываем золотой значок Плюса, если в базе true
+        if (data.has_plus) {
+            document.getElementById("plusBadge").style.display = "inline-block";
+        }
+
+    } catch (err) {
+        console.error("Ошибка сети:", err);
         showGuest();
     }
 }
+
+function showUser(user) {
+    document.getElementById("content").innerHTML = `
+        <div class="profile">
+            <h2 style="margin-bottom:5px;">${user.first_name || user.username}</h2>
+            <p style="color: #888; font-size: 14px;">@${user.username}</p>
+            <div style="margin-top: 20px; padding: 15px; border: 1px solid #2c2c2c; border-radius: 12px;">
+                <span style="color: #888;">ID:</span> ${user.telegram_id}
+            </div>
+            <button onclick="logout()" class="btn" style="background: transparent; color: #ff4444; border: 1px solid #442222; margin-top: 20px;">Выйти</button>
+        </div>
+    `;
+}
+
+function logout() {
+    localStorage.removeItem("telegram_id");
+    window.location.href = "Auth.html";
+}
+
 const params = new URLSearchParams(window.location.search);
 
 const user = {
