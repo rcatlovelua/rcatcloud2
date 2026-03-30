@@ -130,16 +130,10 @@ function showGuest() {
 
 // 👤 пользователь
 function showUser(user) {
-
-    if (user.has_plus) {
-        document.getElementById("plusBadge").style.display = "inline";
-    }
-
     document.getElementById("content").innerHTML = `
         <div class="profile">
             <h2>${user.username}</h2>
-            <p>ID: ${user.telegram_id}</p>
-            <p>${user.has_plus ? "⭐ У вас есть плюс" : "🔹 Без плюса"}</p>
+            <p>ID: ${user.id}</p>
         </div>
     `;
 }
