@@ -299,7 +299,7 @@
     <script>
         // Configuration
         const BOT_USERNAME = 'rcstg_robot';
-        const AUTH_URL = 'https://orrcs.vercel.app/Portal?auth=1';
+        const AUTH_URL = 'https://orrcs.vercel.app/Portal';
         
         // Widget dimensions (enlarged)
         const WIDGET_WIDTH = '320';
@@ -396,33 +396,7 @@
                 `dark_mode=1`;
         }
         
-        // Handle messages from widget
-        window.addEventListener('message', function(event) {
-            if (event.origin !== 'https://oauth.telegram.org') return;
-            
-            try {
-                const data = JSON.parse(event.data);
-                const statusBadge = document.getElementById('statusBadge');
-                
-                if (data.event === 'auth_user') {
-                    console.log('User authorized:', data);
-                    
-                    // Show success state
-                    const widgetContainer = document.getElementById('telegram-widget');
-                    widgetContainer.innerHTML = '<div style="color: #ffffff; padding: 20px; text-align: center;">✓ Авторизация успешна</div>';
-                    statusBadge.textContent = 'Успешно! Проверь сообщение от бота!';
-                    
-                    // Redirect with data
-                    const params = new URLSearchParams(data).toString();
-                    
-                    setTimeout(() => {
-                        window.location.href = `${AUTH_URL}?${params}`;
-                    }, 1000);
-                }
-            } catch (e) {
-                console.error('Message parsing error:', e);
-            }
-        });
+        
         
         // Detect mobile devices
         function isMobile() {
