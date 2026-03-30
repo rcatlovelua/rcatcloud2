@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RCS Portal</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Inter, sans-serif;
+    background: #000;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* контейнер */
+.container {
+    border: 1px solid #2c2c2c;
+    border-radius: 24px;
+    padding: 40px;
+    width: 400px;
+    text-align: center;
+}
+
+/* заголовок */
+h1 {
+    font-size: 32px;
+    margin-bottom: 20px;
+}
+
+.rcs {
+    color: white;
+}
+
+.portal {
+    color: #8b5cf6;
+}
+
+/* плюс */
+.plus {
+    color: gold;
+    font-size: 14px;
+    margin-left: 6px;
+}
+
+/* профиль */
+.profile {
+    margin-top: 20px;
+}
+
+/* кнопка */
+.btn {
+    margin-top: 30px;
+    background: white;
+    color: black;
+    padding: 12px;
+    border-radius: 12px;
+    text-decoration: none;
+    display: inline-block;
+    width: 100%;
+    font-weight: 500;
+}
+
+.btn:hover {
+    background: #e5e5e5;
+}
+
+/* призрак */
+.ghost {
+    font-size: 60px;
+    opacity: 0.7;
+    margin-top: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>
+<span class="rcs">RCS</span>
+<span class="portal">Portal</span>
+<span id="plusBadge" class="plus" style="display:none;">★ PLUS</span>
+</h1>
+
+<div id="content"></div>
+
+</div>
+
+<script>
+// 👇 получаем ID (можешь передавать через URL или localStorage)
+const userId = localStorage.getItem("telegram_id");
+
+// ⚡ API
+async function loadProfile() {
+    if (!userId) {
+        showGuest();
+        return;
+    }
+
+    try {
+        const res = await fetch(`https://orrcs.vercel.app/api/getUser?id=${userId}`);
+        const data = await res.json();
+
+        if (!data || !data.telegram_id) {
+            showGuest();
+            return;
+        }
+
+        showUser(data);
+
+    } catch {
+        showGuest();
+    }
+}
+
+// 👻 гость
+function showGuest() {
+    document.getElementById("content").innerHTML = `
+        <div class="ghost">👻</div>
+        <p>Вы не вошли</p>
+        <a href="/Portal/Auth.html" class="btn">Войти в портал</a>
+    `;
+}
+
+// 👤 пользователь
+function showUser(user) {
+
+    if (user.has_plus) {
+        document.getElementById("plusBadge").style.display = "inline";
+    }
+
+    document.getElementById("content").innerHTML = `
+        <div class="profile">
+            <h2>${user.username}</h2>
+            <p>ID: ${user.telegram_id}</p>
+            <p>${user.has_plus ? "⭐ У вас есть плюс" : "🔹 Без плюса"}</p>
+        </div>
+    `;
+}
+
+// запуск
+loadProfile();
+</script>
+
+</body>
+</html>
