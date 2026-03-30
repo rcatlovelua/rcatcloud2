@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log in to RCS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000;
+            color: #fff;
+        }
+
+        .vercel-card {
+            background: #000;
+            border: 1px solid #333;
+            transition: border-color 0.2s ease;
+        }
+
+        .vercel-card:hover {
+            border-color: #ededed;
+        }
+
+        .btn-primary {
+            background-color: #fff;
+            color: #000;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #ccc;
+        }
+
+        .disabled-option {
+            opacity: 0.5;
+            cursor: not-allowed;
+            filter: grayscale(1);
+        }
+
+        .badge {
+            font-size: 10px;
+            padding: 2px 6px;
+            background: #333;
+            border-radius: 12px;
+            margin-left: 8px;
+            color: #888;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+
+    <div class="w-full max-w-md px-8 py-12 text-center">
+        <div class="mb-8 flex justify-center">
+            
+                <path d="M37.5274 0L75.0548 65H0L37.5274 0Z" fill="white"/>
+            </svg>
+        </div>
+
+        <h1 class="text-3xl font-semibold mb-2 tracking-tight">Войти в аккаунт</h1>
+        <p class="text-[#888] mb-10">Выберите удобный способ авторизации</p>
+
+        <div class="space-y-4">
+            <a href="https://orrcs.vercel.app/Portal/TelegramAuth/login.html" 
+               class="vercel-card flex items-center justify-between w-full p-4 rounded-lg group">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.161c-.18.717-.962 4.084-1.362 5.441-.168.575-.337.765-.461.776-.271.023-.476-.181-.738-.354-.41-.271-.641-.44-.972-.656-.44-.287-.154-.445.096-.704.065-.068 1.201-1.101 1.223-1.196.003-.012.006-.056-.024-.083-.03-.027-.074-.018-.106-.011-.045.01-.767.487-2.166 1.432-.205.141-.391.21-.557.206-.183-.004-.534-.104-.795-.188-.32-.104-.575-.16-.553-.338.012-.093.14-.188.384-.285 1.507-.656 2.512-1.088 3.015-1.298 1.434-.598 1.731-.702 1.926-.705.043-.001.139.01.202.062.053.044.068.103.076.149.008.046.009.132.005.163z"/>
+                    </svg>
+                    <span class="font-medium text-sm">Войти через Telegram</span>
+                </div>
+                <svg class="w-4 h-4 text-[#444] group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+
+            <div class="disabled-option vercel-card flex items-center justify-between w-full p-4 rounded-lg">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.43.372.823 1.102.823 2.222 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+                    </svg>
+                    <span class="font-medium text-sm text-[#888]">Continue with GitHub</span>
+                    <span class="badge">Soon</span>
+                </div>
+            </div>
+
+            <div class="disabled-option vercel-card flex items-center justify-between w-full p-4 rounded-lg">
+                <div class="flex items-center text-[#888]">
+                    <svg class="w-5 h-5 mr-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12.48 10.92v3.28h7.84c-.24 1.84-2.21 5.39-7.84 5.39-4.84 0-8.79-4.01-8.79-8.91s3.95-8.91 8.79-8.91c2.75 0 4.59 1.16 5.64 2.17l2.58-2.49c-1.66-1.55-3.82-2.49-8.22-2.49-6.63 0-12 5.37-12 12s5.37 12 12 12c6.93 0 11.53-4.87 11.53-11.72 0-.79-.08-1.39-.18-1.99h-11.35z"/>
+                    </svg>
+                    <span class="font-medium text-sm">Continue with Google</span>
+                    <span class="badge">Soon</span>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mt-12">
+            <p class="text-xs text-[#666]">
+                Другие способы входа станут доступны в ближайшее время. <br>
+                <span class="mt-2 block">© 2026 Rcat Cool Studio</span>
+            </p>
+        </footer>
+    </div>
+
+</body>
+</html>
