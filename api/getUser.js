@@ -1,45 +1,69 @@
 import { createClient } from '@supabase/supabase-js';
+import crypto from 'crypto'; // Встроенный модуль Node.js для хеширования
 
-// Инициализация Supabase (Берем данные из настроек Vercel)
 const supabase = createClient(
   process.env.SUPABASE_URL, 
   process.env.SUPABASE_ANON_KEY 
 );
 
-export default async function handler(req, res) {
-  // Разрешаем запросы (CORS), чтобы фронтенд мог достучаться до апи
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET');
-  
-  const { id } = req.query;
+// ... (начало кода то же самое)
 
-  // Проверка: передал ли сайт ID пользователя
-  if (!id) {
-    return res.status(400).json({ error: 'ID пользователя не указан' });
-  }
+export default async function handler(req, res) {
+  const { id, pass } = req.query;
+
+  if (!id) return res.status(400).json({ error: 'ID не указан' });
 
   try {
-    // Ищем пользователя в таблице 'portal_users' (как в твоем боте)
     const { data, error } = await supabase
       .from('portal_users')
-      .select('telegram_id, username, first_name, has_plus')
+      .select('*')
       .eq('telegram_id', id)
       .single();
 
-    if (error || !data) {
-      return res.status(404).json({ 
-        exists: false, 
-        message: 'Пользователь не найден в базе RCS' 
+    if (error || !data) return res.status(404).json({ exists: false });
+
+    // Базовый ответ
+    let response = {
+      exists: true,
+      username: data.username,
+      has_plus: data.has_plus
+    };
+
+    // Если в запросе ПРИШЕЛ пароль, добавляем проверку
+    if (pass) {
+      const inputHash = crypto.createHash('sha256').update(pass).digest('hex');
+      response.pass_correct = (inputHash === data.password_hash);
+    }
+
+    return res.status(200).json(response);
+
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+    // Хешируем полученный пароль через SHA-256 (как в Python-боте)
+    const inputHash = crypto.createHash('sha256').update(pass).digest('hex');
+
+    // Сравниваем хеши
+    const isPassCorrect = inputHash === data.password_hash;
+
+    if (!isPassCorrect) {
+      return res.status(401).json({
+        exists: true,
+        pass_correct: false,
+        message: 'Неверный пароль'
       });
     }
 
-    // Возвращаем данные фронтенду
+    // Если всё ок — возвращаем данные
     return res.status(200).json({
       exists: true,
+      pass_correct: true,
       telegram_id: data.telegram_id,
       username: data.username,
       first_name: data.first_name,
-      has_plus: data.has_plus // Это самое важное для значка PLUS
+      has_plus: data.has_plus
     });
 
   } catch (err) {
