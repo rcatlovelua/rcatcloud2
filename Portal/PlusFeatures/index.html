@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RCS Plus — Upgrade Your Experience</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000;
+            color: #fff;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .plus-badge {
+            background: linear-gradient(135deg, #0070f3 0%, #f81ce5 100%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            padding: 2px 10px;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 0 15px rgba(0, 112, 243, 0.3);
+        }
+
+        .vercel-gradient-text {
+            background: linear-gradient(to bottom right, #fff 30%, #a1a1a1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <section class="max-w-4xl mx-auto pt-24 pb-16 px-6 text-center">
+        <div class="mb-6 flex justify-center">
+            <div class="plus-badge">PLUS</div>
+        </div>
+        <h1 class="text-5xl md:text-7xl font-bold tracking-tight vercel-gradient-text mb-6">
+            RCS Plus Features
+        </h1>
+        <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+            Получите статус проверенного участника и откройте доступ к эксклюзивным инструментам нового поколения.
+        </p>
+    </section>
+
+    <main class="max-w-5xl mx-auto px-6 pb-24">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <div class="glass-card rounded-2xl p-8 flex flex-col justify-between">
+                <div>
+                    <div class="w-12 h-12 bg-blue-600/20 rounded-full flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-3 leading-tight">Статус Verified</h3>
+                    <p class="text-gray-400 mb-6">Ваш аккаунт получает метку верификации. Это открывает доступ к функциям, где <b>необходима</b> проверка на бота для обеспечения безопасности системы.</p>
+                </div>
+                <div class="text-sm font-medium text-blue-400">Доступно мгновенно →</div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-8 flex flex-col justify-between">
+                <div>
+                    <div class="w-12 h-12 bg-purple-600/20 rounded-full flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-3 leading-tight">Rcat AI</h3>
+                    <p class="text-gray-400 mb-6">Продвинутый искусственный интеллект для ваших задач. Быстрый отклик и высокая точность генерации.</p>
+                </div>
+                <a href="https://orrcs.vercel.app/rcai" class="text-sm font-medium text-purple-400 hover:underline">
+                    Перейти к AI →
+                </a>
+            </div>
+
+            <div class="glass-card rounded-2xl p-8 md:col-span-2 border-l-4 border-l-pink-500">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div class="max-w-xl">
+                        <h3 class="text-2xl font-semibold mb-3 leading-tight">Эксклюзивные подарки</h3>
+                        <p class="text-gray-400">
+                            В разделе Rewards мы временами выкладываем «хорошие штучки» — от уникальных ресурсов до премиальных бонусов, доступных только для Plus-пользователей.
+                        </p>
+                    </div>
+                    <a href="https://orrcs.vercel.app/Portal/PlusFeatures/Rewards" 
+                       class="inline-flex items-center justify-center bg-white text-black px-6 py-3 rounded-full font-semibold transition hover:bg-gray-200">
+                        Забрать награды
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <footer class="mt-16 text-center text-gray-500 text-sm">
+            <p>© 2026 Rcat Cool Studio. Дизайн вдохновлен Vercel.</p>
+        </footer>
+    </main>
+
+</body>
+</html>
