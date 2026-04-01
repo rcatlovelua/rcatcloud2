@@ -240,59 +240,74 @@
         appendMessage('ai', `Привет, **${name}**! Я готов к работе. Чем могу помочь сегодня?`);
     }
 
-    async function askAI() {
-        const input = document.getElementById('ai-input');
-        const btn = document.getElementById('send-btn');
-        const msg = input.value.trim();
-        if (!msg) return;
+   async function askAI() {
+    const input = document.getElementById('ai-input');
+    const btn = document.getElementById('send-btn');
+    const msg = input.value.trim();
+    
+    // Проверка: залогинен ли юзер и есть ли сообщение
+    if (!msg || !currentUser) return;
 
-        appendMessage('user', msg);
-        input.value = '';
-        btn.disabled = true;
-        btn.style.opacity = '0.5';
+    appendMessage('user', msg);
+    input.value = '';
+    btn.disabled = true;
 
-        try {
-            // Запрос к вашему API
-            const res = await fetch(`https://orrcs.vercel.app/api/ai?token=rcai&role=user&msg=${encodeURIComponent(msg)}&model=default`);
-            const data = await res.json();
-            
-            const reply = data.reply || data.response || "Нет ответа от AI";
-            appendMessage('ai', reply);
-        } catch (err) {
-            appendMessage('ai', "**Ошибка соединения:** не удалось получить ответ от нейросети.");
-        } finally {
-            btn.disabled = false;
-            btn.style.opacity = '1';
-            input.focus();
-        }
-    }
-
-    function appendMessage(role, text) {
-        const log = document.getElementById('chat-log');
-        const div = document.createElement('div');
-        div.className = `msg ${role} fade-in`; // Анимация на каждое сообщение
-
-        if (role === 'ai') {
-            // Конвертируем Markdown в HTML
-            div.innerHTML = marked.parse(text);
-            
-            // Активируем подсветку синтаксиса для всех блоков кода в этом сообщении
-            div.querySelectorAll('pre code').forEach((block) => {
-                hljs.highlightElement(block);
-            });
-        } else {
-            // Для пользователя выводим текст как есть
-            div.innerText = text;
-        }
-
-        log.appendChild(div);
+    try {
+        // ИСПРАВЛЕНО: Добавлен &id=... и корректный token
+        const res = await fetch(`https://orrcs.vercel.app/api/ai?token=rcai&id=${currentUser.telegram_id}&msg=${encodeURIComponent(msg)}&model=default`);
         
-        // Плавная прокрутка вниз
-        log.scrollTo({
-            top: log.scrollHeight,
-            behavior: 'smooth'
-        });
+        if (!res.ok) {
+            const errData = await res.json();
+            throw new Error(errData.error || 'Ошибка API');
+        }
+
+        const data = await res.json();
+        const reply = data.reply || "Нет ответа";
+        
+        // Вызываем ИИ ответ с эффектом печати
+        appendMessage('ai', reply, true); 
+
+    } catch (err) {
+        appendMessage('ai', `**Ошибка:** ${err.message}`);
+    } finally {
+        btn.disabled = false;
+        input.focus();
     }
+}
+
+function appendMessage(role, text, animate = false) {
+    const log = document.getElementById('chat-log');
+    const div = document.createElement('div');
+    div.className = `msg ${role} message`; // Используем стиль .message для анимации появления
+
+    if (role === 'ai') {
+        if (animate) {
+            // Эффект печати для стиля Vercel
+            let i = 0;
+            div.classList.add('typing');
+            const interval = setInterval(() => {
+                if (i < text.length) {
+                    // Рендерим Markdown постепенно (или просто текст для скорости)
+                    div.innerHTML = marked.parse(text.substring(0, i + 1));
+                    i++;
+                    log.scrollTop = log.scrollHeight;
+                } else {
+                    div.classList.remove('typing');
+                    clearInterval(interval);
+                    // Подсветка кода в конце
+                    div.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
+                }
+            }, 15); // Скорость печати
+        } else {
+            div.innerHTML = marked.parse(text);
+        }
+    } else {
+        div.innerText = text;
+    }
+
+    log.appendChild(div);
+    log.scrollTo({ top: log.scrollHeight, behavior: 'smooth' });
+}
     function typeEffect(element, text, speed = 30) {
       let i = 0;
       element.innerHTML = "";
