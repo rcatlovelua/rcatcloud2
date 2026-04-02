@@ -1206,7 +1206,12 @@
     
     async function loadPosts() {
         const feedContainer = document.getElementById('feed');
-        feedContainer.innerHTML = `<div class="loading-spinner"><button class="circle extra fill"><span class="shape loading-indicator max medium-space"></span></button></div>`;
+            // Исправленный лоадер в стиле Beer CSS
+             feedContainer.innerHTML = `
+            <div class="loading-spinner">
+                <progress class="circle"></progress>
+                <span>Загрузка постов...</span>
+            </div>`;
         
         try {
             const response = await fetch(API_POSTS);
