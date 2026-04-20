@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Devs — Six Seven Studio</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Caveat:wght@700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/beercss@3/dist/cdn/beer.min.css" rel="stylesheet">
+    <script type="module" src="https://cdn.jsdelivr.net/npm/beercss@3/dist/cdn/beer.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #6750a4;
+            --surface: #f4f7fd;
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --m3-radius: 28px;
+        }
+
+        [data-theme="dark"] {
+            --surface: #0f0f0f;
+            --glass: rgba(25, 25, 25, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--surface) 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            transition: 0.3s;
+        }
+
+        [data-theme="dark"] body {
+            background: radial-gradient(circle at top, #1a1a2e 0%, #0a0a0a 100%);
+        }
+
+        /* Тот самый Glass-эффект */
+        .m3-glass {
+            background: var(--glass) !important;
+            backdrop-filter: blur(15px) saturate(180%);
+            -webkit-backdrop-filter: blur(15px) saturate(180%);
+            border: 1px solid var(--glass-border) !important;
+            border-radius: var(--m3-radius) !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05) !important;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Кнопки и инпуты как в M3 */
+        .pill { border-radius: 100px !important; }
+        
+        .field.pill {
+            border-radius: 100px !important;
+            background: var(--glass);
+            border: 1px solid var(--glass-border) !important;
+        }
+
+        .field.textarea.m3 {
+            border-radius: 24px !important;
+        }
+
+        /* Секция Guys (без изменений, как в оригинале) */
+        .guys-section {
+            margin-top: 50px;
+            background: #080808;
+            border-radius: 32px;
+            overflow: hidden;
+            text-align: center;
+        }
+        .guys-black-block {
+            padding: 60px 20px;
+            font-family: 'Caveat', cursive;
+            animation: guys-boil 0.3s infinite step-end;
+        }
+        @keyframes guys-boil {
+            0% { filter: url(#frame1); }
+            33% { filter: url(#frame2); }
+            66% { filter: url(#frame3); }
+        }
+        .guys-frame {
+            border: 3px solid #fff;
+            padding: 15px 35px;
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+            display: inline-block;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<main class="responsive">
+    <nav class="top padding">
+        <h4 class="max bold"><i class="primary-text">code</i> Devs</h4>
+        <button class="circle transparent" id="themeToggle"><i>dark_mode</i></button>
+        <button class="pill primary" id="manualRefresh"><i>sync</i><span>Обновить</span></button>
+    </nav>
+
+    <div class="padding">
+        <article class="m3-glass">
+            <h6 class="margin-bottom bold">Новая публикация</h6>
+            <div class="grid">
+                <div class="s12 m6 field border pill label">
+                    <input type="text" id="authorName" placeholder=" ">
+                    <label>Ваше имя</label>
+                </div>
+                <div class="s12 m6 field border pill label">
+                    <input type="password" id="adminPassword" placeholder=" ">
+                    <label>Секретный ключ</label>
+                </div>
+                <div class="s12 field border pill label">
+                    <input type="text" id="title" placeholder=" ">
+                    <label>Заголовок (опционально)</label>
+                </div>
+                <div class="s12 field border textarea label m3">
+                    <textarea id="content" placeholder=" "></textarea>
+                    <label>Напишите что-нибудь...</label>
+                </div>
+            </div>
+            <div class="row margin-top">
+                <div class="max">
+                    <input type="file" id="imageInput" class="none">
+                    <button class="pill transparent" onclick="document.getElementById('imageInput').click()">
+                        <i>image</i><span>Фото</span>
+                    </button>
+                </div>
+                <button class="pill primary extra" id="publishBtn"><i>send</i><span>Опубликовать</span></button>
+            </div>
+            <div id="imagePreview" class="margin-top none"><img src="" class="round small-height"></div>
+        </article>
+
+        <div id="feed">
+            <div class="center-align padding">
+                <div class="shape loading-indicator medium"></div>
+            </div>
+        </div>
+
+        <div class="guys-section">
+            <div class="guys-black-block">
+                <div class="guys-frame">
+                    <h2 class="no-margin">Guys</h2>
+                    <p class="no-margin">мессенджер • в разработке</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<svg style="position: absolute; width: 0; height: 0;">
+    <defs>
+        <filter id="frame1"><feTurbulence type="fractalSum" baseFrequency="0.06" numOctaves="1" seed="1"/><feDisplacementMap in="SourceGraphic" scale="3" /></filter>
+        <filter id="frame2"><feTurbulence type="fractalSum" baseFrequency="0.06" numOctaves="1" seed="2"/><feDisplacementMap in="SourceGraphic" scale="3" /></filter>
+        <filter id="frame3"><feTurbulence type="fractalSum" baseFrequency="0.07" numOctaves="1" seed="3"/><feDisplacementMap in="SourceGraphic" scale="3" /></filter>
+    </defs>
+</svg>
+
+<script>
+    // ВАЖНО: Твои оригинальные пути API
+    const API_POSTS = '/api/posts';
+    const API_REPLIES = '/api/replies';
+
+    async function loadPosts() {
+        try {
+            const res = await fetch(API_POSTS);
+            const posts = await res.json();
+            renderPosts(posts);
+        } catch (e) {
+            console.error("Ошибка загрузки:", e);
+        }
+    }
+
+    function renderPosts(posts) {
+        const feed = document.getElementById('feed');
+        if (!posts.length) {
+            feed.innerHTML = '<p class="center-align">Постов пока нет</p>';
+            return;
+        }
+
+        feed.innerHTML = posts.map(post => `
+            <article class="m3-glass">
+                <div class="row">
+                    <i class="primary-text">account_circle</i>
+                    <div class="max">
+                        <h6 class="no-margin bold">${post.author || 'Аноним'}</h6>
+                        <label class="small">${new Date(post.timestamp || Date.now()).toLocaleString()}</label>
+                    </div>
+                </div>
+                <div class="padding-top">
+                    <h5 class="bold">${post.title || ''}</h5>
+                    <p>${post.content || ''}</p>
+                    ${post.imageurl ? `<img src="${post.imageurl}" class="responsive round margin-top">` : ''}
+                </div>
+                <div class="divider margin-top margin-bottom"></div>
+                <nav>
+                    <button class="pill transparent"><i>chat_bubble</i><span>${post.replies?.length || 0}</span></button>
+                    <button class="pill transparent"><i>share</i></button>
+                </nav>
+            </article>
+        `).join('');
+    }
+
+    // Темы (нативный BeerCSS)
+    document.getElementById('themeToggle').onclick = () => {
+        const isDark = ui('mode') === 'dark';
+        const next = isDark ? 'light' : 'dark';
+        ui('mode', next);
+        document.documentElement.setAttribute('data-theme', next);
+    };
+
+    document.getElementById('manualRefresh').onclick = loadPosts;
+
+    // Инициализация
+    document.addEventListener('DOMContentLoaded', () => {
+        const saved = localStorage.getItem('devs_theme') || 'light';
+        ui('mode', saved);
+        document.documentElement.setAttribute('data-theme', saved);
+        loadPosts();
+        setInterval(loadPosts, 30000);
+    });
+</script>
+</body>
+</html>
