@@ -5,8 +5,8 @@ import fs from "fs";
 
 export const config = {
   api: {
-    bodyParser: false
-  }
+    bodyParser: false,
+  },
 };
 
 const supabase = createClient(
@@ -15,33 +15,44 @@ const supabase = createClient(
 );
 
 export default async function handler(req, res) {
-  const form = new formidable.IncomingForm();
+  const form = formidable({
+    multiples: false,
+  });
 
   form.parse(req, async (err, fields, files) => {
-    if (err) return res.status(500).json({ error: err });
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
 
-    const file = files.file;
-    const name = fields.name || file.originalFilename;
+    // ⚠️ files.file может быть массивом
+    const uploadedFile = Array.isArray(files.file)
+      ? files.file[0]
+      : files.file;
 
-    const fileBuffer = fs.readFileSync(file.filepath);
+    if (!uploadedFile) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    const name = fields.name || uploadedFile.originalFilename || "file";
+
+    const fileBuffer = fs.readFileSync(uploadedFile.filepath);
 
     const fileName = `${uuidv4()}-${name}`;
 
-    // 🔥 загрузка в supabase storage
-    const { error } = await supabase
-      .storage
+    // 🔥 upload в Supabase
+    const { error } = await supabase.storage
       .from("cdr-tracks")
       .upload(fileName, fileBuffer, {
-        contentType: file.mimetype
+        contentType: uploadedFile.mimetype,
+        upsert: false,
       });
 
     if (error) {
-      return res.status(500).json({ error });
+      return res.status(500).json({ error: error.message });
     }
 
-    // получаем public url
-    const { data } = supabase
-      .storage
+    // public URL
+    const { data } = supabase.storage
       .from("cdr-tracks")
       .getPublicUrl(fileName);
 
@@ -51,12 +62,12 @@ export default async function handler(req, res) {
     const commands = [
       `/cd create "${name}"`,
       `/cd register "${name}" "${url}"`,
-      `/function cdr:play/${name.replace(".mp3","")}`
+      `/function cdr:play/${name.replace(".mp3", "")}`,
     ];
 
-    return res.json({
+    return res.status(200).json({
       url,
-      commands
+      commands,
     });
   });
 }
