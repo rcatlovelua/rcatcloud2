@@ -138,10 +138,11 @@ export default async function handler(req, res) {
 
     // Экранируем имя для команд
     const escapedName = sanitizedName.replace(/"/g, '\\"');
+    // ⚡ Команды без кавычек и с расширением
     const commands = [
-      `/cd download "${downloadUrl}" "${escapedName}${extension}"`,
-      `/cd create local "${escapedName}${extension}" "${escapedName}${extension}"`,
-    ];
+      `/cd download ${downloadUrl} ${sanitizedName}${extension}`,
+      `/cd create local ${sanitizedName}${extension} ${sanitizedName}${extension}`,
+  ];
 
     return res.status(200).json({
       success: true,
