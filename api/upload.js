@@ -11,25 +11,16 @@ export const config = {
   },
 };
 
-// Environment validation
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const MAX_FILE_SIZE = parseInt(process.env.MAX_FILE_SIZE || "50") * 1024 * 1024; // 50MB default
-const ALLOWED_MIMETYPES = process.env.ALLOWED_MIMETYPES?.split(",") || [
-  "audio/mpeg",
-  "audio/wav",
-  "audio/ogg",
-  "audio/flac",
-  "audio/mp4",
-  "application/octet-stream",
-];
+const MAX_FILE_SIZE = parseInt(process.env.MAX_FILE_SIZE || "50") * 1024 * 1024;
+const ALLOWED_EXTENSIONS = ['.wav', '.flac', '.mp3', '.ogg', '.m4a', '.aac'];
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
   throw new Error("Missing required Supabase environment variables");
 }
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-
 const BUCKET_NAME = "cdr-tracks";
 
 function sanitizeFileName(filename) {
@@ -39,19 +30,21 @@ function sanitizeFileName(filename) {
     .substring(0, 255);
 }
 
-function validateFile(file) {
-  if (!file) {
-    throw new Error("No file provided");
-  }
+function getFileExtension(filename) {
+  const ext = path.extname(filename).toLowerCase();
+  return ALLOWED_EXTENSIONS.includes(ext) ? ext : '.mp3';
+}
 
+function validateFile(file, originalName) {
+  if (!file) throw new Error("No file provided");
+  
   if (file.size > MAX_FILE_SIZE) {
-    throw new Error(
-      `File size exceeds ${MAX_FILE_SIZE / (1024 * 1024)}MB limit`
-    );
+    throw new Error(`File size exceeds ${MAX_FILE_SIZE / (1024 * 1024)}MB limit`);
   }
 
-  if (!ALLOWED_MIMETYPES.includes(file.mimetype)) {
-    throw new Error(`File type ${file.mimetype} is not allowed`);
+  const ext = path.extname(originalName || '').toLowerCase();
+  if (ext && !ALLOWED_EXTENSIONS.includes(ext)) {
+    throw new Error(`File extension ${ext} is not allowed. Use: ${ALLOWED_EXTENSIONS.join(', ')}`);
   }
 
   return true;
@@ -66,7 +59,6 @@ async function cleanupTempFile(filepath) {
 }
 
 export default async function handler(req, res) {
-  // Only allow POST method
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -87,7 +79,6 @@ export default async function handler(req, res) {
       });
     });
 
-    // Handle file array possibility
     const uploadedFile = Array.isArray(files.file) ? files.file[0] : files.file;
     
     if (!uploadedFile || uploadedFile.size === 0) {
@@ -96,29 +87,34 @@ export default async function handler(req, res) {
 
     tempFile = uploadedFile.filepath;
 
-    // Validate file
+    // Получаем оригинальное имя
+    const originalName = fields.name?.[0] || uploadedFile.originalFilename || "file.mp3";
+    const sanitizedName = sanitizeFileName(path.basename(originalName, path.extname(originalName)));
+    
+    // Сохраняем правильное расширение
+    const extension = getFileExtension(originalName);
+    const fileName = `${uuidv4()}-${sanitizedName}${extension}`;
+
+    // Валидация
     try {
-      validateFile(uploadedFile);
+      validateFile(uploadedFile, originalName);
     } catch (validationError) {
       await cleanupTempFile(tempFile);
       return res.status(400).json({ error: validationError.message });
     }
 
-    // Sanitize filename
-    const originalName = fields.name?.[0] || uploadedFile.originalFilename || "file";
-    const sanitizedName = sanitizeFileName(originalName);
-    const fileName = `${uuidv4()}-${sanitizedName}`;
-
-    // Read file as buffer
+    // Читаем файл
     const fileBuffer = await fs.readFile(uploadedFile.filepath);
 
-    // Upload to Supabase
+    // Загружаем с принудительным download
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from(BUCKET_NAME)
       .upload(fileName, fileBuffer, {
-        contentType: uploadedFile.mimetype || "application/octet-stream",
+        contentType: uploadedFile.mimetype || "audio/mpeg",
         upsert: false,
-        cacheControl: "3600",
+        cacheControl: "no-cache",
+        // 🔥 Ключевое изменение - заставляем браузер скачивать
+        duplex: "half",
       });
 
     if (uploadError) {
@@ -129,41 +125,44 @@ export default async function handler(req, res) {
       });
     }
 
-    // Get public URL
+    // 🔥 Получаем URL для скачивания, а не публичный
     const { data: { publicUrl } } = supabase.storage
       .from(BUCKET_NAME)
       .getPublicUrl(fileName);
 
-    // Clean up temp file
+    // 🔥 Добавляем параметр download к URL
+    const downloadUrl = `${publicUrl}?download=${encodeURIComponent(sanitizedName + extension)}`;
+
+    // Чистим временный файл
     await cleanupTempFile(tempFile);
 
-    // Generate Minecraft commands
-    const escapedName = originalName.replace(/"/g, '\\"');
+    // Экранируем имя для команд
+    const escapedName = sanitizedName.replace(/"/g, '\\"');
     const commands = [
-      `/cd download "${publicUrl}" "${escapedName}"`,
-      `/cd create local "${escapedName}" "${escapedName}"`,
+      `/cd download "${downloadUrl}" "${escapedName}${extension}"`,
+      `/cd create local "${escapedName}${extension}" "${escapedName}${extension}"`,
     ];
 
     return res.status(200).json({
       success: true,
-      url: publicUrl,
-      fileName: sanitizedName,
+      url: downloadUrl,
+      directUrl: publicUrl,
+      fileName: fileName,
       commands,
       metadata: {
         size: uploadedFile.size,
         type: uploadedFile.mimetype,
         originalName: originalName,
+        extension: extension,
       },
     });
   } catch (error) {
     console.error("Upload handler error:", error);
 
-    // Clean up temp file if it exists
     if (tempFile) {
       await cleanupTempFile(tempFile);
     }
 
-    // Handle specific errors
     if (error.code === "LIMIT_FILE_SIZE") {
       return res.status(413).json({
         error: `File too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
