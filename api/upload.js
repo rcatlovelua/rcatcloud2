@@ -14,7 +14,8 @@ export const config = {
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const MAX_FILE_SIZE = parseInt(process.env.MAX_FILE_SIZE || "50") * 1024 * 1024;
-const ALLOWED_EXTENSIONS = ['.wav', '.flac', '.mp3', '.ogg', '.m4a', '.aac'];
+const FILE_LIFETIME_HOURS = 10;
+const ALLOWED_EXTENSIONS = ['.mp3', '.wav', '.flac', '.ogg', '.m4a', '.aac'];
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
   throw new Error("Missing required Supabase environment variables");
@@ -22,6 +23,47 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 const BUCKET_NAME = "cdr-tracks";
+
+// 🧹 Функция автоочистки старых файлов
+async function autoCleanup() {
+  try {
+    const tenHoursAgo = new Date(Date.now() - FILE_LIFETIME_HOURS * 60 * 60 * 1000).toISOString();
+
+    const { data: files, error: listError } = await supabase.storage
+      .from(BUCKET_NAME)
+      .list();
+
+    if (listError) {
+      console.error("Cleanup list error:", listError);
+      return;
+    }
+
+    if (!files || files.length === 0) {
+      return;
+    }
+
+    const oldFiles = files.filter(file => {
+      const createdAt = new Date(file.created_at);
+      return createdAt < new Date(tenHoursAgo);
+    });
+
+    if (oldFiles.length > 0) {
+      const fileNames = oldFiles.map(f => f.name);
+      const { error: deleteError } = await supabase.storage
+        .from(BUCKET_NAME)
+        .remove(fileNames);
+
+      if (deleteError) {
+        console.error("Cleanup delete error:", deleteError);
+      } else {
+        console.log(`🧹 Auto-cleanup: deleted ${fileNames.length} files older than ${FILE_LIFETIME_HOURS}h`);
+        console.log(`   Deleted: ${fileNames.join(', ')}`);
+      }
+    }
+  } catch (error) {
+    console.error("Auto-cleanup error:", error);
+  }
+}
 
 function sanitizeFileName(filename) {
   return filename
@@ -44,7 +86,7 @@ function validateFile(file, originalName) {
 
   const ext = path.extname(originalName || '').toLowerCase();
   if (ext && !ALLOWED_EXTENSIONS.includes(ext)) {
-    throw new Error(`File extension ${ext} is not allowed. Use: ${ALLOWED_EXTENSIONS.join(', ')}`);
+    throw new Error(`File extension ${ext} is not allowed. Allowed: ${ALLOWED_EXTENSIONS.join(', ')}`);
   }
 
   return true;
@@ -59,9 +101,13 @@ async function cleanupTempFile(filepath) {
 }
 
 export default async function handler(req, res) {
+  // Разрешаем только POST
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
+
+  // 🧹 Запускаем очистку в фоне (не ждем)
+  autoCleanup().catch(err => console.error("Cleanup failed:", err));
 
   let tempFile = null;
 
@@ -79,6 +125,7 @@ export default async function handler(req, res) {
       });
     });
 
+    // Получаем файл (может быть массивом)
     const uploadedFile = Array.isArray(files.file) ? files.file[0] : files.file;
     
     if (!uploadedFile || uploadedFile.size === 0) {
@@ -106,15 +153,13 @@ export default async function handler(req, res) {
     // Читаем файл
     const fileBuffer = await fs.readFile(uploadedFile.filepath);
 
-    // Загружаем с принудительным download
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    // Загружаем в Supabase
+    const { error: uploadError } = await supabase.storage
       .from(BUCKET_NAME)
       .upload(fileName, fileBuffer, {
         contentType: uploadedFile.mimetype || "audio/mpeg",
         upsert: false,
         cacheControl: "no-cache",
-        // 🔥 Ключевое изменение - заставляем браузер скачивать
-        duplex: "half",
       });
 
     if (uploadError) {
@@ -125,31 +170,38 @@ export default async function handler(req, res) {
       });
     }
 
-    // 🔥 Получаем URL для скачивания, а не публичный
+    // Получаем публичный URL
     const { data: { publicUrl } } = supabase.storage
       .from(BUCKET_NAME)
       .getPublicUrl(fileName);
 
-    // 🔥 Добавляем параметр download к URL
+    // URL для скачивания
     const downloadUrl = `${publicUrl}?download=${encodeURIComponent(sanitizedName + extension)}`;
 
     // Чистим временный файл
     await cleanupTempFile(tempFile);
 
-    // Экранируем имя для команд
-    const escapedName = sanitizedName.replace(/"/g, '\\"');
-    // ⚡ Команды без кавычек и с расширением
+    // Формируем безопасное имя для команд (без пробелов и спецсимволов)
+    const safeName = sanitizedName.replace(/[^\w.-]/g, '_');
+    const fullName = `${safeName}${extension}`;
+
+    // Команды Minecraft без кавычек
     const commands = [
-      `/cd download ${downloadUrl} ${sanitizedName}${extension}`,
-      `/cd create local ${sanitizedName}${extension} ${sanitizedName}${extension}`,
-  ];
+      `/cd download ${downloadUrl} ${fullName}`,
+      `/cd create local ${fullName} ${fullName}`,
+    ];
+
+    // Время удаления файла
+    const expiresAt = new Date(Date.now() + FILE_LIFETIME_HOURS * 60 * 60 * 1000);
 
     return res.status(200).json({
       success: true,
       url: downloadUrl,
       directUrl: publicUrl,
       fileName: fileName,
-      commands,
+      commands: commands,
+      expiresAt: expiresAt.toISOString(),
+      expiresIn: `${FILE_LIFETIME_HOURS} hours`,
       metadata: {
         size: uploadedFile.size,
         type: uploadedFile.mimetype,
@@ -157,13 +209,16 @@ export default async function handler(req, res) {
         extension: extension,
       },
     });
+
   } catch (error) {
     console.error("Upload handler error:", error);
 
+    // Чистим временный файл при ошибке
     if (tempFile) {
       await cleanupTempFile(tempFile);
     }
 
+    // Обработка ошибки размера от formidable
     if (error.code === "LIMIT_FILE_SIZE") {
       return res.status(413).json({
         error: `File too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
