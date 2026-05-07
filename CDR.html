@@ -39,7 +39,6 @@
             line-height: 1.6;
         }
 
-        /* Анимированный фон */
         body::before {
             content: "";
             position: fixed;
@@ -57,7 +56,6 @@
             100% { opacity: 1; }
         }
 
-        /* Навигация */
         nav {
             display: flex;
             justify-content: space-between;
@@ -106,7 +104,6 @@
             backdrop-filter: blur(10px);
         }
 
-        /* Основной контент */
         main {
             max-width: 1200px;
             margin: 0 auto;
@@ -115,7 +112,6 @@
             z-index: 1;
         }
 
-        /* Заголовок */
         .hero {
             text-align: center;
             margin-bottom: 60px;
@@ -153,7 +149,6 @@
             line-height: 1.6;
         }
 
-        /* Секция с карточками */
         .section-title {
             font-family: 'Unbounded', sans-serif;
             font-size: 28px;
@@ -257,7 +252,6 @@
             color: var(--primary-glow);
         }
 
-        /* Секция загрузки */
         .upload-section {
             background: var(--bg-card);
             border: 2px dashed var(--border);
@@ -265,7 +259,6 @@
             padding: 40px;
             text-align: center;
             transition: all 0.3s ease;
-            cursor: pointer;
             position: relative;
         }
 
@@ -285,6 +278,11 @@
             flex-direction: column;
             align-items: center;
             gap: 16px;
+            pointer-events: none;
+        }
+
+        .upload-zone > * {
+            pointer-events: auto;
         }
 
         .upload-zone i {
@@ -344,6 +342,12 @@
             transform: translateY(0);
         }
 
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .input-field {
             width: 100%;
             max-width: 400px;
@@ -381,10 +385,13 @@
             overflow-y: auto;
             white-space: pre-wrap;
             text-align: left;
+            width: 100%;
+            max-width: 600px;
         }
 
         .progress-bar {
             width: 100%;
+            max-width: 400px;
             height: 4px;
             background: var(--primary-dim);
             border-radius: 2px;
@@ -411,7 +418,6 @@
             50% { opacity: 0.7; }
         }
 
-        /* Футер */
         footer {
             margin-top: 80px;
             text-align: center;
@@ -421,7 +427,6 @@
             border-top: 1px solid var(--primary-dim);
         }
 
-        /* Адаптивность */
         @media (max-width: 768px) {
             nav {
                 padding: 16px;
@@ -452,91 +457,87 @@
     </nav>
 
     <main>
-        <!-- Герой секция -->
         <div class="hero">
             <h1>CoolDiskRecorder</h1>
             <p class="subtitle">
-                Сервис загрузки и генерации аудио-команд для систем RCS.  
-                Позволяет скачивать треки по прямым ссылкам и создавать локальные команды воспроизведения.
+                Загружай аудиофайлы и получай готовые команды для Minecraft-серверов. 
+                Прямые ссылки, автоматическая генерация команд, поддержка MP3/WAV/FLAC/OGG.
             </p>
         </div>
 
-        <!-- Карточки команд -->
         <h2 class="section-title">Доступные команды</h2>
         <div class="grid">
-            <div class="card" onclick="copyCommand('/cd download')">
+            <div class="card" onclick="copyCommand('/cd download URL название.mp3')">
                 <i class="fas fa-download"></i>
                 <div class="tag">DOWNLOAD</div>
                 <h2>/cd download</h2>
-                <p>Скачивает аудио по прямой ссылке и сохраняет файл в систему.</p>
-                <code>/cd download "ссылка" "название песни.mp3"</code>
+                <p>Скачивает аудиофайл по прямой ссылке с указанием имени файла.</p>
+                <code>/cd download https://example.com/song.mp3 mysong.mp3</code>
             </div>
 
-            <div class="card" onclick="copyCommand('/cd create')">
+            <div class="card" onclick="copyCommand('/cd create local название.mp3')">
                 <i class="fas fa-plus-circle"></i>
                 <div class="tag">CREATE</div>
-                <h2>/cd create</h2>
-                <p>Создаёт локальный аудиофайл для дальнейшего воспроизведения.</p>
-                <code>/cd create "название.mp3"</code>
+                <h2>/cd create local</h2>
+                <p>Создаёт локальную аудиозапись для последующего воспроизведения.</p>
+                <code>/cd create local mysong.mp3 mysong.mp3</code>
             </div>
 
-            <div class="card" onclick="copyCommand('POST /api/cd-download')">
+            <div class="card" onclick="copyCommand('POST https://orrcs.vercel.app/api/upload')">
                 <i class="fas fa-code"></i>
                 <div class="tag">API</div>
-                <h2>Vercel API System</h2>
-                <p>Можно подключать серверные функции через Vercel для обработки ссылок и конвертации.</p>
-                <code>POST /api/cd-download</code>
+                <h2>Upload API</h2>
+                <p>Загрузка файлов через API с автоматической генерацией команд.</p>
+                <code>POST https://orrcs.vercel.app/api/upload</code>
             </div>
         </div>
 
-        <!-- Как это работает -->
         <h2 class="section-title">Как это работает</h2>
         <div class="grid">
             <div class="card">
-                <i class="fas fa-link"></i>
-                <h3>1. Отправка ссылки</h3>
-                <p>Пользователь отправляет ссылку через команду</p>
+                <i class="fas fa-upload"></i>
+                <h3>1. Загрузка файла</h3>
+                <p>Вы загружаете аудиофайл через форму на сайте</p>
             </div>
             <div class="card">
-                <i class="fas fa-cloud-download-alt"></i>
-                <h3>2. Загрузка файла</h3>
-                <p>API загружает аудио файл</p>
+                <i class="fas fa-cloud-upload-alt"></i>
+                <h3>2. Обработка</h3>
+                <p>Файл загружается в облачное хранилище и получает прямую ссылку</p>
             </div>
             <div class="card">
-                <i class="fas fa-database"></i>
-                <h3>3. Создание записи</h3>
-                <p>CDR создаёт локальную запись и команду воспроизведения</p>
+                <i class="fas fa-terminal"></i>
+                <h3>3. Генерация команд</h3>
+                <p>API автоматически создаёт команды для Minecraft</p>
             </div>
             <div class="card">
                 <i class="fas fa-check-circle"></i>
-                <h3>4. Доступность</h3>
-                <p>Файл становится доступен в системе RCS</p>
+                <h3>4. Использование</h3>
+                <p>Вставляете команды в чат сервера и наслаждаетесь музыкой</p>
             </div>
         </div>
 
-        <!-- Секция загрузки -->
         <h2 class="section-title">Загрузить аудиофайл</h2>
         <div class="upload-section" id="uploadSection">
             <div class="upload-zone">
                 <i class="fas fa-cloud-upload-alt"></i>
-                <h3>Перетащите файл сюда или кликните для выбора</h3>
-                <p style="color: var(--text-secondary);">Поддерживаются форматы: MP3, WAV, FLAC, OGG</p>
+                <h3>Перетащите файл сюда или нажмите кнопку ниже</h3>
+                <p style="color: var(--text-secondary);">MP3, WAV, FLAC, OGG — до 50 МБ</p>
                 
                 <div class="file-input-wrapper">
-                    <button class="btn" onclick="document.getElementById('fileInput').click()">
+                    <button class="btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
                         <i class="fas fa-folder-open"></i>
                         Выбрать файл
                     </button>
-                    <input type="file" id="fileInput" accept="audio/*" onchange="handleFileSelect(event)">
+                    <input type="file" id="fileInput" accept=".mp3,.wav,.flac,.ogg,audio/*" onchange="handleFileSelect(event)">
                 </div>
 
-                <div id="selectedFile" style="color: var(--primary); margin-top: 12px;"></div>
+                <div id="selectedFile" style="color: var(--primary); margin-top: 12px; font-size: 14px;"></div>
 
-                <input type="text" id="fileName" class="input-field" placeholder="Введите название файла (например: song.mp3)">
+                <input type="text" id="fileName" class="input-field" placeholder="Название файла (например: song.mp3)">
 
-                <button class="btn" onclick="uploadFile()" id="uploadBtn">
+                <button class="btn" onclick="event.stopPropagation(); uploadFile()" id="uploadBtn">
                     <i class="fas fa-upload"></i>
-                    Загрузить
+                    Загрузить на сервер
                 </button>
 
                 <div class="progress-bar" id="progressBar">
@@ -551,13 +552,12 @@
     <footer>
         CoolDiskRecorder (CDR) © 2026 — Rcat Cool Studio | 
         <i class="fas fa-heart" style="color: var(--primary);"></i> 
-        Powered by Vercel
+        Powered by Vercel | API: orrcs.vercel.app
     </footer>
 
     <script>
         let selectedFile = null;
 
-        // Обработчик drag & drop
         const uploadSection = document.getElementById('uploadSection');
         
         uploadSection.addEventListener('dragover', (e) => {
@@ -565,7 +565,7 @@
             uploadSection.classList.add('drag-over');
         });
 
-        uploadSection.addEventListener('dragleave', () => {
+        uploadSection.addEventListener('dragleave', (e) => {
             uploadSection.classList.remove('drag-over');
         });
 
@@ -579,14 +579,8 @@
             }
         });
 
-        // Клик по зоне загрузки
-        uploadSection.addEventListener('click', (e) => {
-            if (e.target === uploadSection || e.target.closest('.upload-zone')) {
-                document.getElementById('fileInput').click();
-            }
-        });
-
         function handleFileSelect(event) {
+            event.stopPropagation();
             const file = event.target.files[0];
             if (file) {
                 handleFile(file);
@@ -594,24 +588,23 @@
         }
 
         function handleFile(file) {
-            // Проверка типа файла
-            const allowedTypes = ['audio/mpeg', 'audio/wav', 'audio/flac', 'audio/ogg', 'audio/mp3'];
-            if (!allowedTypes.includes(file.type) && !file.name.match(/\.(mp3|wav|flac|ogg)$/i)) {
-                showOutput('❌ Ошибка: Поддерживаются только аудиофайлы (MP3, WAV, FLAC, OGG)');
+            const allowedExtensions = ['.mp3', '.wav', '.flac', '.ogg'];
+            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+            
+            if (!allowedExtensions.includes(fileExtension)) {
+                showOutput('❌ Ошибка: Поддерживаются только MP3, WAV, FLAC, OGG');
                 return;
             }
 
-            // Проверка размера (максимум 50MB)
             if (file.size > 50 * 1024 * 1024) {
-                showOutput('❌ Ошибка: Размер файла не должен превышать 50MB');
+                showOutput('❌ Ошибка: Размер файла не должен превышать 50 МБ');
                 return;
             }
 
             selectedFile = file;
             document.getElementById('selectedFile').innerHTML = 
-                `<i class="fas fa-file-audio"></i> Выбран файл: <strong>${file.name}</strong> (${formatFileSize(file.size)})`;
+                `<i class="fas fa-file-audio"></i> Выбран: <strong>${file.name}</strong> (${formatFileSize(file.size)})`;
             
-            // Автозаполнение имени файла
             if (!document.getElementById('fileName').value) {
                 document.getElementById('fileName').value = file.name;
             }
@@ -619,17 +612,16 @@
 
         async function uploadFile() {
             if (!selectedFile) {
-                showOutput('❌ Пожалуйста, выберите файл для загрузки');
+                showOutput('❌ Выберите файл для загрузки');
                 return;
             }
 
             const fileName = document.getElementById('fileName').value.trim();
             if (!fileName) {
-                showOutput('❌ Пожалуйста, введите название файла');
+                showOutput('❌ Введите название файла');
                 return;
             }
 
-            // Показываем прогресс-бар
             const progressBar = document.getElementById('progressBar');
             const progressFill = document.getElementById('progressFill');
             const uploadBtn = document.getElementById('uploadBtn');
@@ -638,20 +630,19 @@
             uploadBtn.disabled = true;
             uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загрузка...';
 
-            // Имитация прогресса
             let progress = 0;
             const progressInterval = setInterval(() => {
-                progress += Math.random() * 30;
+                progress += Math.random() * 20;
                 if (progress > 90) progress = 90;
                 progressFill.style.width = progress + '%';
-            }, 500);
+            }, 300);
 
             try {
                 const form = new FormData();
                 form.append("file", selectedFile);
                 form.append("name", fileName);
 
-                const res = await fetch("/api/upload", {
+                const res = await fetch("https://orrcs.vercel.app/api/upload", {
                     method: "POST",
                     body: form
                 });
@@ -661,55 +652,43 @@
 
                 const data = await res.json();
 
-                if (data.commands) {
-                    showOutput('✅ Файл успешно загружен!\n\nКоманды для воспроизведения:\n' + data.commands.join('\n'));
+                if (data.commands && data.commands.length > 0) {
+                    showOutput('✅ Файл загружен!\n\n📋 Команды для Minecraft:\n' + data.commands.join('\n'));
                     
-                    // Копируем первую команду в буфер обмена
-                    if (data.commands.length > 0) {
-                        navigator.clipboard.writeText(data.commands[0]).then(() => {
-                            console.log('Команда скопирована в буфер обмена');
-                        });
-                    }
+                    navigator.clipboard.writeText(data.commands.join('\n')).then(() => {
+                        console.log('Команды скопированы');
+                    }).catch(() => {});
                 } else if (data.error) {
                     showOutput('❌ Ошибка: ' + data.error);
                 } else {
-                    showOutput('✅ Файл успешно загружен!');
+                    showOutput('✅ Файл загружен! URL: ' + (data.url || 'не получен'));
                 }
 
-                // Очистка формы
                 setTimeout(() => {
-                    selectedFile = null;
-                    document.getElementById('fileInput').value = '';
-                    document.getElementById('fileName').value = '';
-                    document.getElementById('selectedFile').innerHTML = '';
                     progressBar.classList.remove('active');
                     progressFill.style.width = '0%';
                     uploadBtn.disabled = false;
-                    uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Загрузить';
-                }, 2000);
+                    uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Загрузить на сервер';
+                }, 1500);
 
             } catch (error) {
                 clearInterval(progressInterval);
-                showOutput('❌ Ошибка при загрузке: ' + error.message);
+                showOutput('❌ Ошибка соединения: ' + error.message);
                 
                 progressBar.classList.remove('active');
                 progressFill.style.width = '0%';
                 uploadBtn.disabled = false;
-                uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Загрузить';
+                uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Загрузить на сервер';
             }
         }
 
         function showOutput(message) {
             const output = document.getElementById('output');
             output.textContent = message;
-            output.style.animation = 'none';
-            output.offsetHeight; // Trigger reflow
-            output.style.animation = 'fadeIn 0.3s ease';
         }
 
         function copyCommand(command) {
             navigator.clipboard.writeText(command).then(() => {
-                // Показываем уведомление
                 const notification = document.createElement('div');
                 notification.style.cssText = `
                     position: fixed;
@@ -723,15 +702,16 @@
                     font-family: 'Nunito', sans-serif;
                     z-index: 1000;
                     animation: slideIn 0.3s ease;
+                    backdrop-filter: blur(10px);
                 `;
-                notification.innerHTML = `<i class="fas fa-check-circle"></i> Команда скопирована: ${command}`;
+                notification.innerHTML = `<i class="fas fa-check-circle"></i> Скопировано: ${command.split(' ')[0]} ...`;
                 document.body.appendChild(notification);
                 
                 setTimeout(() => {
                     notification.style.animation = 'slideOut 0.3s ease';
                     setTimeout(() => notification.remove(), 300);
                 }, 2000);
-            });
+            }).catch(() => {});
         }
 
         function formatFileSize(bytes) {
@@ -742,19 +722,12 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
-        // Добавляем стили для анимаций
         const style = document.createElement('style');
         style.textContent = `
-            @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(-10px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-            
             @keyframes slideIn {
                 from { transform: translateX(100%); opacity: 0; }
                 to { transform: translateX(0); opacity: 1; }
             }
-            
             @keyframes slideOut {
                 from { transform: translateX(0); opacity: 1; }
                 to { transform: translateX(100%); opacity: 0; }
