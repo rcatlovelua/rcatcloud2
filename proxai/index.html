@@ -700,7 +700,175 @@
             margin-top: 8px;
             padding: 0 4px;
         }
+        /* Добавьте эти стили в конец секции <style>, перед закрывающим тегом </style> */
 
+/* Markdown форматирование */
+.message.assistant strong,
+.message.assistant b {
+    color: var(--primary);
+    font-weight: 700;
+    text-shadow: 0 0 10px var(--primary-dim);
+}
+
+.message.assistant em,
+.message.assistant i {
+    font-style: italic;
+    color: #b8ffb0;
+}
+
+.message.assistant strong em,
+.message.assistant em strong,
+.message.assistant b i,
+.message.assistant i b {
+    color: var(--primary);
+    font-weight: 700;
+    font-style: italic;
+    text-shadow: 0 0 15px var(--primary-glow);
+}
+
+.message.assistant del,
+.message.assistant s {
+    text-decoration: line-through;
+    opacity: 0.6;
+    color: #ff8888;
+}
+
+.message.assistant mark {
+    background: rgba(140, 255, 122, 0.25);
+    color: #ffffff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--primary-dim);
+}
+
+.message.assistant sup {
+    font-size: 0.75em;
+    vertical-align: super;
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.message.assistant sub {
+    font-size: 0.75em;
+    vertical-align: sub;
+    color: var(--text-secondary);
+}
+
+/* Ссылки в сообщениях */
+.message.assistant a {
+    color: var(--primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: all 0.3s;
+}
+
+.message.assistant a:hover {
+    text-shadow: 0 0 10px var(--primary-glow);
+    text-decoration: underline;
+}
+
+/* Списки */
+.message.assistant ul,
+.message.assistant ol {
+    margin: 8px 0;
+    padding-left: 24px;
+}
+
+.message.assistant li {
+    margin: 4px 0;
+    color: var(--text-primary);
+}
+
+/* Цитаты */
+.message.assistant blockquote {
+    border-left: 3px solid var(--primary);
+    padding: 8px 16px;
+    margin: 8px 0;
+    background: rgba(140, 255, 122, 0.05);
+    border-radius: 0 8px 8px 0;
+    color: var(--text-secondary);
+}
+
+/* Горизонтальная линия */
+.message.assistant hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 12px 0;
+}
+
+/* Заголовки */
+.message.assistant h1,
+.message.assistant h2,
+.message.assistant h3,
+.message.assistant h4 {
+    font-family: 'Unbounded', sans-serif;
+    margin: 12px 0 8px 0;
+    color: var(--primary);
+}
+
+.message.assistant h1 { font-size: 1.5em; }
+.message.assistant h2 { font-size: 1.3em; }
+.message.assistant h3 { font-size: 1.1em; }
+.message.assistant h4 { font-size: 1em; }
+
+/* Таблицы */
+.message.assistant table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0;
+    font-size: 0.9em;
+}
+
+.message.assistant th {
+    background: rgba(140, 255, 122, 0.15);
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.message.assistant td {
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+}
+
+/* Инлайн-код */
+.message.assistant code:not(pre code) {
+    background: rgba(140, 255, 122, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    color: var(--primary);
+    border: 1px solid var(--primary-dim);
+}
+
+/* Блоки кода (уже было, но обновим) */
+.message.assistant pre {
+    background: rgba(0, 0, 0, 0.5) !important;
+    padding: 16px !important;
+    border-radius: 12px !important;
+    overflow-x: auto;
+    margin: 12px 0 !important;
+    border: 1px solid var(--border);
+    position: relative;
+}
+
+.message.assistant pre code {
+    color: var(--primary);
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    line-height: 1.5;
+}
+
+/* Подсветка синтаксиса (базовая) */
+.message.assistant pre code .keyword { color: #ff79c6; }
+.message.assistant pre code .string { color: #f1fa8c; }
+.message.assistant pre code .comment { color: #6272a4; font-style: italic; }
+.message.assistant pre code .function { color: #50fa7b; }
+.message.assistant pre code .number { color: #bd93f9; }
+    
         .char-count {
             font-size: 11px;
             color: var(--text-secondary);
@@ -750,7 +918,7 @@
             animation: slideIn 0.3s ease;
             backdrop-filter: blur(10px);
         }
-
+        
         @keyframes slideIn {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
@@ -1235,51 +1403,115 @@
         scrollToBottom();
     }
 
-    function addMessage(role, content) {
-        const messagesContainer = document.getElementById('messages');
-        const typingIndicator = document.getElementById('typingIndicator');
+  function addMessage(role, content) {
+    const messagesContainer = document.getElementById('messages');
+    const typingIndicator = document.getElementById('typingIndicator');
 
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${role}`;
-        
-        // Форматирование для ассистента
-        if (role === 'assistant') {
-            // Форматируем блоки кода
-            content = content.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
-                return `<pre style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; overflow-x: auto; margin: 8px 0;"><code>${escapeHtml(code.trim())}</code></pre>`;
-            });
-            // Форматируем переносы строк
-            content = content.replace(/\n/g, '<br>');
-        } else {
-            // Экранируем HTML в сообщениях пользователя
-            content = escapeHtml(content);
-        }
-        
-        messageDiv.innerHTML = content;
-        
-        // Вставляем перед индикатором печати
-        messagesContainer.insertBefore(messageDiv, typingIndicator);
-        
-        scrollToBottom();
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${role}`;
+    
+    // Форматирование для ассистента
+    if (role === 'assistant') {
+        content = parseMarkdown(content);
+    } else {
+        // Экранируем HTML в сообщениях пользователя
+        content = escapeHtml(content);
     }
+    
+    messageDiv.innerHTML = content;
+    
+    // Вставляем перед индикатором печати
+    messagesContainer.insertBefore(messageDiv, typingIndicator);
+    
+    scrollToBottom();
+}
 
-    function escapeHtml(text) {
-        const map = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;'
-        };
-        return text.replace(/[&<>"']/g, m => map[m]);
+// Функция парсинга Markdown
+function parseMarkdown(text) {
+    // Сначала экранируем HTML, чтобы избежать инъекций
+    text = escapeHtml(text);
+    
+    // Блоки кода (```язык\nкод```)
+    text = text.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
+        const langAttr = lang ? ` data-lang="${lang}"` : '';
+        return `<pre${langAttr}><code>${code.trim()}</code></pre>`;
+    });
+    
+    // Инлайн-код (`код`)
+    text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+    
+    // Жирный курсив (***текст***)
+    text = text.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+    
+    // Жирный (**текст**)
+    text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    
+    // Курсив (*текст*)
+    text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    
+    // Зачёркнутый (~~текст~~)
+    text = text.replace(/~~(.+?)~~/g, '<del>$1</del>');
+    
+    // Выделенный (==текст==)
+    text = text.replace(/==(.+?)==/g, '<mark>$1</mark>');
+    
+    // Надстрочный (^текст^)
+    text = text.replace(/\^(.+?)\^/g, '<sup>$1</sup>');
+    
+    // Подстрочный (~текст~)
+    text = text.replace(/~(.+?)~/g, '<sub>$1</sub>');
+    
+    // Заголовки (### текст)
+    text = text.replace(/^#### (.+)$/gm, '<h4>$1</h4>');
+    text = text.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+    text = text.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+    text = text.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+    
+    // Горизонтальная линия (--- или ***)
+    text = text.replace(/^(---|\*\*\*)$/gm, '<hr>');
+    
+    // Цитаты (> текст)
+    text = text.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
+    
+    // Ссылки [текст](url)
+    text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    
+    // Списки
+    text = text.replace(/^[\*\-] (.+)$/gm, '<li>$1</li>');
+    text = text.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+    
+    // Нумерованные списки
+    text = text.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+    
+    // Переносы строк (двойной перенос = новый параграф)
+    text = text.replace(/\n\n/g, '</p><p>');
+    
+    // Одиночный перенос = <br>
+    text = text.replace(/\n/g, '<br>');
+    
+    // Оборачиваем в параграф если нет других блочных элементов
+    if (!text.includes('<pre>') && !text.includes('<h') && !text.includes('<ul>') && !text.includes('<blockquote>')) {
+        text = `<p>${text}</p>`;
     }
+    
+    // Убираем пустые параграфы
+    text = text.replace(/<p><br><\/p>/g, '');
+    text = text.replace(/<p><\/p>/g, '');
+    
+    return text;
+}
 
-    function scrollToBottom() {
-        const messagesContainer = document.getElementById('messages');
-        setTimeout(() => {
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }, 100);
-    }
+// Функция экранирования HTML
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+}
 
     function showToast(message) {
         const toast = document.createElement('div');
