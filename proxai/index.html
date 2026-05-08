@@ -1145,7 +1145,7 @@
 
    <script>
     // Configuration
-    const API_BASE = window.location.origin; // Автоматически использует текущий домен Vercel
+    const API_BASE = window.location.origin;
 
     // State
     let currentUser = null;
@@ -1223,28 +1223,144 @@
         }
     ];
 
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-        const savedUser = localStorage.getItem('currentUser');
-        if (savedUser) {
-            try {
-                currentUser = JSON.parse(savedUser);
-                showChatScreen();
-            } catch(e) {
-                localStorage.removeItem('currentUser');
-            }
-        }
+    // ============ HELPER FUNCTIONS (Define first) ============
+    
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, m => map[m]);
+    }
 
-        const textarea = document.getElementById('messageInput');
-        textarea.addEventListener('input', () => {
-            textarea.style.height = 'auto';
-            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
-            document.getElementById('charCount').textContent = textarea.value.length;
+    function scrollToBottom() {
+        const messagesContainer = document.getElementById('messages');
+        setTimeout(() => {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }, 100);
+    }
+
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `<i class="fas fa-info-circle"></i> ${message}`;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => toast.remove(), 300);
+        }, 2000);
+    }
+
+    function showError(message) {
+        const loginError = document.getElementById('loginError');
+        loginError.textContent = message;
+        loginError.classList.add('show');
+        setTimeout(() => loginError.classList.remove('show'), 3000);
+    }
+
+    function parseMarkdown(text) {
+        // Сначала экранируем HTML, чтобы избежать инъекций
+        text = escapeHtml(text);
+        
+        // Блоки кода (```язык\nкод```)
+        text = text.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
+            const langAttr = lang ? ` data-lang="${lang}"` : '';
+            return `<pre${langAttr}><code>${code.trim()}</code></pre>`;
         });
+        
+        // Инлайн-код (`код`)
+        text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+        
+        // Жирный курсив (***текст***)
+        text = text.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+        
+        // Жирный (**текст**)
+        text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        
+        // Курсив (*текст*)
+        text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
+        
+        // Зачёркнутый (~~текст~~)
+        text = text.replace(/~~(.+?)~~/g, '<del>$1</del>');
+        
+        // Выделенный (==текст==)
+        text = text.replace(/==(.+?)==/g, '<mark>$1</mark>');
+        
+        // Надстрочный (^текст^)
+        text = text.replace(/\^(.+?)\^/g, '<sup>$1</sup>');
+        
+        // Подстрочный (~текст~)
+        text = text.replace(/~(.+?)~/g, '<sub>$1</sub>');
+        
+        // Заголовки (### текст)
+        text = text.replace(/^#### (.+)$/gm, '<h4>$1</h4>');
+        text = text.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+        text = text.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+        text = text.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+        
+        // Горизонтальная линия (--- или ***)
+        text = text.replace(/^(---|\*\*\*)$/gm, '<hr>');
+        
+        // Цитаты (> текст)
+        text = text.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
+        
+        // Ссылки [текст](url)
+        text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+        
+        // Списки
+        text = text.replace(/^[\*\-] (.+)$/gm, '<li>$1</li>');
+        text = text.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+        
+        // Нумерованные списки
+        text = text.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+        
+        // Переносы строк (двойной перенос = новый параграф)
+        text = text.replace(/\n\n/g, '</p><p>');
+        
+        // Одиночный перенос = <br>
+        text = text.replace(/\n/g, '<br>');
+        
+        // Оборачиваем в параграф если нет других блочных элементов
+        if (!text.includes('<pre>') && !text.includes('<h') && !text.includes('<ul>') && !text.includes('<blockquote>')) {
+            text = `<p>${text}</p>`;
+        }
+        
+        // Убираем пустые параграфы
+        text = text.replace(/<p><br><\/p>/g, '');
+        text = text.replace(/<p><\/p>/g, '');
+        
+        return text;
+    }
 
-        populateModels();
-    });
+    function addMessage(role, content) {
+        const messagesContainer = document.getElementById('messages');
+        const typingIndicator = document.getElementById('typingIndicator');
 
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${role}`;
+        
+        // Форматирование для ассистента
+        if (role === 'assistant') {
+            content = parseMarkdown(content);
+        } else {
+            // Экранируем HTML в сообщениях пользователя
+            content = escapeHtml(content);
+        }
+        
+        messageDiv.innerHTML = content;
+        
+        // Вставляем перед индикатором печати
+        messagesContainer.insertBefore(messageDiv, typingIndicator);
+        
+        scrollToBottom();
+    }
+
+    // ============ UI FUNCTIONS ============
+    
     function populateModels() {
         const select = document.getElementById('modelSelect');
         MODELS.forEach(model => {
@@ -1261,53 +1377,6 @@
                 select.appendChild(option);
             }
         });
-    }
-
-    // Auth functions
-    async function login() {
-        const id = document.getElementById('telegramId').value.trim();
-        const pass = document.getElementById('password').value.trim();
-        const loginBtn = document.getElementById('loginBtn');
-        const loginError = document.getElementById('loginError');
-
-        if (!id || !pass) {
-            showError('Please fill in all fields');
-            return;
-        }
-
-        loginBtn.disabled = true;
-        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
-        loginError.classList.remove('show');
-
-        try {
-            const response = await fetch(`${API_BASE}/api/auth`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, pass })
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                currentUser = data.user;
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                showChatScreen();
-            } else {
-                showError(data.error || 'Authentication failed');
-            }
-        } catch (error) {
-            showError('Connection error: ' + error.message);
-        } finally {
-            loginBtn.disabled = false;
-            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
-        }
-    }
-
-    function showError(message) {
-        const loginError = document.getElementById('loginError');
-        loginError.textContent = message;
-        loginError.classList.add('show');
-        setTimeout(() => loginError.classList.remove('show'), 3000);
     }
 
     function showChatScreen() {
@@ -1355,7 +1424,8 @@
             document.getElementById('currentModel').textContent = currentModel.name;
             document.getElementById('modelBadge').innerHTML = 
                 `<i class="fas fa-circle" style="font-size: 6px;"></i> ${currentModel.name}`;
-            document.getElementById('welcomeMessage').style.display = 'none';
+            const welcomeMsg = document.getElementById('welcomeMessage');
+            if (welcomeMsg) welcomeMsg.style.display = 'none';
         }
     }
 
@@ -1368,7 +1438,18 @@
                 </div>
                 <h2>New Chat</h2>
                 <p>Select a model and start chatting</p>
-                <div class="quick-actions">
+                
+                <!-- Formatting examples -->
+                <div class="formatting-examples">
+                    <span class="formatting-badge">**Bold**</span>
+                    <span class="formatting-badge">*Italic*</span>
+                    <span class="formatting-badge">~~Strikethrough~~</span>
+                    <span class="formatting-badge">==Highlight==</span>
+                    <span class="formatting-badge">^Superscript^</span>
+                    <span class="formatting-badge">\`Code\`</span>
+                </div>
+                
+                <div class="quick-actions" style="margin-top: 16px;">
                     <button class="quick-action" onclick="quickPrompt('Explain your capabilities')">
                         <i class="fas fa-star"></i> Capabilities
                     </button>
@@ -1409,6 +1490,49 @@
         }
     }
 
+    // ============ AUTH FUNCTIONS ============
+    
+    async function login() {
+        const id = document.getElementById('telegramId').value.trim();
+        const pass = document.getElementById('password').value.trim();
+        const loginBtn = document.getElementById('loginBtn');
+        const loginError = document.getElementById('loginError');
+
+        if (!id || !pass) {
+            showError('Please fill in all fields');
+            return;
+        }
+
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+        loginError.classList.remove('show');
+
+        try {
+            const response = await fetch(`${API_BASE}/api/auth`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, pass })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                currentUser = data.user;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                showChatScreen();
+            } else {
+                showError(data.error || 'Authentication failed');
+            }
+        } catch (error) {
+            showError('Connection error: ' + error.message);
+        } finally {
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+        }
+    }
+
+    // ============ CHAT FUNCTIONS ============
+    
     async function sendMessage() {
         const input = document.getElementById('messageInput');
         const message = input.value.trim();
@@ -1448,7 +1572,7 @@
                     model: currentModel.id,
                     messages: chatHistory,
                     user_id: currentUser.id,
-                    system_prompt: 'You are a helpful AI assistant. Provide clear and accurate responses.'
+                    system_prompt: 'You are a helpful AI assistant. Provide clear and accurate responses. Use markdown formatting when appropriate.'
                 })
             });
 
@@ -1475,127 +1599,28 @@
         scrollToBottom();
     }
 
-  function addMessage(role, content) {
-    const messagesContainer = document.getElementById('messages');
-    const typingIndicator = document.getElementById('typingIndicator');
+    // ============ INITIALIZATION ============
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedUser = localStorage.getItem('currentUser');
+        if (savedUser) {
+            try {
+                currentUser = JSON.parse(savedUser);
+                showChatScreen();
+            } catch(e) {
+                localStorage.removeItem('currentUser');
+            }
+        }
 
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${role}`;
-    
-    // Форматирование для ассистента
-    if (role === 'assistant') {
-        content = parseMarkdown(content);
-    } else {
-        // Экранируем HTML в сообщениях пользователя
-        content = escapeHtml(content);
-    }
-    
-    messageDiv.innerHTML = content;
-    
-    // Вставляем перед индикатором печати
-    messagesContainer.insertBefore(messageDiv, typingIndicator);
-    
-    scrollToBottom();
-}
+        const textarea = document.getElementById('messageInput');
+        textarea.addEventListener('input', () => {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+            document.getElementById('charCount').textContent = textarea.value.length;
+        });
 
-// Функция парсинга Markdown
-function parseMarkdown(text) {
-    // Сначала экранируем HTML, чтобы избежать инъекций
-    text = escapeHtml(text);
-    
-    // Блоки кода (```язык\nкод```)
-    text = text.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
-        const langAttr = lang ? ` data-lang="${lang}"` : '';
-        return `<pre${langAttr}><code>${code.trim()}</code></pre>`;
+        populateModels();
     });
-    
-    // Инлайн-код (`код`)
-    text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
-    
-    // Жирный курсив (***текст***)
-    text = text.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
-    
-    // Жирный (**текст**)
-    text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    
-    // Курсив (*текст*)
-    text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
-    
-    // Зачёркнутый (~~текст~~)
-    text = text.replace(/~~(.+?)~~/g, '<del>$1</del>');
-    
-    // Выделенный (==текст==)
-    text = text.replace(/==(.+?)==/g, '<mark>$1</mark>');
-    
-    // Надстрочный (^текст^)
-    text = text.replace(/\^(.+?)\^/g, '<sup>$1</sup>');
-    
-    // Подстрочный (~текст~)
-    text = text.replace(/~(.+?)~/g, '<sub>$1</sub>');
-    
-    // Заголовки (### текст)
-    text = text.replace(/^#### (.+)$/gm, '<h4>$1</h4>');
-    text = text.replace(/^### (.+)$/gm, '<h3>$1</h3>');
-    text = text.replace(/^## (.+)$/gm, '<h2>$1</h2>');
-    text = text.replace(/^# (.+)$/gm, '<h1>$1</h1>');
-    
-    // Горизонтальная линия (--- или ***)
-    text = text.replace(/^(---|\*\*\*)$/gm, '<hr>');
-    
-    // Цитаты (> текст)
-    text = text.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
-    
-    // Ссылки [текст](url)
-    text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-    
-    // Списки
-    text = text.replace(/^[\*\-] (.+)$/gm, '<li>$1</li>');
-    text = text.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
-    
-    // Нумерованные списки
-    text = text.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
-    
-    // Переносы строк (двойной перенос = новый параграф)
-    text = text.replace(/\n\n/g, '</p><p>');
-    
-    // Одиночный перенос = <br>
-    text = text.replace(/\n/g, '<br>');
-    
-    // Оборачиваем в параграф если нет других блочных элементов
-    if (!text.includes('<pre>') && !text.includes('<h') && !text.includes('<ul>') && !text.includes('<blockquote>')) {
-        text = `<p>${text}</p>`;
-    }
-    
-    // Убираем пустые параграфы
-    text = text.replace(/<p><br><\/p>/g, '');
-    text = text.replace(/<p><\/p>/g, '');
-    
-    return text;
-}
-
-// Функция экранирования HTML
-function escapeHtml(text) {
-    const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    return text.replace(/[&<>"']/g, m => map[m]);
-}
-
-    function showToast(message) {
-        const toast = document.createElement('div');
-        toast.className = 'toast';
-        toast.innerHTML = `<i class="fas fa-info-circle"></i> ${message}`;
-        document.body.appendChild(toast);
-
-        setTimeout(() => {
-            toast.style.animation = 'slideOut 0.3s ease';
-            setTimeout(() => toast.remove(), 300);
-        }, 2000);
-    }
 </script>
 
 </body>
