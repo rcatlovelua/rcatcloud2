@@ -1531,74 +1531,114 @@
         }
     }
 
-    // ============ CHAT FUNCTIONS ============
-    
-    async function sendMessage() {
-        const input = document.getElementById('messageInput');
-        const message = input.value.trim();
+   // ============ CHAT FUNCTIONS ============
 
-        if (!message) return;
-        if (!currentModel) {
-            showToast('Select a model first!');
-            return;
-        }
+async function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const message = input.value.trim();
 
-        const welcomeMsg = document.getElementById('welcomeMessage');
-        if (welcomeMsg) welcomeMsg.style.display = 'none';
-
-        // Добавляем сообщение пользователя
-        addMessage('user', message);
-        chatHistory.push({ role: 'user', content: message });
-
-        // Очищаем инпут
-        input.value = '';
-        input.style.height = 'auto';
-        document.getElementById('charCount').textContent = '0';
-
-        // Показываем индикатор печати
-        const typingIndicator = document.getElementById('typingIndicator');
-        typingIndicator.classList.add('active');
-
-        // Отключаем кнопку отправки
-        const sendBtn = document.getElementById('sendBtn');
-        sendBtn.disabled = true;
-
-        try {
-            // Отправляем запрос на серверный API
-            const response = await fetch(`${API_BASE}/api/chat`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    model: currentModel.id,
-                    messages: chatHistory,
-                    user_id: currentUser.id,
-                    system_prompt: 'You are a helpful AI assistant. Provide clear and accurate responses. Use markdown formatting when appropriate.'
-                })
-            });
-
-            const data = await response.json();
-
-            // Скрываем индикатор печати
-            typingIndicator.classList.remove('active');
-
-            if (data.success) {
-                // Добавляем ответ ассистента
-                addMessage('assistant', data.content);
-                chatHistory.push({ role: 'assistant', content: data.content });
-            } else {
-                throw new Error(data.error || 'Unknown error');
-            }
-
-        } catch (error) {
-            typingIndicator.classList.remove('active');
-            addMessage('error', 'Error: ' + error.message);
-        } finally {
-            sendBtn.disabled = false;
-        }
-
-        scrollToBottom();
+    if (!message) return;
+    if (!currentModel) {
+        showToast('Select a model first!');
+        return;
     }
 
+    const welcomeMsg = document.getElementById('welcomeMessage');
+    if (welcomeMsg) welcomeMsg.style.display = 'none';
+
+    // Добавляем сообщение пользователя
+    addMessage('user', message);
+    chatHistory.push({ role: 'user', content: message });
+
+    // Очищаем инпут
+    input.value = '';
+    input.style.height = 'auto';
+    document.getElementById('charCount').textContent = '0';
+
+    // Показываем индикатор печати
+    const typingIndicator = document.getElementById('typingIndicator');
+    typingIndicator.classList.add('active');
+
+    // Отключаем кнопку отправки
+    const sendBtn = document.getElementById('sendBtn');
+    sendBtn.disabled = true;
+
+    try {
+        // Получаем текущую дату и время
+        const now = new Date();
+        const currentDateTime = now.toLocaleString('ru-RU', {
+            timeZone: 'Europe/Moscow', // Можно изменить на нужный часовой пояс
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            weekday: 'long',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        });
+        
+        const currentYear = now.getFullYear();
+        const currentMonth = now.toLocaleString('en-US', { month: 'long' });
+        const currentDay = now.getDate();
+        const currentWeekday = now.toLocaleString('en-US', { weekday: 'long' });
+        const currentTime = now.toLocaleString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: false 
+        });
+        
+        // Создаем системный промпт с информацией о времени
+        const systemPrompt = `
+You are a helpful AI assistant. 
+Current date and time information:
+- Today is ${currentWeekday}, ${currentMonth} ${currentDay}, ${currentYear}
+- Current time: ${currentTime}
+- Year: ${currentYear}
+- Month: ${currentMonth}
+- Day: ${currentDay}
+
+IMPORTANT: Always use this current date (${currentYear}) when answering questions about time, dates, current events, or when the user asks about "now", "today", "this year", etc. The current year is ${currentYear}, not any previous year.
+
+Provide clear and accurate responses. Use markdown formatting when appropriate.
+
+when you don't know what the thing you're being asked about is, it's not a fact that it hasn't been released because your database isn't set up for the year that's currently passing
+`;
+
+        // Отправляем запрос на серверный API
+        const response = await fetch(`${API_BASE}/api/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: currentModel.id,
+                messages: chatHistory,
+                user_id: currentUser.id,
+                system_prompt: systemPrompt
+            })
+        });
+
+        const data = await response.json();
+
+        // Скрываем индикатор печати
+        typingIndicator.classList.remove('active');
+
+        if (data.success) {
+            // Добавляем ответ ассистента
+            addMessage('assistant', data.content);
+            chatHistory.push({ role: 'assistant', content: data.content });
+        } else {
+            throw new Error(data.error || 'Unknown error');
+        }
+
+    } catch (error) {
+        typingIndicator.classList.remove('active');
+        addMessage('error', 'Error: ' + error.message);
+    } finally {
+        sendBtn.disabled = false;
+    }
+
+    scrollToBottom();
+}
     // ============ INITIALIZATION ============
     
     document.addEventListener('DOMContentLoaded', () => {
