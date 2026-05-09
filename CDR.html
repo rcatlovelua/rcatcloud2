@@ -615,75 +615,56 @@
         }
 
         async function uploadFile() {
-            if (!selectedFile) {
-                showOutput('❌ Выберите файл для загрузки');
-                return;
-            }
+    if (!selectedFile) {
+        showOutput('❌ Выберите файл');
+        return;
+    }
 
-            const fileName = document.getElementById('fileName').value.trim();
-            if (!fileName) {
-                showOutput('❌ Введите название файла');
-                return;
-            }
+    const uploadBtn = document.getElementById('uploadBtn');
+    const progressBar = document.getElementById('progressBar');
+    const progressFill = document.getElementById('progressFill');
+    
+    uploadBtn.disabled = true;
+    progressBar.classList.add('active');
 
-            const progressBar = document.getElementById('progressBar');
-            const progressFill = document.getElementById('progressFill');
-            const uploadBtn = document.getElementById('uploadBtn');
-            
-            progressBar.classList.add('active');
-            uploadBtn.disabled = true;
-            uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загрузка...';
+    try {
+        // Шаг 1: Получаем Presigned URL у нашего API
+        const authRes = await fetch("/api/upload", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: selectedFile.name, type: selectedFile.type })
+        });
+        const { uploadUrl, fileName, error: authError } = await authRes.json();
+        
+        if (authError) throw new Error(authError);
 
-            let progress = 0;
-            const progressInterval = setInterval(() => {
-                progress += Math.random() * 20;
-                if (progress > 90) progress = 90;
-                progressFill.style.width = progress + '%';
-            }, 300);
+        // Шаг 2: Грузим файл напрямую в Supabase
+        const uploadRes = await fetch(uploadUrl, {
+            method: "PUT", // Supabase требует PUT для signed URLs
+            body: selectedFile,
+            headers: { "Content-Type": selectedFile.type }
+        });
 
-            try {
-                const form = new FormData();
-                form.append("file", selectedFile);
-                form.append("name", fileName);
+        if (!uploadRes.ok) throw new Error("Ошибка при передаче файла в хранилище");
 
-                const res = await fetch("https://orrcs.vercel.app/api/upload", {
-                    method: "POST",
-                    body: form
-                });
+        // Шаг 3: Формируем команды (ссылку берем из настроек бакета)
+        const publicUrl = `https://[ТВОЙ_ID].supabase.co/storage/v1/object/public/cdr-tracks/${fileName}`;
+        const sanitizedName = fileName.replace(/[^\w.-]/g, '_');
+        
+        const commands = [
+            `/cd download ${publicUrl} ${sanitizedName}`,
+            `/cd create local ${sanitizedName} ${sanitizedName}`
+        ];
 
-                clearInterval(progressInterval);
-                progressFill.style.width = '100%';
+        showOutput('✅ Готово.\n\n📋 Команды:\n' + commands.join('\n'));
+        progressFill.style.width = '100%';
 
-                const data = await res.json();
-
-                if (data.commands && data.commands.length > 0) {
-                    showOutput('✅ Файл загружен!\n\n📋 Команды для Minecraft:\n' + data.commands.join('\n'));
-                    
-                    navigator.clipboard.writeText(data.commands.join('\n')).then(() => {
-                        console.log('Команды скопированы');
-                    }).catch(() => {});
-                } else if (data.error) {
-                    showOutput('❌ Ошибка: ' + data.error);
-                } else {
-                    showOutput('✅ Файл загружен! URL: ' + (data.url || 'не получен'));
-                }
-
-                setTimeout(() => {
-                    progressBar.classList.remove('active');
-                    progressFill.style.width = '0%';
-                    uploadBtn.disabled = false;
-                    uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Загрузить на сервер';
-                }, 1500);
-
-            } catch (error) {
-                clearInterval(progressInterval);
-                showOutput('❌ Ошибка соединения: ' + error.message);
-                
-                progressBar.classList.remove('active');
-                progressFill.style.width = '0%';
-                uploadBtn.disabled = false;
-                uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Загрузить на сервер';
-            }
+    } catch (error) {
+        showOutput('❌ Ошибка: ' + error.message);
+    } finally {
+        uploadBtn.disabled = false;
+        setTimeout(() => progressBar.classList.remove('active'), 2000);
+    }
         }
 
         function showOutput(message) {
