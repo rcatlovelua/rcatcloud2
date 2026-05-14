@@ -3,1389 +3,923 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Devs — место, которое РЕАЛЬНО место.</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0,1" />
-    <link href="https://cdn.jsdelivr.net/npm/beercss@3/dist/cdn/beer.min.css" rel="stylesheet">
-    <script type="module" src="https://cdn.jsdelivr.net/npm/beercss@3/dist/cdn/beer.min.js"></script>
-    
-
+    <title>Devs - теплое место для разработчиков</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,500;6..72,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..700,0..1,-50..200" />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        /* ========== ТЕМЫ ========== */
         :root {
-            --bg-gradient-start: #f5f7ff;
-            --bg-gradient-end: #f0f2fa;
-            --text-primary: #1a1a2e;
-            --text-secondary: #4b5563;
-            --text-muted: #6b7280;
-            --card-bg: white;
-            --card-bg-alt: #fafbff;
-            --border-light: #e5e7eb;
-            --border-lighter: #f0f2fa;
-            --accent: #6366f1;
-            --accent-dark: #4f46e5;
-            --accent-light: #eef2ff;
-            --input-bg: #f9fafb;
-            --toast-bg: #1f2937;
+            --paper: #f7f1e8;
+            --paper-soft: #fbf7f0;
+            --ink: #241713;
+            --muted: #6f625a;
+            --line: rgba(36, 23, 19, 0.12);
+            --line-strong: rgba(36, 23, 19, 0.22);
+            --clay: #c85f3b;
+            --clay-dark: #9e452c;
+            --clay-soft: #f0d9ca;
+            --sage: #5f6f52;
+            --field: rgba(255, 252, 246, 0.78);
+            --toast: #241713;
+            --shadow: 0 24px 70px rgba(94, 56, 34, 0.12);
         }
 
         [data-theme="dark"] {
-            --bg-gradient-start: #0a0a0f;
-            --bg-gradient-end: #12121a;
-            --text-primary: #ffffff;
-            --text-secondary: #a1a1aa;
-            --text-muted: #71717a;
-            --card-bg: #1f1f2e;
-            --card-bg-alt: #2a2a3a;
-            --border-light: #3a3a4a;
-            --border-lighter: #2a2a3a;
-            --accent: #818cf8;
-            --accent-dark: #6366f1;
-            --accent-light: #2a2a3a;
-            --input-bg: #2a2a3a;
-            --toast-bg: #3a3a4a;
+            --paper: #17110f;
+            --paper-soft: #201816;
+            --ink: #f8efe5;
+            --muted: #b7aaa0;
+            --line: rgba(248, 239, 229, 0.12);
+            --line-strong: rgba(248, 239, 229, 0.22);
+            --clay: #e18a63;
+            --clay-dark: #f0a07b;
+            --clay-soft: rgba(225, 138, 99, 0.18);
+            --sage: #a7b28d;
+            --field: rgba(42, 32, 29, 0.78);
+            --toast: #f8efe5;
+            --shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
         }
+
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
 
         body {
-            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            padding: 32px 20px;
-            color: var(--text-primary);
             min-height: 100vh;
-            transition: background 0.3s ease, color 0.3s ease;
+            margin: 0;
+            background:
+                radial-gradient(circle at 12% 8%, rgba(200, 95, 59, 0.18), transparent 34rem),
+                radial-gradient(circle at 88% 18%, rgba(95, 111, 82, 0.16), transparent 30rem),
+                linear-gradient(180deg, var(--paper-soft), var(--paper));
+            color: var(--ink);
+            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            transition: background 300ms ease, color 300ms ease;
         }
 
-        .material-container {
-            max-width: 800px;
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.42;
+            mix-blend-mode: multiply;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.14'/%3E%3C/svg%3E");
+        }
+
+        [data-theme="dark"] body::before { mix-blend-mode: screen; opacity: 0.13; }
+
+        .font-display { font-family: Newsreader, Georgia, serif; }
+        .material-symbols-rounded { font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 24; }
+
+        .shell {
+            width: min(1120px, calc(100% - 32px));
             margin: 0 auto;
-            width: 100%;
-        }
-
-        .app-bar {
-            margin-bottom: 32px;
-            display: flex;
-            align-items: baseline;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-        
-        .app-title {
-            font-size: 2rem;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            background: linear-gradient(135deg, var(--text-primary), var(--accent));
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: opacity 0.2s;
             position: relative;
         }
-        
-        .app-title:hover {
-            opacity: 0.8;
-        }
-        
-        .app-title span {
-            background: none;
-            color: var(--accent);
-            font-size: 2rem;
-        }
-        
-        .badge {
-            background: linear-gradient(135deg, var(--accent-light), var(--border-lighter));
-            padding: 8px 16px;
-            border-radius: 40px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            color: var(--accent);
+
+        .topbar {
             display: flex;
             align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .badge:hover {
-            transform: scale(0.98);
-            background: linear-gradient(135deg, var(--border-lighter), var(--accent-light));
-        }
-        
-        /* Кнопка подписки на уведомления */
-        .notify-btn {
-            background: linear-gradient(135deg, #10b981, #059669);
-            padding: 8px 16px;
-            border-radius: 40px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-            font-family: 'Inter', sans-serif;
-        }
-        
-        .notify-btn:hover {
-            transform: scale(0.98);
-            background: linear-gradient(135deg, #059669, #047857);
-        }
-        
-        .notify-btn.subscribed {
-            background: linear-gradient(135deg, #6b7280, #4b5563);
+            justify-content: space-between;
+            gap: 16px;
+            padding: 22px 0;
         }
 
-        .info-note {
-            background: linear-gradient(135deg, var(--accent-light), var(--border-lighter));
-            padding: 10px 20px;
-            border-radius: 24px;
-            font-size: 0.75rem;
-            color: var(--accent);
-            margin-bottom: 24px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            backdrop-filter: blur(4px);
-        }
-        
-        .beta-note {
-            background: var(--card-bg-alt);
-            padding: 10px 20px;
-            border-radius: 40px;
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            margin-bottom: 24px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            backdrop-filter: blur(4px);
-            border: 1px solid var(--border-light);
-            font-weight: 500;
+        .brand-mark {
+            display: inline-grid;
+            place-items: center;
+            width: 42px;
+            height: 42px;
+            border: 1px solid var(--line-strong);
+            border-radius: 50%;
+            background: rgba(255, 252, 246, 0.38);
+            color: var(--clay);
         }
 
-        /* НОВОСТНОЙ БЛОК */
-        .devs-news-section {
-            background: var(--card-bg);
-            backdrop-filter: blur(8px);
-            border-radius: 32px;
-            margin-bottom: 32px;
-            border: 1px solid var(--accent);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+        [data-theme="dark"] .brand-mark { background: rgba(255, 255, 255, 0.04); }
+
+        .soft-button,
+        .primary-button,
+        .ghost-button {
+            min-height: 42px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 0 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 180ms ease, background 180ms ease, border-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
+        }
+
+        .soft-button {
+            background: rgba(255, 252, 246, 0.54);
+            color: var(--ink);
+            backdrop-filter: blur(14px);
+        }
+
+        .soft-button:hover,
+        .ghost-button:hover { transform: translateY(-1px); border-color: var(--line-strong); }
+
+        .primary-button {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+            box-shadow: 0 14px 28px rgba(36, 23, 19, 0.18);
+        }
+
+        [data-theme="dark"] .primary-button { background: var(--clay); color: #17110f; border-color: var(--clay); }
+
+        .primary-button:hover { transform: translateY(-2px); box-shadow: 0 18px 34px rgba(36, 23, 19, 0.22); }
+        .primary-button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .ghost-button {
+            background: transparent;
+            color: var(--muted);
+        }
+
+        .hero {
+            min-height: 520px;
+            display: grid;
+            align-items: end;
+            padding: 80px 0 48px;
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+            position: relative;
             overflow: hidden;
         }
 
-        .news-header {
-            padding: 20px 28px 12px 28px;
-            display: flex;
+        .hero::after {
+            content: "";
+            position: absolute;
+            right: -12%;
+            bottom: -34%;
+            width: min(680px, 75vw);
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background:
+                linear-gradient(135deg, rgba(200, 95, 59, 0.22), rgba(95, 111, 82, 0.1)),
+                repeating-linear-gradient(100deg, transparent 0 20px, rgba(36, 23, 19, 0.05) 20px 21px);
+            filter: blur(0.2px);
+            animation: warmOrbit 18s ease-in-out infinite alternate;
+        }
+
+        .hero-content { position: relative; z-index: 1; max-width: 760px; }
+
+        .kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--clay-dark);
+            font-size: 0.86rem;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            margin-bottom: 18px;
+        }
+
+        .hero-title {
+            margin: 0;
+            font-size: clamp(4rem, 15vw, 10rem);
+            line-height: 0.82;
+            letter-spacing: -0.08em;
+            color: var(--ink);
+        }
+
+        .hero-title span {
+            color: var(--clay);
+            font-style: italic;
+            letter-spacing: -0.06em;
+        }
+
+        .hero-copy {
+            max-width: 620px;
+            margin: 28px 0 0;
+            color: var(--muted);
+            font-size: clamp(1.05rem, 2vw, 1.35rem);
+            line-height: 1.6;
+        }
+
+        .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+
+        .section-row {
+            display: grid;
+            grid-template-columns: minmax(0, 0.92fr) minmax(320px, 1.08fr);
+            gap: clamp(28px, 5vw, 72px);
+            align-items: start;
+            padding: 76px 0;
+        }
+
+        .section-label {
+            color: var(--clay-dark);
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+
+        .section-title {
+            margin: 0;
+            font-size: clamp(2rem, 4vw, 4rem);
+            line-height: 0.98;
+            letter-spacing: -0.055em;
+        }
+
+        .section-copy {
+            margin: 18px 0 0;
+            color: var(--muted);
+            font-size: 1rem;
+            line-height: 1.7;
+            max-width: 430px;
+        }
+
+        .composer {
+            background: color-mix(in srgb, var(--field) 88%, transparent);
+            border: 1px solid var(--line-strong);
+            border-radius: 28px;
+            padding: clamp(20px, 4vw, 34px);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(18px);
+        }
+
+        .field { margin-bottom: 18px; }
+
+        .field label {
+            display: block;
+            margin: 0 0 8px 2px;
+            color: var(--muted);
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .input,
+        .textarea {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: color-mix(in srgb, var(--paper-soft) 78%, transparent);
+            color: var(--ink);
+            outline: none;
+            padding: 14px 16px;
+            font: inherit;
+            transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+        }
+
+        .textarea { min-height: 118px; resize: vertical; }
+
+        .input:focus,
+        .textarea:focus {
+            border-color: var(--clay);
+            box-shadow: 0 0 0 4px color-mix(in srgb, var(--clay) 18%, transparent);
+            background: var(--paper-soft);
+        }
+
+        .file-input::file-selector-button {
+            margin-right: 12px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 8px 14px;
+            background: var(--clay-soft);
+            color: var(--clay-dark);
+            font: inherit;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .preview {
+            display: none;
             align-items: center;
             gap: 12px;
-            border-bottom: 1px solid var(--border-lighter);
+            margin-top: 12px;
         }
 
-        .news-header .material-symbols-outlined {
-            font-size: 28px;
-            background: linear-gradient(135deg, var(--accent), #8b5cf6);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-        }
+        .preview img { width: 88px; height: 64px; object-fit: cover; border-radius: 14px; border: 1px solid var(--line); }
 
-        .news-header h3 {
-            font-size: 1.35rem;
-            font-weight: 700;
-            letter-spacing: -0.3px;
-            background: linear-gradient(135deg, var(--text-primary), var(--accent));
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            margin: 0;
-        }
+        .news-list,
+        .feed-list { display: grid; gap: 0; border-top: 1px solid var(--line); }
 
-        .news-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 0;
+        .news-item,
+        .post {
+            padding: 28px 0;
+            border-bottom: 1px solid var(--line);
+            animation: riseIn 420ms ease both;
         }
 
         .news-item {
-            display: flex;
-            gap: 20px;
-            padding: 20px 28px;
-            border-bottom: 1px solid var(--border-lighter);
-            transition: background 0.2s;
+            display: grid;
+            grid-template-columns: 154px minmax(0, 1fr);
+            gap: 22px;
             align-items: center;
-        }
-
-        .news-item:last-child {
-            border-bottom: none;
-        }
-
-        .news-item:hover {
-            background: var(--card-bg-alt);
         }
 
         .news-image {
-            flex-shrink: 0;
-            width: 160px;
-            height: 90px;
-            border-radius: 12px;
-            object-fit: cover;
-            background: var(--input-bg);
-            border: 1px solid var(--border-light);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .news-image:hover {
-            transform: scale(1.02);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .news-content {
-            flex: 1;
-        }
-
-        .news-title {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .news-title .material-symbols-outlined {
-            font-size: 1rem;
-            color: var(--accent);
-        }
-
-        .news-text {
-            font-size: 0.85rem;
-            line-height: 1.5;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-        }
-
-        .news-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: var(--accent-light);
-            padding: 6px 14px;
-            border-radius: 40px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: var(--accent);
-            text-decoration: none;
-            transition: all 0.2s;
-            border: 1px solid transparent;
-        }
-
-        .news-link:hover {
-            background: var(--border-light);
-            transform: translateY(-1px);
-        }
-
-        .news-link .material-symbols-outlined {
-            font-size: 14px;
-        }
-
-        .news-date {
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            margin-top: 8px;
-        }
-
-        @media (max-width: 640px) {
-            .news-item {
-                flex-direction: column;
-                gap: 12px;
-                align-items: flex-start;
-                padding: 18px 20px;
-            }
-            .news-image {
-                width: 100%;
-                height: auto;
-                aspect-ratio: 16 / 9;
-                max-height: 200px;
-                object-fit: cover;
-            }
-            .news-header {
-                padding: 16px 20px;
-            }
-            .news-header h3 {
-                font-size: 1.2rem;
-            }
-        }
-        
-        .create-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            border-radius: 32px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.05);
-            margin-bottom: 40px;
-            padding: 24px 28px;
-            border: 1px solid var(--accent);
-            transition: box-shadow 0.2s;
-        }
-        
-        .create-card:focus-within {
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-        }
-        
-        .input-field {
-            margin-bottom: 20px;
-        }
-        
-        .input-field label {
-            display: block;
-            font-size: 0.7rem;
-            font-weight: 600;
-            letter-spacing: 0.3px;
-            color: var(--text-muted);
-            margin-bottom: 6px;
-            margin-left: 12px;
-            text-transform: uppercase;
-        }
-        
-        .material-input, .material-textarea {
             width: 100%;
-            background: var(--input-bg);
-            border: 1.5px solid var(--border-light);
-            border-radius: 20px;
-            padding: 12px 18px;
-            font-family: 'Inter', monospace;
-            font-size: 0.95rem;
-            transition: all 0.2s;
-            color: var(--text-primary);
-            outline: none;
-            resize: vertical;
-        }
-        
-        .material-input:focus, .material-textarea:focus {
-            border-color: var(--accent);
-            background: var(--card-bg);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-        }
-        
-        .material-textarea {
-            min-height: 100px;
-        }
-        
-        .btn-filled {
-            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            color: white;
-            border: none;
-            border-radius: 40px;
-            padding: 12px 28px;
-            font-weight: 600;
-            font-size: 0.875rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
-        }
-        
-        .btn-filled:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
-        }
-        
-        .btn-filled:active {
-            transform: translateY(0);
-        }
-        
-        .btn-filled:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .button-wrapper {
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-            flex-wrap: wrap;
+            aspect-ratio: 16 / 10;
+            border-radius: 22px;
+            object-fit: cover;
+            border: 1px solid var(--line);
+            background: var(--clay-soft);
         }
 
-        .feed-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin: 0 0 20px 8px;
+        .news-title,
+        .post-title { margin: 0; color: var(--ink); font-weight: 800; letter-spacing: -0.03em; }
+
+        .news-title { font-size: 1.35rem; }
+        .post-title { font-size: clamp(1.35rem, 2vw, 2rem); }
+
+        .news-text,
+        .post-content { margin-top: 10px; color: var(--muted); line-height: 1.68; white-space: pre-wrap; word-break: break-word; }
+
+        .meta {
             display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--text-primary);
-        }
-        
-        .feed-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-        
-        .post-card {
-            background: var(--card-bg);
-            border-radius: 32px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
-            transition: all 0.2s ease;
-            padding: 24px 28px;
-            border-left: 4px solid var(--accent);
-            animation: fadeInUp 0.3s ease-out;
-        }
-        
-        .post-card:hover {
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
-            transform: translateY(-2px);
-        }
-        
-        .post-title {
-            font-size: 1.4rem;
-            font-weight: 700;
-            margin-bottom: 12px;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 12px;
             flex-wrap: wrap;
-        }
-        
-        .post-title-icon {
-            color: var(--accent);
-            font-size: 1.6rem;
-        }
-        
-        .post-content {
-            font-size: 0.95rem;
-            line-height: 1.6;
-            color: var(--text-secondary);
-            white-space: pre-wrap;
-            word-break: break-word;
-            margin-top: 12px;
-        }
-        
-        .post-meta {
-            display: flex;
             align-items: center;
-            gap: 16px;
-            margin-top: 16px;
-            padding-top: 12px;
-            border-top: 1px solid var(--border-lighter);
-            font-size: 0.8rem;
+            gap: 14px;
+            margin-top: 18px;
+            color: var(--muted);
+            font-size: 0.86rem;
         }
-        
-        .post-author {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            color: var(--accent);
-            font-weight: 500;
-        }
-        
-        .post-author .material-symbols-outlined {
-            font-size: 1rem;
-        }
-        
-        .post-time {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            color: var(--text-muted);
-        }
-        
-        .post-actions {
-            margin-top: 16px;
-        }
-        
-        .action-btn {
-            background: none;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.8rem;
-            color: var(--accent);
-            cursor: pointer;
-            padding: 8px 16px;
-            border-radius: 40px;
-            transition: all 0.2s;
-            font-weight: 500;
-        }
-        
-        .action-btn:hover {
-            background: var(--accent-light);
-        }
-        
-        .action-btn .material-symbols-outlined {
-            font-size: 1.1rem;
-        }
-        
-        .replies-section {
-            margin-top: 20px;
-            padding-left: 20px;
-            border-left: 3px solid var(--accent-light);
-        }
-        
-        .reply-card {
-            background: var(--card-bg-alt);
-            border-radius: 24px;
-            padding: 14px 18px;
-            margin-top: 12px;
-            transition: background 0.2s;
-        }
-        
-        .reply-card:hover {
-            background: var(--border-lighter);
-        }
-        
-        .reply-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 8px;
-            flex-wrap: wrap;
-        }
-        
-        .reply-author {
-            font-weight: 600;
-            color: var(--accent);
-            font-size: 0.85rem;
-        }
-        
-        .reply-time {
-            font-size: 0.65rem;
-            color: var(--text-muted);
-        }
-        
-        .reply-content {
-            color: var(--text-secondary);
-            margin-top: 6px;
-            font-size: 0.85rem;
-            line-height: 1.5;
-        }
-        
+
+        .author { color: var(--clay-dark); font-weight: 800; }
+        .post-image { width: 100%; max-height: 460px; object-fit: cover; border-radius: 24px; border: 1px solid var(--line); margin-top: 20px; }
+        .post-actions { margin-top: 18px; }
+
         .reply-form {
-            margin-top: 12px;
             display: none;
             gap: 12px;
-            flex-direction: column;
-        }
-        
-        .post-image {
-            width: 100%;
-            max-height: 400px;
-            object-fit: cover;
-            border-radius: 16px;
             margin-top: 16px;
-            border: 1px solid var(--border-light);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            background-color: var(--input-bg);
+            padding: 16px;
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            background: color-mix(in srgb, var(--paper-soft) 54%, transparent);
         }
-        
-        input[type="file"]::file-selector-button {
-            background: var(--accent-light);
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            color: var(--accent);
-            font-weight: 600;
-            font-family: 'Inter', sans-serif;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-right: 12px;
-        }
-        
-        input[type="file"]::file-selector-button:hover {
-            background: var(--border-light);
-        }
-        
-        .reply-form.active {
-            display: flex;
-        }
-        
-        .reply-input {
-            width: 100%;
-            background: var(--input-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 20px;
-            padding: 10px 16px;
-            font-size: 0.85rem;
-            font-family: 'Inter', sans-serif;
-            resize: vertical;
-            outline: none;
-            color: var(--text-primary);
-        }
-        
-        .reply-input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
-        }
-        
-        .small-btn {
-            padding: 8px 20px;
-            font-size: 0.75rem;
-            align-self: flex-end;
-            background: var(--accent);
-        }
-        
-        .empty-state {
-            background: var(--card-bg);
-            border-radius: 32px;
-            padding: 60px 32px;
-            text-align: center;
-            color: var(--text-muted);
-            border: 1px dashed var(--border-light);
-        }
-        
-        .loading-spinner {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 60px;
-            color: var(--accent);
-            gap: 12px;
-        }
-        
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        
-        .toast-message {
-            position: fixed;
-            bottom: 24px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--toast-bg);
-            color: white;
-            padding: 12px 28px;
-            border-radius: 100px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            z-index: 1000;
-            backdrop-filter: blur(8px);
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s;
-            white-space: nowrap;
-        }
-        
-        @media (max-width: 640px) {
-            body { padding: 20px 16px; }
-            .post-title { font-size: 1.2rem; }
-            .create-card { padding: 20px; }
-            .toast-message { white-space: normal; max-width: 90%; text-align: center; }
-        }
-        
-        .image-preview {
-            margin-top: 12px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-        
-        .image-preview img {
-            max-height: 80px;
-            border-radius: 12px;
-            border: 1px solid var(--border-light);
-        }
-        
-        .remove-preview {
-            background: #fee2e2;
-            border: none;
-            border-radius: 40px;
-            padding: 6px 12px;
-            font-size: 0.7rem;
-            color: #dc2626;
-            cursor: pointer;
-            font-weight: 500;
-        }
-        
-        .debug-info {
-            margin-top: 10px;
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            background: var(--input-bg);
-            padding: 8px;
-            border-radius: 8px;
-            display: none;
-        }
-        
-        /* Кнопка переключения темы */
-        .theme-toggle-btn {
-            background: var(--card-bg-alt);
-            border: 1px solid var(--border-light);
-            border-radius: 40px;
-            padding: 8px 16px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: 'Inter', sans-serif;
-        }
-        
-        .theme-toggle-btn:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-            transform: scale(0.98);
-        }
-       
-        /* Подключаем шрифт для эффекта рукописи */
-        @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&display=swap');
 
-        /* Контейнер, который вырывается на всю ширину экрана */
+        .reply-form.active { display: grid; }
+
+        .replies { margin-top: 22px; padding-left: 18px; border-left: 2px solid var(--clay-soft); display: grid; gap: 16px; }
+        .reply { color: var(--muted); }
+        .reply p { margin: 6px 0 0; line-height: 1.6; white-space: pre-wrap; }
+
+        .empty,
+        .loading {
+            display: grid;
+            place-items: center;
+            gap: 12px;
+            min-height: 220px;
+            color: var(--muted);
+            text-align: center;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .spinner {
+            width: 28px;
+            height: 28px;
+            border: 3px solid var(--line);
+            border-top-color: var(--clay);
+            border-radius: 50%;
+            animation: spin 900ms linear infinite;
+        }
+
         .guys-section {
-            position: relative;
             width: 100vw;
-            margin-left: calc(-50vw + 50%);
-            margin-top: 80px;
-            background-color: #080808;
-            z-index: 10;
-        }
-
-        /* Сам черный блок с рваным краем (забором) */
-        .guys-black-block {
-            background-color: #080808;
-            color: white;
-            padding: 100px 20px 150px;
+            margin-left: calc(50% - 50vw);
+            padding: 90px 16px 112px;
+            background: #11100f;
+            color: #f7f1e8;
             text-align: center;
-            font-family: 'Caveat', cursive;
-            
-            /* Эффект "кипения" — резкое переключение кадров */
-            animation: guys-boil 0.3s infinite step-end;
-            
-            /* Рисуем забор (зубчики) сверху */
-            -webkit-clip-path: polygon(
-                0% 100%, 0% 5%, 2% 8%, 5% 2%, 8% 9%, 11% 1%, 14% 8%, 17% 3%, 20% 9%, 
-                23% 2%, 26% 7%, 29% 1%, 32% 8%, 35% 3%, 38% 9%, 41% 1%, 44% 8%, 47% 2%, 
-                50% 9%, 53% 1%, 56% 8%, 59% 3%, 62% 9%, 65% 2%, 68% 8%, 71% 5%, 74% 9%, 
-                77% 1%, 80% 8%, 83% 3%, 86% 9%, 89% 2%, 92% 7%, 95% 1%, 98% 8%, 100% 4%, 100% 100%
-            );
-            clip-path: polygon(
-                0% 100%, 0% 5%, 2% 8%, 5% 2%, 8% 9%, 11% 1%, 14% 8%, 17% 3%, 20% 9%, 
-                23% 2%, 26% 7%, 29% 1%, 32% 8%, 35% 3%, 38% 9%, 41% 1%, 44% 8%, 47% 2%, 
-                50% 9%, 53% 1%, 56% 8%, 59% 3%, 62% 9%, 65% 2%, 68% 8%, 71% 5%, 74% 9%, 
-                77% 1%, 80% 8%, 83% 3%, 86% 9%, 89% 2%, 92% 7%, 95% 1%, 98% 8%, 100% 4%, 100% 100%
-            );
-            
-            margin-top: -2px; 
+            overflow: hidden;
+            clip-path: polygon(0 8%, 4% 2%, 8% 9%, 12% 3%, 16% 8%, 20% 1%, 24% 9%, 28% 4%, 32% 8%, 36% 2%, 40% 9%, 44% 4%, 48% 8%, 52% 1%, 56% 9%, 60% 4%, 64% 8%, 68% 2%, 72% 9%, 76% 4%, 80% 8%, 84% 2%, 88% 9%, 92% 4%, 96% 8%, 100% 2%, 100% 100%, 0 100%);
         }
 
-        /* Рамка вокруг надписи Guys */
-        .guys-frame {
+        .guys-word {
             display: inline-block;
-            border: 4px solid #fff;
-            padding: 30px 60px;
-            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+            font-size: clamp(4rem, 13vw, 9rem);
+            line-height: 0.84;
+            letter-spacing: -0.08em;
             transform: rotate(-2deg);
-            background: rgba(255, 255, 255, 0.05);
+            animation: boil 360ms steps(2, end) infinite;
         }
 
-        .guys-frame h2 {
-            font-size: 5rem;
-            margin: 0;
-            line-height: 1;
-            text-transform: uppercase;
-            letter-spacing: 3px;
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 22px;
+            transform: translateX(-50%) translateY(16px);
+            max-width: min(520px, calc(100% - 32px));
+            padding: 13px 18px;
+            border-radius: 999px;
+            background: var(--toast);
+            color: var(--paper);
+            font-weight: 800;
+            font-size: 0.9rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 180ms ease, transform 180ms ease;
+            z-index: 50;
         }
 
-        .guys-frame p {
-            font-size: 1.8rem;
-            margin-top: 10px;
-            color: #888;
+        [data-theme="dark"] .toast { color: #17110f; }
+        .toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.error { background: #b7352a; color: #fff; }
+
+        @keyframes riseIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes warmOrbit { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(-6%, -5%, 0) scale(1.08); } }
+        @keyframes boil { 0% { filter: url(#frame1); transform: rotate(-2deg) translate(0, 0); } 50% { filter: url(#frame2); transform: rotate(-1deg) translate(1px, -1px); } 100% { filter: url(#frame3); transform: rotate(-2deg) translate(-1px, 1px); } }
+
+        @media (max-width: 820px) {
+            .topbar { align-items: flex-start; }
+            .nav-actions { justify-content: flex-end; }
+            .section-row { grid-template-columns: 1fr; padding: 58px 0; }
+            .hero { min-height: 500px; padding-top: 58px; }
+            .news-item { grid-template-columns: 1fr; }
+            .news-image { max-height: 240px; }
         }
 
-        /* Анимация: переключаем 3 разных SVG-фильтра искажения */
-        @keyframes guys-boil {
-            0% { filter: url(#frame1); }
-            33% { filter: url(#frame2); }
-            66% { filter: url(#frame3); }
+        @media (max-width: 560px) {
+            .shell { width: min(100% - 24px, 1120px); }
+            .topbar { display: grid; }
+            .nav-actions { display: grid !important; grid-template-columns: 1fr 1fr; width: 100%; }
+            .soft-button { padding: 0 12px; }
+            .hero-title { font-size: clamp(4.4rem, 23vw, 7rem); }
+            .composer { border-radius: 22px; }
+            .hero-actions, .composer-actions { display: grid !important; }
+            .primary-button, .ghost-button { width: 100%; }
         }
     </style>
 </head>
 <body>
-
-<div class="material-container">
-    <div class="app-bar">
-        <div class="app-title" id="refreshFeed">
-            <span class="material-symbols-outlined">developer_mode</span>
-            Devs
-        </div>
-        <div style="display: flex; gap: 12px;">
-    <button class="theme-toggle-btn" id="themeToggle">
-        <span class="material-symbols-outlined" style="font-size: 14px;">dark_mode</span>
-        Тёмная
-    </button>
-    
-
-            
-            <div class="badge" id="refreshBadge">
-                <span class="material-symbols-outlined" style="font-size: 14px;">rss_feed</span> 
-                Перезагрузить
-            </div>
-        </div>
-    </div>
-
-    <div class="beta-note">
-        <span class="material-symbols-outlined" style="font-size: 14px;">info</span>
-        Devs в Alpha версии!
-    </div>
-
-    <!-- НОВОСТНОЙ БЛОК DEVS -->
-    <div class="devs-news-section" id="devsNewsBlock">
-        <div class="news-header">
-            <span class="material-symbols-outlined">newsmode</span>
-            <h3>Новости Devs / обновления</h3>
-        </div>
-        <div class="news-grid" id="dynamicNewsList"></div>
-    </div>
-
-    <div class="create-card">
-        <div class="input-field">
-            <label>ВАШЕ ИМЯ *</label>
-            <input type="text" id="authorName" class="material-input" placeholder="Как вас зовут?" autocomplete="off" maxlength="50">
-        </div>
-        <div class="input-field">
-            <label>ЗАГОЛОВОК</label>
-            <input type="text" id="title" class="material-input" placeholder="О чем расскажете?" autocomplete="off">
-        </div>
-        <div class="input-field">
-            <label>КОНТЕНТ</label>
-            <textarea id="content" class="material-textarea" rows="3" placeholder="Что нового? Идеи, код, мысли..."></textarea>
-        </div>
-        <div class="input-field">
-            <label>СЕКРЕТНЫЙ КЛЮЧ *</label>
-            <input type="password" id="adminPassword" class="material-input" placeholder="Пароль для публикации">
-        </div>
-        <div class="input-field">
-            <label>ПРИКРЕПИТЬ ФОТО (ОПЦИОНАЛЬНО)</label>
-            <input type="file" id="imageInput" class="material-input" accept="image/jpeg, image/png, image/gif, image/webp">
-            <div id="imagePreviewContainer" class="image-preview" style="display: none;"></div>
-        </div>
-        <div class="button-wrapper">
-            <button class="btn-filled" id="publishBtn">
-                <span class="material-symbols-outlined" style="font-size: 18px;">send</span> 
-                Опубликовать пост
+    <div class="shell">
+        <header class="topbar">
+            <button class="flex items-center gap-3 text-left" id="brandRefresh" aria-label="Обновить ленту">
+                <span class="brand-mark"><span class="material-symbols-rounded">code_blocks</span></span>
+                <span>
+                    <span class="block text-lg font-extrabold tracking-[-0.04em]">Devs</span>
+                    <span class="block text-sm" style="color: var(--muted);">alpha space</span>
+                </span>
             </button>
-        </div>
-        <div id="debugInfo" class="debug-info"></div>
-    </div>
+            <div class="nav-actions flex flex-wrap items-center gap-2">
+                <button class="soft-button" id="themeToggle" type="button">
+                    <span class="material-symbols-rounded text-[18px]">dark_mode</span>
+                    <span>Тема</span>
+                </button>
+                <button class="soft-button" id="refreshFeed" type="button">
+                    <span class="material-symbols-rounded text-[18px]">sync</span>
+                    <span>Обновить</span>
+                </button>
+            </div>
+        </header>
 
-    <div class="feed-title">
-        <span class="material-symbols-outlined" style="font-size: 22px;">dynamic_feed</span> 
-        Последние обсуждения
-    </div>
-    <div id="feed" class="feed-grid">
-        <div class="loading-spinner">
-            <span class="material-symbols-outlined" style="animation: spin 1s linear infinite;">progress_activity</span> 
-            <span>Загрузка постов...</span>
-        </div>
-    </div>
-   <div class="guys-section">
-    <div class="guys-black-block">
-        <div class="guys-frame">
-            <h2>Guys</h2>
-            <p>мессенджер • в разработке</p>
-        </div>
-    </div>
-</div>
-
-<svg style="position: fixed; width: 0; height: 0;">
-    <defs>
-        <filter id="frame1">
-            <feTurbulence type="fractalSum" baseFrequency="0.06" numOctaves="1" seed="1"/>
-            <feDisplacementMap in="SourceGraphic" scale="4" />
-        </filter>
-        <filter id="frame2">
-            <feTurbulence type="fractalSum" baseFrequency="0.06" numOctaves="1" seed="2"/>
-            <feDisplacementMap in="SourceGraphic" scale="4" />
-        </filter>
-        <filter id="frame3">
-            <feTurbulence type="fractalSum" baseFrequency="0.07" numOctaves="1" seed="3"/>
-            <feDisplacementMap in="SourceGraphic" scale="4" />
-        </filter>
-    </defs>
-</svg>
-</div>
-
-<div id="toastMsg" class="toast-message"></div>
-
-<script>
-
-    
-    // ========== ОСНОВНАЯ ЛОГИКА ==========
-    const API_POSTS = '/api/posts';
-    const API_REPLIES = '/api/replies';
-    let allPosts = [];
-    let lastPostCount = 0;
-    let lastRepliesMap = new Map();
-    
-    function showToast(message, isError = false) {
-        const toast = document.getElementById('toastMsg');
-        toast.textContent = message;
-        toast.style.opacity = '1';
-        toast.style.background = isError ? '#dc2626' : '#1f2937';
-        setTimeout(() => {
-            toast.style.opacity = '0';
-        }, 3000);
-    }
-    
-    function escapeHtml(str) {
-        if (!str) return '';
-        return str
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
-    }
-    
-    function formatTime(timestamp) {
-        if (!timestamp) return 'только что';
-        const date = new Date(timestamp);
-        const now = new Date();
-        const diff = Math.floor((now - date) / 1000);
-        
-        if (diff < 60) return 'только что';
-        if (diff < 3600) return `${Math.floor(diff / 60)} мин назад`;
-        if (diff < 86400) return `${Math.floor(diff / 3600)} ч назад`;
-        if (diff < 604800) return `${Math.floor(diff / 86400)} дн назад`;
-        return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
-    }
-    
-    function getAvatarColor(name) {
-        if (!name) return '#6366f1';
-        let hash = 0;
-        for (let i = 0; i < name.length; i++) {
-            hash = ((hash << 5) - hash) + name.charCodeAt(i);
-            hash |= 0;
-        }
-        const colors = ['#6366f1', '#8b5cf6', '#ec489a', '#f97316', '#10b981', '#06b6d4', '#ef4444'];
-        return colors[Math.abs(hash) % colors.length];
-    }
-    
-    function toggleReplyForm(postId) {
-        const form = document.getElementById(`reply-form-${postId}`);
-        if (form) {
-            form.classList.toggle('active');
-            if (form.classList.contains('active')) {
-                const input = form.querySelector('.reply-input');
-                if (input) input.focus();
-            }
-        }
-    }
-    
-    async function sendReply(postId, postTitle) {
-        const form = document.getElementById(`reply-form-${postId}`);
-        const input = form?.querySelector('.reply-input');
-        const replyContent = input?.value.trim();
-        const authorInput = document.getElementById('authorName');
-        const author = authorInput.value.trim();
-        const passwordInput = document.getElementById('adminPassword');
-        const password = passwordInput.value.trim();
-        
-        if (!replyContent) {
-            showToast('Напишите текст ответа', true);
-            return;
-        }
-        if (!author) {
-            showToast('Введите ваше имя перед ответом', true);
-            authorInput.focus();
-            return;
-        }
-        if (!password) {
-            showToast('Введите секретный ключ', true);
-            return;
-        }
-        
-        const replyData = { postId, content: replyContent, author, password };
-        const btn = form?.querySelector('.small-btn');
-        const originalText = btn?.innerHTML;
-        if (btn) {
-            btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 1s linear infinite;">progress_activity</span> Отправка...';
-            btn.disabled = true;
-        }
-        
-        try {
-            const response = await fetch(API_REPLIES, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(replyData)
-            });
-            
-            if (!response.ok) {
-                if (response.status === 403) {
-                    const error = await response.json();
-                    throw new Error(error.error || 'Неверный пароль');
-                }
-                throw new Error('Ошибка отправки ответа');
-            }
-            
-            if (input) input.value = '';
-            form?.classList.remove('active');
-            showToast('Ответ опубликован!', false);
-            
-            
-            
-            await loadPosts();
-        } catch (error) {
-            showToast(error.message, true);
-        } finally {
-            if (btn) {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        }
-    }
-    
-    const devsNewsFeed = [
-        {
-            title: "Откат!",
-            text: "Обновление не задалось был откат.",
-            imageUrl: "",
-            link: "#",
-            date: "2026-03-26"
-        }
-    ];
-    
-    function renderDevsNews() {
-        const newsContainer = document.getElementById('dynamicNewsList');
-        if (!newsContainer) return;
-        let newsHtml = '';
-        for (let item of devsNewsFeed) {
-            const imgSrc = item.imageUrl && item.imageUrl.trim() !== '' ? item.imageUrl : 'https://placehold.co/400x200?text=Фото+не+поставлено';
-            newsHtml += `
-                <div class="news-item">
-                    <img class="news-image" src="${escapeHtml(imgSrc)}" alt="news visual" onerror="this.onerror=null; this.src='https://placehold.co/400x200?text=Devs'">
-                    <div class="news-content">
-                        <div class="news-title">
-                            <span class="material-symbols-outlined">feed</span>
-                            ${escapeHtml(item.title)}
-                        </div>
-                        <div class="news-text">${escapeHtml(item.text)}</div>
-                        <div class="news-date">
-                            <span class="material-symbols-outlined" style="font-size: 12px;">calendar_today</span>
-                            ${escapeHtml(item.date)}
-                        </div>
+        <main>
+            <section class="hero" aria-labelledby="heroTitle">
+                <div class="hero-content">
+                    <div class="kicker"><span class="material-symbols-rounded text-[18px]">forum</span> Devs в Alpha версии</div>
+                    <h1 class="hero-title font-display" id="heroTitle">Devs<span>.</span></h1>
+                    <p class="hero-copy">Теплое, спокойное место для мыслей, кода, быстрых заметок и обсуждений. Интерфейс стал ближе к Claude: бумажная фактура, меньше шума, больше воздуха.</p>
+                    <div class="hero-actions">
+                        <a class="primary-button" href="#composer"><span class="material-symbols-rounded text-[18px]">edit_square</span>Написать пост</a>
+                        <a class="ghost-button" href="#feedSection"><span class="material-symbols-rounded text-[18px]">dynamic_feed</span>К обсуждениям</a>
                     </div>
                 </div>
-            `;
-        }
-        newsContainer.innerHTML = newsHtml;
-    }
-    
-    function renderPosts(posts) {
-        const feedContainer = document.getElementById('feed');
-        feedContainer.innerHTML = '';
-        
-        if (posts.length === 0) {
-            feedContainer.innerHTML = `<div class="empty-state"><span class="material-symbols-outlined" style="font-size: 56px;">forum</span><p>Пока нет постов</p></div>`;
-            return;
-        }
-        
-        const sortedPosts = [...posts].sort((a, b) => (b.timestamp || b.id || 0) - (a.timestamp || a.id || 0));
-        
-        for (const post of sortedPosts) {
-            const title = post.title?.trim() || 'Без заголовка';
-            const content = post.content?.trim() || '—';
-            const author = post.author?.trim() || 'Аноним';
-            const authorColor = getAvatarColor(author);
-            const timestamp = post.timestamp || post.id;
-            const timeStr = formatTime(timestamp);
-            const replies = post.replies || [];
-            const postId = post.id || timestamp;
-            
-            const rawImageUrl = post.imageurl || post.imageUrl || null;
-            let imageHtml = '';
-            if (rawImageUrl && rawImageUrl.trim() !== '' && rawImageUrl !== 'null') {
-                imageHtml = `<div><img src="${escapeHtml(rawImageUrl)}" alt="Фото" class="post-image" onerror="this.style.display='none'"></div>`;
+            </section>
+
+            <section class="section-row" aria-labelledby="newsTitle">
+                <div>
+                    <div class="section-label">Обновления</div>
+                    <h2 class="section-title font-display" id="newsTitle">Что происходит в Devs</h2>
+                    <p class="section-copy">Только важные записи о состоянии проекта. Без лишних бейджей, статистики и перегруженных блоков.</p>
+                </div>
+                <div class="news-list" id="dynamicNewsList"></div>
+            </section>
+
+            <section class="section-row" id="composer" aria-labelledby="composerTitle">
+                <div>
+                    <div class="section-label">Публикация</div>
+                    <h2 class="section-title font-display" id="composerTitle">Оставьте мысль в ленте</h2>
+                    <p class="section-copy">Имя и секретный ключ нужны для публикации. Фото можно прикрепить, если оно помогает рассказать историю.</p>
+                </div>
+                <form class="composer" id="postForm">
+                    <div class="field">
+                        <label for="authorName">Ваше имя *</label>
+                        <input class="input" id="authorName" type="text" placeholder="Как вас зовут?" autocomplete="name" maxlength="50">
+                    </div>
+                    <div class="field">
+                        <label for="title">Заголовок</label>
+                        <input class="input" id="title" type="text" placeholder="О чем расскажете?" autocomplete="off" maxlength="120">
+                    </div>
+                    <div class="field">
+                        <label for="content">Контент</label>
+                        <textarea class="textarea" id="content" rows="4" placeholder="Идея, заметка, вопрос или кусок кода..."></textarea>
+                    </div>
+                    <div class="field">
+                        <label for="adminPassword">Секретный ключ *</label>
+                        <input class="input" id="adminPassword" type="password" placeholder="Пароль для публикации" autocomplete="current-password">
+                    </div>
+                    <div class="field">
+                        <label for="imageInput">Фото, если нужно</label>
+                        <input class="input file-input" id="imageInput" type="file" accept="image/jpeg, image/png, image/gif, image/webp">
+                        <div class="preview" id="imagePreviewContainer"></div>
+                    </div>
+                    <div class="composer-actions flex justify-end gap-3 pt-1">
+                        <button class="primary-button" id="publishBtn" type="submit">
+                            <span class="material-symbols-rounded text-[18px]">send</span>
+                            Опубликовать
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="section-row" id="feedSection" aria-labelledby="feedTitle">
+                <div>
+                    <div class="section-label">Лента</div>
+                    <h2 class="section-title font-display" id="feedTitle">Последние обсуждения</h2>
+                    <p class="section-copy">Ответы открываются прямо под постом. Лента обновляется автоматически раз в 30 секунд.</p>
+                </div>
+                <div class="feed-list" id="feed">
+                    <div class="loading"><span class="spinner"></span><span>Загрузка постов...</span></div>
+                </div>
+            </section>
+
+            <section class="guys-section" aria-labelledby="guysTitle">
+                <div class="section-label" style="color: #e18a63;">Еще один проект</div>
+                <h2 class="guys-word font-display" id="guysTitle">Guys</h2>
+                <p class="mt-5 text-lg" style="color: rgba(247, 241, 232, 0.68);">мессенджер в разработке</p>
+            </section>
+        </main>
+    </div>
+
+    <div class="toast" id="toastMsg" role="status" aria-live="polite"></div>
+
+    <svg style="position: fixed; width: 0; height: 0;" aria-hidden="true">
+        <defs>
+            <filter id="frame1"><feTurbulence type="fractalNoise" baseFrequency="0.055" numOctaves="1" seed="1"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter>
+            <filter id="frame2"><feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="1" seed="2"/><feDisplacementMap in="SourceGraphic" scale="4"/></filter>
+            <filter id="frame3"><feTurbulence type="fractalNoise" baseFrequency="0.052" numOctaves="1" seed="3"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter>
+        </defs>
+    </svg>
+
+    <script>
+        const API_POSTS = "/api/posts";
+        const API_REPLIES = "/api/replies";
+        const IMGBB_KEY = "14f0aa5d21ba5485745697bdc4028d8f";
+
+        let allPosts = [];
+        let lastPostCount = 0;
+        let lastRepliesMap = new Map();
+        let toastTimer = null;
+
+        const devsNewsFeed = [
+            {
+                title: "Откат",
+                text: "Обновление не задалось, поэтому был выполнен откат. Devs снова работает в стабильной версии.",
+                imageUrl: "",
+                date: "2026-03-26"
             }
-            
-            let repliesHtml = '';
-            if (replies.length > 0) {
-                const sortedReplies = [...replies].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-                repliesHtml = `<div class="replies-section">`;
-                for (const reply of sortedReplies) {
-                    repliesHtml += `
-                        <div class="reply-card">
-                            <div class="reply-header">
-                                <span class="reply-author">${escapeHtml(reply.author || 'Аноним')}</span>
-                                <span class="reply-time">• ${formatTime(reply.timestamp)}</span>
-                            </div>
-                            <div class="reply-content">${escapeHtml(reply.content).replace(/\n/g, '<br>')}</div>
+        ];
+
+        const els = {
+            feed: document.getElementById("feed"),
+            news: document.getElementById("dynamicNewsList"),
+            toast: document.getElementById("toastMsg"),
+            form: document.getElementById("postForm"),
+            publishBtn: document.getElementById("publishBtn"),
+            author: document.getElementById("authorName"),
+            title: document.getElementById("title"),
+            content: document.getElementById("content"),
+            password: document.getElementById("adminPassword"),
+            imageInput: document.getElementById("imageInput"),
+            preview: document.getElementById("imagePreviewContainer"),
+            themeToggle: document.getElementById("themeToggle")
+        };
+
+        function showToast(message, isError = false) {
+            clearTimeout(toastTimer);
+            els.toast.textContent = message;
+            els.toast.classList.toggle("error", isError);
+            els.toast.classList.add("visible");
+            toastTimer = setTimeout(() => els.toast.classList.remove("visible"), 3000);
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&#60;")
+                .replace(/>/g, "&#62;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
+        function formatTime(timestamp) {
+            if (!timestamp) return "только что";
+            const date = new Date(Number(timestamp));
+            if (Number.isNaN(date.getTime())) return "только что";
+            const diff = Math.max(0, Math.floor((Date.now() - date.getTime()) / 1000));
+
+            if (diff < 60) return "только что";
+            if (diff < 3600) return `${Math.floor(diff / 60)} мин назад`;
+            if (diff < 86400) return `${Math.floor(diff / 3600)} ч назад`;
+            if (diff < 604800) return `${Math.floor(diff / 86400)} дн назад`;
+            return date.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
+        }
+
+        function setButtonLoading(button, label, icon = "progress_activity") {
+            button.dataset.original = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = `<span class="material-symbols-rounded text-[18px]" style="animation: spin 900ms linear infinite;">${icon}</span>${label}`;
+        }
+
+        function resetButton(button) {
+            if (button.dataset.original) button.innerHTML = button.dataset.original;
+            button.disabled = false;
+            delete button.dataset.original;
+        }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem("devs_theme");
+            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            applyTheme(savedTheme || (prefersDark ? "dark" : "light"));
+        }
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute("data-theme", theme);
+            localStorage.setItem("devs_theme", theme);
+            const isDark = theme === "dark";
+            els.themeToggle.innerHTML = `<span class="material-symbols-rounded text-[18px]">${isDark ? "dark_mode" : "light_mode"}</span><span>${isDark ? "Темная" : "Светлая"}</span>`;
+        }
+
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute("data-theme") || "light";
+            applyTheme(current === "dark" ? "light" : "dark");
+        }
+
+        function renderDevsNews() {
+            els.news.innerHTML = devsNewsFeed.map((item) => {
+                const imgSrc = item.imageUrl?.trim() || "https://placehold.co/640x400/f0d9ca/9e452c?text=Devs";
+                return `
+                    <article class="news-item">
+                        <img class="news-image" src="${escapeHtml(imgSrc)}" alt="Иллюстрация новости" onerror="this.onerror=null; this.src='https://placehold.co/640x400/f0d9ca/9e452c?text=Devs';">
+                        <div>
+                            <h3 class="news-title">${escapeHtml(item.title)}</h3>
+                            <p class="news-text">${escapeHtml(item.text)}</p>
+                            <div class="meta"><span>${escapeHtml(item.date)}</span></div>
                         </div>
-                    `;
-                }
-                repliesHtml += `</div>`;
+                    </article>
+                `;
+            }).join("");
+        }
+
+        function renderPosts(posts) {
+            if (!posts.length) {
+                els.feed.innerHTML = `<div class="empty"><span class="material-symbols-rounded text-[44px]">forum</span><span>Пока нет постов. Будьте первым.</span></div>`;
+                return;
             }
-            
-            const postCard = document.createElement('div');
-            postCard.className = 'post-card';
-            postCard.innerHTML = `
-                <div class="post-title">
-                    <span class="material-symbols-outlined post-title-icon">article</span>
-                    ${escapeHtml(title)}
-                </div>
-                <div class="post-content">${escapeHtml(content).replace(/\n/g, '<br>')}</div>
-                ${imageHtml}
-                <div class="post-meta">
-                    <div class="post-author"><span class="material-symbols-outlined">account_circle</span><span style="color: ${authorColor};">${escapeHtml(author)}</span></div>
-                    <div class="post-time"><span class="material-symbols-outlined" style="font-size: 14px;">schedule</span>${timeStr}</div>
-                </div>
-                <div class="post-actions">
-                    <button class="action-btn" onclick="toggleReplyForm(${postId})">
-                        <span class="material-symbols-outlined">reply</span>
-                        Ответить (${replies.length})
-                    </button>
-                </div>
-                <div id="reply-form-${postId}" class="reply-form">
-                    <textarea class="reply-input" rows="2" placeholder="Напишите ответ..."></textarea>
-                    <button class="btn-filled small-btn" onclick="sendReply(${postId}, '${escapeHtml(title).replace(/'/g, "\\'")}')">Отправить ответ</button>
-                </div>
-                ${repliesHtml}
+
+            const sortedPosts = [...posts].sort((a, b) => Number(b.timestamp || b.id || 0) - Number(a.timestamp || a.id || 0));
+            els.feed.innerHTML = sortedPosts.map((post) => renderPost(post)).join("");
+        }
+
+        function renderPost(post) {
+            const postId = String(post.id || post.timestamp || `local-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+            const title = post.title?.trim() || "Без заголовка";
+            const content = post.content?.trim() || "-";
+            const author = post.author?.trim() || "Аноним";
+            const timestamp = post.timestamp || post.id;
+            const replies = Array.isArray(post.replies) ? post.replies : [];
+            const rawImageUrl = post.imageurl || post.imageUrl || "";
+            const imageHtml = rawImageUrl && rawImageUrl !== "null" ? `<img class="post-image" src="${escapeHtml(rawImageUrl)}" alt="Фото к посту" onerror="this.style.display='none';">` : "";
+            const repliesHtml = replies.length ? `<div class="replies">${[...replies].sort((a, b) => Number(a.timestamp || 0) - Number(b.timestamp || 0)).map(renderReply).join("")}</div>` : "";
+
+            return `
+                <article class="post" data-post-id="${escapeHtml(postId)}">
+                    <h3 class="post-title">${escapeHtml(title)}</h3>
+                    <div class="post-content">${escapeHtml(content).replace(/\n/g, "<br>")}</div>
+                    ${imageHtml}
+                    <div class="meta">
+                        <span class="author">${escapeHtml(author)}</span>
+                        <span>${formatTime(timestamp)}</span>
+                    </div>
+                    <div class="post-actions">
+                        <button class="ghost-button reply-toggle" type="button">
+                            <span class="material-symbols-rounded text-[18px]">reply</span>
+                            Ответить (${replies.length})
+                        </button>
+                    </div>
+                    <form class="reply-form">
+                        <textarea class="textarea reply-input" rows="2" placeholder="Напишите ответ..."></textarea>
+                        <div class="flex justify-end">
+                            <button class="primary-button reply-submit" type="submit">Отправить ответ</button>
+                        </div>
+                    </form>
+                    ${repliesHtml}
+                </article>
             `;
-            feedContainer.appendChild(postCard);
         }
-    }
-    
-    function checkForUpdates(newPosts) {
-        if (newPosts.length > lastPostCount && lastPostCount > 0) {
-            const newPostsList = newPosts.slice(0, newPosts.length - lastPostCount);
-            
-            
+
+        function renderReply(reply) {
+            return `
+                <div class="reply">
+                    <div class="meta" style="margin-top: 0;">
+                        <span class="author">${escapeHtml(reply.author || "Аноним")}</span>
+                        <span>${formatTime(reply.timestamp)}</span>
+                    </div>
+                    <p>${escapeHtml(reply.content || "").replace(/\n/g, "<br>")}</p>
+                </div>
+            `;
         }
-        
-        for (const post of newPosts) {
-            const postId = post.id || post.timestamp;
-            const currentRepliesCount = (post.replies || []).length;
-            const lastRepliesCount = lastRepliesMap.get(postId) || 0;
-            
-            if (currentRepliesCount > lastRepliesCount && lastRepliesCount > 0) {
-                const newReplies = (post.replies || []).slice(lastRepliesCount);
-                
+
+        function checkForUpdates(newPosts) {
+            if (newPosts.length > lastPostCount && lastPostCount > 0) showToast("В ленте появился новый пост");
+
+            for (const post of newPosts) {
+                const postId = String(post.id || post.timestamp);
+                const currentRepliesCount = (post.replies || []).length;
+                const lastRepliesCount = lastRepliesMap.get(postId) || 0;
+                if (currentRepliesCount > lastRepliesCount && lastRepliesCount > 0) showToast("В обсуждении появился новый ответ");
+                lastRepliesMap.set(postId, currentRepliesCount);
             }
-            lastRepliesMap.set(postId, currentRepliesCount);
+
+            lastPostCount = newPosts.length;
         }
-        
-        lastPostCount = newPosts.length;
-    }
-    
-    async function loadPosts() {
-        const feedContainer = document.getElementById('feed');
-            // Исправленный лоадер в стиле Beer CSS
-             feedContainer.innerHTML = `
-            <div class="loading-spinner">
-                <progress class="circle"></progress>
-                <span>Загрузка постов...</span>
-            </div>`;
-        
-        try {
-            const response = await fetch(API_POSTS);
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const posts = await response.json();
-            const newPosts = Array.isArray(posts) ? posts : [];
-            
-            checkForUpdates(newPosts);
-            allPosts = newPosts;
-            renderPosts(allPosts);
-        } catch (error) {
-            console.error('Ошибка загрузки:', error);
-            feedContainer.innerHTML = `<div class="empty-state"><span class="material-symbols-outlined">error</span><p>Не удалось загрузить ленту</p><button id="retryLoadBtn" style="margin-top:20px;background:#6366f1;border:none;border-radius:40px;padding:10px 28px;color:white;cursor:pointer;">Повторить</button></div>`;
-            const retryBtn = document.getElementById('retryLoadBtn');
-            if (retryBtn) retryBtn.addEventListener('click', () => loadPosts());
-        }
-    }
-    
-    async function sendPost() {
-        const authorInput = document.getElementById('authorName');
-        const titleInput = document.getElementById('title');
-        const contentInput = document.getElementById('content');
-        const passwordInput = document.getElementById('adminPassword');
-        
-        const author = authorInput.value.trim();
-        const title = titleInput.value.trim();
-        const content = contentInput.value.trim();
-        const password = passwordInput.value.trim();
-        const imageFile = document.getElementById('imageInput').files[0];
-        
-        if (!title && !content && !imageFile) {
-            showToast('Заполните пост или прикрепите картинку', true);
-            return;
-        }
-        if (!author || !password) {
-            showToast('Введите имя и секретный ключ', true);
-            return;
-        }
-        
-        const publishButton = document.getElementById('publishBtn');
-        const originalText = publishButton.innerHTML;
-        publishButton.disabled = true;
-        
-        try {
-            let uploadedImageUrl = null;
-            if (imageFile) {
-                publishButton.innerHTML = `<span class="material-symbols-outlined" style="animation: spin 1s linear infinite;">cloud_upload</span> Загрузка...`;
-                const formData = new FormData();
-                formData.append('image', imageFile);
-                const imgbbResponse = await fetch('https://api.imgbb.com/1/upload?key=14f0aa5d21ba5485745697bdc4028d8f', { method: 'POST', body: formData });
-                const imgbbData = await imgbbResponse.json();
-                if (imgbbData.success) uploadedImageUrl = imgbbData.data.url;
-                else throw new Error('Ошибка загрузки фото');
+
+        async function loadPosts(showLoader = true) {
+            if (showLoader) els.feed.innerHTML = `<div class="loading"><span class="spinner"></span><span>Загрузка постов...</span></div>`;
+
+            try {
+                const response = await fetch(API_POSTS);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const posts = await response.json();
+                const newPosts = Array.isArray(posts) ? posts : [];
+
+                checkForUpdates(newPosts);
+                allPosts = newPosts;
+                renderPosts(allPosts);
+            } catch (error) {
+                console.error("Ошибка загрузки:", error);
+                els.feed.innerHTML = `
+                    <div class="empty">
+                        <span class="material-symbols-rounded text-[44px]">error</span>
+                        <span>Не удалось загрузить ленту</span>
+                        <button class="primary-button" id="retryLoadBtn" type="button">Повторить</button>
+                    </div>
+                `;
+                document.getElementById("retryLoadBtn")?.addEventListener("click", () => loadPosts());
             }
-            
-            publishButton.innerHTML = `<span class="material-symbols-outlined" style="animation: spin 1s linear infinite;">sync</span> Публикация...`;
-            
-            const postData = {
-                title: title || "(без названия)",
-                content: content || "—",
-                password: password,
-                author: author,
-                imageurl: uploadedImageUrl,
-                timestamp: Date.now()
-            };
-            
-            const response = await fetch(API_POSTS, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(postData)
-            });
-            
-            if (!response.ok) {
-                if (response.status === 403) throw new Error("Неверный секретный ключ");
-                throw new Error(`Ошибка: ${response.status}`);
-            }
-            
-            authorInput.value = '';
-            titleInput.value = '';
-            contentInput.value = '';
-            passwordInput.value = '';
-            document.getElementById('imageInput').value = '';
-            document.getElementById('imagePreviewContainer').style.display = 'none';
-            
-            showToast(`Пост опубликован!`, false);
-            await loadPosts();
-        } catch (error) {
-            showToast(error.message, true);
-        } finally {
-            publishButton.innerHTML = originalText;
-            publishButton.disabled = false;
         }
-    }
-    
-    // Инициализация
-    window.toggleReplyForm = toggleReplyForm;
-    window.sendReply = sendReply;
-    document.getElementById('publishBtn').addEventListener('click', sendPost);
-    document.getElementById('refreshFeed').addEventListener('click', loadPosts);
-    document.getElementById('refreshBadge').addEventListener('click', loadPosts);
-    
-    document.getElementById('imageInput').addEventListener('change', function(e) {
-        const container = document.getElementById('imagePreviewContainer');
-        if (e.target.files[0]) {
+
+        async function uploadImage(file) {
+            const formData = new FormData();
+            formData.append("image", file);
+            const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: "POST", body: formData });
+            const data = await response.json();
+            if (!data.success) throw new Error("Ошибка загрузки фото");
+            return data.data.url;
+        }
+
+        async function sendPost(event) {
+            event.preventDefault();
+
+            const author = els.author.value.trim();
+            const title = els.title.value.trim();
+            const content = els.content.value.trim();
+            const password = els.password.value.trim();
+            const imageFile = els.imageInput.files[0];
+
+            if (!title && !content && !imageFile) return showToast("Заполните пост или прикрепите картинку", true);
+            if (!author || !password) return showToast("Введите имя и секретный ключ", true);
+
+            setButtonLoading(els.publishBtn, imageFile ? "Загрузка..." : "Публикация...");
+
+            try {
+                const uploadedImageUrl = imageFile ? await uploadImage(imageFile) : null;
+                if (imageFile) els.publishBtn.innerHTML = `<span class="material-symbols-rounded text-[18px]" style="animation: spin 900ms linear infinite;">sync</span>Публикация...`;
+
+                const response = await fetch(API_POSTS, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        title: title || "(без названия)",
+                        content: content || "-",
+                        password,
+                        author,
+                        imageurl: uploadedImageUrl,
+                        timestamp: Date.now()
+                    })
+                });
+
+                if (!response.ok) {
+                    if (response.status === 403) throw new Error("Неверный секретный ключ");
+                    throw new Error(`Ошибка: ${response.status}`);
+                }
+
+                els.form.reset();
+                clearPreview();
+                showToast("Пост опубликован");
+                await loadPosts(false);
+            } catch (error) {
+                showToast(error.message, true);
+            } finally {
+                resetButton(els.publishBtn);
+            }
+        }
+
+        async function sendReply(event, postElement) {
+            event.preventDefault();
+            const input = postElement.querySelector(".reply-input");
+            const submit = postElement.querySelector(".reply-submit");
+            const rawPostId = postElement.dataset.postId || "";
+            const postId = rawPostId.trim() !== "" && Number.isFinite(Number(rawPostId)) ? Number(rawPostId) : rawPostId;
+            const content = input.value.trim();
+            const author = els.author.value.trim();
+            const password = els.password.value.trim();
+
+            if (!content) return showToast("Напишите текст ответа", true);
+            if (!author) return showToast("Введите ваше имя перед ответом", true);
+            if (!password) return showToast("Введите секретный ключ", true);
+
+            setButtonLoading(submit, "Отправка...");
+
+            try {
+                const response = await fetch(API_REPLIES, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ postId, content, author, password })
+                });
+
+                if (!response.ok) {
+                    if (response.status === 403) {
+                        const error = await response.json().catch(() => ({}));
+                        throw new Error(error.error || "Неверный пароль");
+                    }
+                    throw new Error("Ошибка отправки ответа");
+                }
+
+                input.value = "";
+                postElement.querySelector(".reply-form")?.classList.remove("active");
+                showToast("Ответ опубликован");
+                await loadPosts(false);
+            } catch (error) {
+                showToast(error.message, true);
+            } finally {
+                resetButton(submit);
+            }
+        }
+
+        function showPreview(file) {
+            if (!file) return clearPreview();
             const reader = new FileReader();
-            reader.onload = function(ev) {
-                container.innerHTML = `<img src="${ev.target.result}" style="max-height:80px;border-radius:12px;"><button type="button" class="remove-preview" onclick="this.parentElement.style.display='none'; document.getElementById('imageInput').value='';">Удалить</button>`;
-                container.style.display = 'flex';
+            reader.onload = (event) => {
+                els.preview.innerHTML = `
+                    <img src="${event.target.result}" alt="Предпросмотр фото">
+                    <button class="ghost-button" id="removePreview" type="button">Удалить</button>
+                `;
+                els.preview.style.display = "flex";
+                document.getElementById("removePreview")?.addEventListener("click", () => {
+                    els.imageInput.value = "";
+                    clearPreview();
+                });
             };
-            reader.readAsDataURL(e.target.files[0]);
-        } else {
-            container.style.display = 'none';
+            reader.readAsDataURL(file);
         }
-    });
-    // ========== УПРАВЛЕНИЕ ТЕМОЙ ==========
-function initTheme() {
-    const savedTheme = localStorage.getItem('devs_theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const themeToggle = document.getElementById('themeToggle');
-    
-    let theme = savedTheme;
-    if (!theme) {
-        theme = prefersDark ? 'dark' : 'light';
-    }
-    
-    document.documentElement.setAttribute('data-theme', theme);
-    
-    if (themeToggle) {
-        const icon = themeToggle.querySelector('.material-symbols-outlined');
-        const text = themeToggle.childNodes[1]?.textContent || themeToggle.innerText.replace(/[🌙☀️]/g, '').trim();
-        
-        if (theme === 'dark') {
-            if (icon) icon.textContent = 'dark_mode';
-            themeToggle.innerHTML = `<span class="material-symbols-outlined" style="font-size: 14px;">dark_mode</span> Тёмная`;
-        } else {
-            if (icon) icon.textContent = 'light_mode';
-            themeToggle.innerHTML = `<span class="material-symbols-outlined" style="font-size: 14px;">light_mode</span> Светлая`;
+
+        function clearPreview() {
+            els.preview.innerHTML = "";
+            els.preview.style.display = "none";
         }
-    }
-}
 
-function toggleTheme() {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('devs_theme', newTheme);
-    
-    const themeToggle = document.getElementById('themeToggle');
-    if (themeToggle) {
-        if (newTheme === 'dark') {
-            themeToggle.innerHTML = `<span class="material-symbols-outlined" style="font-size: 14px;">dark_mode</span> Тёмная`;
-        } else {
-            themeToggle.innerHTML = `<span class="material-symbols-outlined" style="font-size: 14px;">light_mode</span> Светлая`;
-        }
-    }
-}
+        document.addEventListener("DOMContentLoaded", () => {
+            initTheme();
+            renderDevsNews();
+            loadPosts();
+            setInterval(() => loadPosts(false), 30000);
+        });
 
-// Добавь обработчик в DOMContentLoaded
-// Найди существующий document.addEventListener('DOMContentLoaded', () => { ... });
-// И добавь туда вызов initTheme() и обработчик на кнопку
+        els.themeToggle.addEventListener("click", toggleTheme);
+        document.getElementById("refreshFeed").addEventListener("click", () => loadPosts());
+        document.getElementById("brandRefresh").addEventListener("click", () => loadPosts());
+        els.form.addEventListener("submit", sendPost);
+        els.imageInput.addEventListener("change", (event) => showPreview(event.target.files[0]));
 
-    document.addEventListener('DOMContentLoaded', () => {
-    initTheme(); // <-- добавь это
-    renderDevsNews();
-    loadPosts();
-    setInterval(() => loadPosts(), 30000);
-    
-    // Добавь обработчик на кнопку
-    const themeBtn = document.getElementById('themeToggle');
-    if (themeBtn) {
-        themeBtn.addEventListener('click', toggleTheme);
-    }
-});
-</script>
+        els.feed.addEventListener("click", (event) => {
+            const toggle = event.target.closest(".reply-toggle");
+            if (!toggle) return;
+            const post = toggle.closest(".post");
+            const form = post.querySelector(".reply-form");
+            form.classList.toggle("active");
+            if (form.classList.contains("active")) form.querySelector(".reply-input")?.focus();
+        });
+
+        els.feed.addEventListener("submit", (event) => {
+            const form = event.target.closest(".reply-form");
+            if (!form) return;
+            sendReply(event, form.closest(".post"));
+        });
+    </script>
 </body>
 </html>
