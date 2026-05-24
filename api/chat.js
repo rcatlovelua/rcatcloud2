@@ -1,6 +1,6 @@
 // api/chat.js
 export default async function handler(req, res) {
-    // CORS
+    // Настройка CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     try {
         const { model, messages, user_id, system_prompt } = req.body;
 
-        // Валидация
+        // Базовая валидация
         if (!model) {
             return res.status(400).json({ error: 'Model is required' });
         }
@@ -37,7 +37,7 @@ export default async function handler(req, res) {
             });
         }
 
-        // Определяем провайдера
+        // Определяем провайдера и вызываем нужную функцию
         let response;
         if (model.startsWith('gemini-')) {
             response = await callGemini(model, messages, system_prompt);
@@ -60,7 +60,6 @@ export default async function handler(req, res) {
 // Проверка доступа пользователя
 async function checkUserAccess(userId, model) {
     try {
-        // Проверяем через ваш API
         const response = await fetch(`https://orrcs.vercel.app/api/getUser?id=${userId}`);
         const userData = await response.json();
 
@@ -88,7 +87,7 @@ async function checkUserAccess(userId, model) {
     }
 }
 
-// Gemini API
+// Интеграция с Gemini API
 async function callGemini(model, messages, systemPrompt) {
     const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
     
@@ -96,49 +95,41 @@ async function callGemini(model, messages, systemPrompt) {
         throw new Error('Gemini API key not configured');
     }
 
-    // Формируем контент для Gemini
-    const contents = [];
-    
-    // Добавляем системный промпт если есть
-    if (systemPrompt) {
-        contents.push({
-            role: 'user',
-            parts: [{ text: `System: ${systemPrompt}` }]
-        });
-        contents.push({
-            role: 'model',
-            parts: [{ text: 'Understood.' }]
-        });
-    }
+    // Формируем историю сообщений
+    const contents = messages.map(msg => ({
+        role: msg.role === 'user' ? 'user' : 'model',
+        parts: [{ text: msg.content }]
+    }));
 
-    // Добавляем историю сообщений
-    messages.forEach(msg => {
-        contents.push({
-            role: msg.role === 'user' ? 'user' : 'model',
-            parts: [{ text: msg.content }]
-        });
-    });
+    // Собираем тело запроса
+    const requestBody = {
+        contents: contents,
+        generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 2048,
+        }
+    };
+
+    // Добавляем системный промпт нативно, если он передан
+    if (systemPrompt) {
+        requestBody.systemInstruction = {
+            role: 'system',
+            parts: [{ text: systemPrompt }]
+        };
+    }
 
     try {
-       const response = await fetch(
-         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`, // <-- Changed streamGenerateContent to generateContent
-      {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            contents: contents,
-            generationConfig: {
-                temperature: 0.7,
-                topK: 40,
-                topP: 0.95,
-                maxOutputTokens: 2048,
-            },
-            // ... safety settings remain the same
-        })
-    }
-);
+        const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody)
+            }
         );
 
         const data = await response.json();
@@ -164,7 +155,7 @@ async function callGemini(model, messages, systemPrompt) {
     }
 }
 
-// LLM7 API (GPT, Claude)
+// Интеграция с LLM7 API (GPT, Claude)
 async function callLLM7(model, messages, systemPrompt) {
     const LLM7_API_KEY = process.env.LLM7_API_KEY;
     
