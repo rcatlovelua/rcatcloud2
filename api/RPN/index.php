@@ -99,7 +99,7 @@ if (
 // ОТДАЁМ КОНФИГ ДЛЯ V2RAY-КЛИЕНТОВ
 // ============================================
 if ($isV2RayClient) {
-    header('Content-Type: application/json; charset=utf-8');
+    header('Content-Type: application/yaml; charset=utf-8');
     header('Cache-Control: no-store, no-cache, must-revalidate');
     header('Pragma: no-cache');
     header('Expires: 0');
