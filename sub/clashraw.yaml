@@ -1,0 +1,614 @@
+mixed-port: 7890
+socks-port: 7891
+redir-port: 7892
+allow-lan: true
+mode: global
+log-level: warning
+external-controller: 127.0.0.1:9090
+profile:
+  store-selected: true
+  store-fake-ip: true
+dns:
+  enable: true
+  use-hosts: true
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  default-nameserver:
+    - 1.1.1.1
+    - 8.8.8.8
+  nameserver:
+    - 1.1.1.1
+    - 8.8.8.8
+  fake-ip-filter:
+    - "*.lan"
+    - stun.*.*.*
+    - stun.*.*
+    - time.windows.com
+    - time.nist.gov
+    - time.apple.com
+    - time.asia.apple.com
+    - "*.openwrt.pool.ntp.org"
+    - pool.ntp.org
+    - ntp.ubuntu.com
+    - time1.apple.com
+    - time2.apple.com
+    - time3.apple.com
+    - time4.apple.com
+    - time5.apple.com
+    - time6.apple.com
+    - time7.apple.com
+    - time1.google.com
+    - time2.google.com
+    - time3.google.com
+    - time4.google.com
+    - api.joox.com
+    - joox.com
+    - "*.xiami.com"
+    - "*.msftconnecttest.com"
+    - "*.msftncsi.com"
+    - +.xboxlive.com
+    - "*.*.stun.playstation.net"
+    - xbox.*.*.microsoft.com
+    - "*.ipv6.microsoft.com"
+    - speedtest.cros.wr.pvp.net
+proxies:
+  - name: "🇵🇱 RPN / Польша 1"
+    type: vless
+    server: 37.139.35.95
+    port: 8443
+    network: tcp
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    flow: xtls-rprx-vision
+    tls: true
+    servername: eh.vk.com
+    reality-opts:
+      public-key: 3wa3ZmMniymkL-58bPtY7baWPxdJ6n2UaJMG7YiLiGo
+      short-id: ""
+    client-fingerprint: chrome
+  - name: "🇵🇱 RPN / Польша 2"
+    type: vless
+    server: 191.44.113.215
+    port: 443
+    network: tcp
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    flow: xtls-rprx-vision
+    tls: true
+    servername: dl.google.com
+    reality-opts:
+      public-key: kUTGAXlw5eEQQ1blZgVLFSUOMZvBa-1HAxVi7uiM9CY
+      short-id: ""
+    client-fingerprint: firefox
+  - name: "🇩🇪 RPN / Германия 1 🚀"
+    type: vless
+    server: 109.71.245.204
+    port: 443
+    network: tcp
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    flow: xtls-rprx-vision
+    tls: true
+    servername: okcdn.ru
+    reality-opts:
+      public-key: 3wa3ZmMniymkL-58bPtY7baWPxdJ6n2UaJMG7YiLiGo
+      short-id: ""
+    client-fingerprint: chrome
+  - name: "🇩🇪 RPN / Германия 2 🚀"
+    type: vless
+    server: 5.182.87.216
+    port: 443
+    network: grpc
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    tls: true
+    servername: ads.x5.ru
+    reality-opts:
+      public-key: ne8wv6o6AYcQoVvz30PiTjSxviGa3_Kw5ClIEDdg-3A
+      short-id: 6ba85179e30d4fc2
+    grpc-opts:
+      grpc-service-name: grpc
+    client-fingerprint: firefox
+  - name: "🇩🇪 RPN / Германия 3 ⚡️"
+    type: vless
+    server: 5.83.129.141
+    port: 443
+    network: tcp
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    flow: xtls-rprx-vision
+    tls: true
+    servername: ads.x5.ru
+    reality-opts:
+      public-key: NaONDf0qCoNVteBefVS25yLJbMMLdnKnwsu7_il9MXE
+      short-id: ""
+    client-fingerprint: qq
+  - name: "🇱🇹 RPN / Литва"
+    type: vless
+    server: 144.31.243.148
+    port: 443
+    network: tcp
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    flow: xtls-rprx-vision
+    tls: true
+    servername: dl.google.com
+    reality-opts:
+      public-key: 3wa3ZmMniymkL-58bPtY7baWPxdJ6n2UaJMG7YiLiGo
+      short-id: ""
+    client-fingerprint: firefox
+  - name: "🇳🇱 RPN / Нидерланды 2"
+    type: vless
+    server: 147.45.162.53
+    port: 443
+    network: tcp
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    flow: xtls-rprx-vision
+    tls: true
+    servername: dl.google.com
+    reality-opts:
+      public-key: oGbQE8hz8cTrij4h9ystmsYa02Z70tbkes_CitR27Rc
+      short-id: ""
+    client-fingerprint: chrome
+  - name: "🇳🇴 RPN / Норвегия"
+    type: vless
+    server: 144.31.217.142
+    port: 443
+    network: tcp
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    flow: xtls-rprx-vision
+    tls: true
+    servername: dl.google.com
+    reality-opts:
+      public-key: 3wa3ZmMniymkL-58bPtY7baWPxdJ6n2UaJMG7YiLiGo
+      short-id: ""
+    client-fingerprint: chrome
+  - name: "🇧🇪 RPN / Бельгия"
+    type: vless
+    server: 109.107.189.15
+    port: 57371
+    network: tcp
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    flow: xtls-rprx-vision
+    tls: true
+    servername: dl.google.com
+    reality-opts:
+      public-key: 3wa3ZmMniymkL-58bPtY7baWPxdJ6n2UaJMG7YiLiGo
+      short-id: ""
+    client-fingerprint: chrome
+  - name: "🇨🇿 RPN / Чехия"
+    type: vless
+    server: 144.31.218.186
+    port: 443
+    network: tcp
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    flow: xtls-rprx-vision
+    tls: true
+    servername: dl.google.com
+    reality-opts:
+      public-key: 3wa3ZmMniymkL-58bPtY7baWPxdJ6n2UaJMG7YiLiGo
+      short-id: ""
+    client-fingerprint: chrome
+  - name: "🇺🇸 RPN / США 1"
+    type: vless
+    server: 150.241.102.5
+    port: 443
+    network: tcp
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    flow: xtls-rprx-vision
+    tls: true
+    servername: dl.google.com
+    reality-opts:
+      public-key: 3wa3ZmMniymkL-58bPtY7baWPxdJ6n2UaJMG7YiLiGo
+      short-id: ""
+    client-fingerprint: chrome
+  - name: "🇺🇸 RPN / США 2"
+    type: vless
+    server: 150.241.83.175
+    port: 443
+    network: tcp
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    flow: xtls-rprx-vision
+    tls: true
+    servername: dl.google.com
+    reality-opts:
+      public-key: 3wa3ZmMniymkL-58bPtY7baWPxdJ6n2UaJMG7YiLiGo
+      short-id: ""
+    client-fingerprint: chrome
+  - name: "🇬🇧 RPN / Великобритания"
+    type: vless
+    server: 144.31.213.175
+    port: 443
+    network: tcp
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    flow: xtls-rprx-vision
+    tls: true
+    servername: dl.google.com
+    reality-opts:
+      public-key: 3wa3ZmMniymkL-58bPtY7baWPxdJ6n2UaJMG7YiLiGo
+      short-id: ""
+    client-fingerprint: firefox
+  - name: "🇨🇦 RPN / Канада"
+    type: vless
+    server: 150.241.82.57
+    port: 443
+    network: tcp
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    flow: xtls-rprx-vision
+    tls: true
+    servername: dl.google.com
+    reality-opts:
+      public-key: 3wa3ZmMniymkL-58bPtY7baWPxdJ6n2UaJMG7YiLiGo
+      short-id: ""
+    client-fingerprint: chrome
+  - name: "🇰🇿 RPN / Казахстан ЮТУБ без рекламы"
+    type: vless
+    server: 5.180.46.135
+    port: 443
+    network: tcp
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    flow: xtls-rprx-vision
+    tls: true
+    servername: dl.google.com
+    reality-opts:
+      public-key: 3wa3ZmMniymkL-58bPtY7baWPxdJ6n2UaJMG7YiLiGo
+      short-id: ""
+    client-fingerprint: chrome
+  - name: "🇷🇺 RPN / РФ ТГ/ЮТУБ без рекламы"
+    type: vless
+    server: 37.139.35.95
+    port: 443
+    network: tcp
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    flow: xtls-rprx-vision
+    tls: true
+    servername: eh.vk.com
+    reality-opts:
+      public-key: 3wa3ZmMniymkL-58bPtY7baWPxdJ6n2UaJMG7YiLiGo
+      short-id: ""
+    client-fingerprint: chrome
+  - name: "🇷🇺 RPN / РФ ОБХОД"
+    type: vless
+    server: 94.131.121.189
+    port: 443
+    network: tcp
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    flow: xtls-rprx-vision
+    tls: true
+    servername: ads.x5.ru
+    reality-opts:
+      public-key: qS6DV_LiMuDvS6oS5VUMO41n6h3BNOy_Eg4YKXmyA2k
+      short-id: ""
+    client-fingerprint: chrome
+  - name: "🇳🇱 RPN / Нидерланды ОБХОД 🚀"
+    type: vless
+    server: 46.8.210.16
+    port: 12443
+    network: tcp
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    flow: xtls-rprx-vision
+    tls: true
+    servername: max.ru
+    reality-opts:
+      public-key: PSSON1yktUjcmg5bELmgoWr32y1VVlVXRyRV-opvhQk
+      short-id: ""
+    client-fingerprint: firefox
+  - name: "🇵🇱 RPN / Польша ОБХОД 🚀"
+    type: vless
+    server: 46.8.210.16
+    port: 10443
+    network: tcp
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    flow: xtls-rprx-vision
+    tls: true
+    servername: ads.x5.ru
+    reality-opts:
+      public-key: PSSON1yktUjcmg5bELmgoWr32y1VVlVXRyRV-opvhQk
+      short-id: ""
+    client-fingerprint: firefox
+  - name: "🇵🇱 RPN / Польша 2 ОБХОД"
+    type: vless
+    server: 94.131.121.189
+    port: 8443
+    network: tcp
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    flow: xtls-rprx-vision
+    tls: true
+    servername: ads.x5.ru
+    reality-opts:
+      public-key: PSSON1yktUjcmg5bELmgoWr32y1VVlVXRyRV-opvhQk
+      short-id: ""
+    client-fingerprint: qq
+  - name: "🇩🇪 RPN / Германия ОБХОД"
+    type: vless
+    server: 158.160.246.28
+    port: 8443
+    network: tcp
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    flow: xtls-rprx-vision
+    tls: true
+    servername: ads.x5.ru
+    reality-opts:
+      public-key: PSSON1yktUjcmg5bELmgoWr32y1VVlVXRyRV-opvhQk
+      short-id: ""
+    client-fingerprint: firefox
+  - name: "🇩🇪 RPN / Германия 2 ОБХОД"
+    type: vless
+    server: cdn.mirorclouds.xyz
+    port: 443
+    network: ws
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    tls: true
+    servername: cdn.mirorclouds.xyz
+    alpn:
+      - http/1.1
+    ws-opts:
+      path: /
+      headers:
+        Host: cdn.mirorclouds.xyz
+    client-fingerprint: chrome
+  - name: "🇬🇧 RPN / ОБХОД 1 Мегафон,Т2,Yota"
+    type: vless
+    server: 194.59.40.181
+    port: 443
+    network: tcp
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    flow: xtls-rprx-vision
+    tls: true
+    servername: ads.x5.ru
+    reality-opts:
+      public-key: NaONDf0qCoNVteBefVS25yLJbMMLdnKnwsu7_il9MXE
+      short-id: ""
+    client-fingerprint: chrome
+  - name: "🇬🇧 RPN / ОБХОД 2 Билайн,Т2,Yota,Мег."
+    type: vless
+    server: 91.245.226.177
+    port: 443
+    network: tcp
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    flow: xtls-rprx-vision
+    tls: true
+    servername: ads.x5.ru
+    reality-opts:
+      public-key: NaONDf0qCoNVteBefVS25yLJbMMLdnKnwsu7_il9MXE
+      short-id: ""
+    client-fingerprint: chrome
+  - name: "🇬🇧 RPN / ОБХОД 3 Мегафон,Билайн,Т2"
+    type: vless
+    server: 91.245.226.235
+    port: 443
+    network: tcp
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    flow: xtls-rprx-vision
+    tls: true
+    servername: ads.x5.ru
+    reality-opts:
+      public-key: NaONDf0qCoNVteBefVS25yLJbMMLdnKnwsu7_il9MXE
+      short-id: ""
+    client-fingerprint: chrome
+  - name: "🇬🇧 RPN / ОБХОД 4 Т2,Билайн,Yota"
+    type: vless
+    server: 194.59.40.180
+    port: 443
+    network: tcp
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    flow: xtls-rprx-vision
+    tls: true
+    servername: ads.x5.ru
+    reality-opts:
+      public-key: NaONDf0qCoNVteBefVS25yLJbMMLdnKnwsu7_il9MXE
+      short-id: ""
+    client-fingerprint: chrome
+  - name: "🇬🇧 RPN / ОБХОД 5 МТС,Т2,Yota"
+    type: vless
+    server: 91.245.226.113
+    port: 443
+    network: tcp
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    flow: xtls-rprx-vision
+    tls: true
+    servername: ads.x5.ru
+    reality-opts:
+      public-key: NaONDf0qCoNVteBefVS25yLJbMMLdnKnwsu7_il9MXE
+      short-id: ""
+    client-fingerprint: chrome
+  - name: "🇳🇱 RPN / Нидерланды ОБХОД 1"
+    type: vless
+    server: 46.182.24.123
+    port: 443
+    network: grpc
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    tls: true
+    servername: ads.x5.ru
+    reality-opts:
+      public-key: ne8wv6o6AYcQoVvz30PiTjSxviGa3_Kw5ClIEDdg-3A
+      short-id: 6ba85179e30d4fc2
+    grpc-opts:
+      grpc-service-name: grpc
+    client-fingerprint: qq
+  - name: "🇳🇱 RPN / Нидерланды ОБХОД 2"
+    type: vless
+    server: 62.152.59.118
+    port: 443
+    network: grpc
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    tls: true
+    servername: ads.x5.ru
+    reality-opts:
+      public-key: ne8wv6o6AYcQoVvz30PiTjSxviGa3_Kw5ClIEDdg-3A
+      short-id: 6ba85179e30d4fc2
+    grpc-opts:
+      grpc-service-name: grpc
+    client-fingerprint: chrome
+  - name: "🇳🇱 RPN / ОБХОД 3 Yota,Мегафон,Т2"
+    type: vless
+    server: 195.133.198.220
+    port: 443
+    network: grpc
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    tls: true
+    servername: ads.x5.ru
+    reality-opts:
+      public-key: ne8wv6o6AYcQoVvz30PiTjSxviGa3_Kw5ClIEDdg-3A
+      short-id: 6ba85179e30d4fc2
+    grpc-opts:
+      grpc-service-name: grpc
+    client-fingerprint: qq
+  - name: "🇳🇱 RPN / ОБХОД 4 Т2,Мегафон,Билайн"
+    type: vless
+    server: 45.10.246.169
+    port: 443
+    network: grpc
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    tls: true
+    servername: ads.x5.ru
+    reality-opts:
+      public-key: ne8wv6o6AYcQoVvz30PiTjSxviGa3_Kw5ClIEDdg-3A
+      short-id: 6ba85179e30d4fc2
+    grpc-opts:
+      grpc-service-name: grpc
+    client-fingerprint: qq
+  - name: "🇮🇹 RPN / Италия 🚀(WIFI) 2"
+    type: vless
+    server: 45.155.68.16
+    port: 443
+    network: grpc
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    tls: true
+    servername: ads.x5.ru
+    reality-opts:
+      public-key: ne8wv6o6AYcQoVvz30PiTjSxviGa3_Kw5ClIEDdg-3A
+      short-id: 6ba85179e30d4fc2
+    grpc-opts:
+      grpc-service-name: grpc
+    client-fingerprint: chrome
+  - name: "🇹🇷 RPN / Турция"
+    type: vless
+    server: 193.187.132.145
+    port: 443
+    network: grpc
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    tls: true
+    servername: ads.x5.ru
+    reality-opts:
+      public-key: ne8wv6o6AYcQoVvz30PiTjSxviGa3_Kw5ClIEDdg-3A
+      short-id: 6ba85179e30d4fc2
+    grpc-opts:
+      grpc-service-name: grpc
+    client-fingerprint: chrome
+  - name: "🇳🇱 RPN / Нидерланды"
+    type: vless
+    server: 167.148.195.15
+    port: 443
+    network: grpc
+    udp: true
+    uuid: 296f93ca-53e8-4602-a443-cd45ba61005c
+    packet-encoding: xudp
+    tls: true
+    servername: ads.x5.ru
+    reality-opts:
+      public-key: ne8wv6o6AYcQoVvz30PiTjSxviGa3_Kw5ClIEDdg-3A
+      short-id: 6ba85179e30d4fc2
+    grpc-opts:
+      grpc-service-name: grpc
+    client-fingerprint: chrome
+proxy-groups:
+  - name: "→ Remnawave"
+    type: select
+    proxies:
+      - "🇵🇱 RPN / Польша 1"
+      - "🇵🇱 RPN / Польша 2"
+      - "🇩🇪 RPN / Германия 1 🚀"
+      - "🇩🇪 RPN / Германия 2 🚀"
+      - "🇩🇪 RPN / Германия 3 ⚡️"
+      - "🇱🇹 RPN / Литва"
+      - "🇳🇱 RPN / Нидерланды 2"
+      - "🇳🇴 RPN / Норвегия"
+      - "🇧🇪 RPN / Бельгия"
+      - "🇨🇿 RPN / Чехия"
+      - "🇺🇸 RPN / США 1"
+      - "🇺🇸 RPN / США 2"
+      - "🇬🇧 RPN / Великобритания"
+      - "🇨🇦 RPN / Канада"
+      - "🇰🇿 RPN / Казахстан ЮТУБ без рекламы"
+      - "🇷🇺 RPN / РФ ТГ/ЮТУБ без рекламы"
+      - "🇷🇺 RPN / РФ ОБХОД"
+      - "🇳🇱 RPN / Нидерланды ОБХОД 🚀"
+      - "🇵🇱 RPN / Польша ОБХОД 🚀"
+      - "🇵🇱 RPN / Польша 2 ОБХОД"
+      - "🇩🇪 RPN / Германия ОБХОД"
+      - "🇩🇪 RPN / Германия 2 ОБХОД"
+      - "🇬🇧 RPN / ОБХОД 1 Мегафон,Т2,Yota"
+      - "🇬🇧 RPN / ОБХОД 2 Билайн,Т2,Yota,Мег."
+      - "🇬🇧 RPN / ОБХОД 3 Мегафон,Билайн,Т2"
+      - "🇬🇧 RPN / ОБХОД 4 Т2,Билайн,Yota"
+      - "🇬🇧 RPN / ОБХОД 5 МТС,Т2,Yota"
+      - "🇳🇱 RPN / Нидерланды ОБХОД 1"
+      - "🇳🇱 RPN / Нидерланды ОБХОД 2"
+      - "🇳🇱 RPN / ОБХОД 3 Yota,Мегафон,Т2"
+      - "🇳🇱 RPN / ОБХОД 4 Т2,Мегафон,Билайн"
+      - "🇮🇹 RPN / Италия 🚀(WIFI) 2"
+      - "🇹🇷 RPN / Турция"
+      - "🇳🇱 RPN / Нидерланды"
+rules:
+  - MATCH,→ Remnawave
