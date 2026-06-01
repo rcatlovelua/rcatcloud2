@@ -108,7 +108,7 @@ if ($isV2RayClient) {
     header('Subscription-Userinfo: upload=0; download=0; total=0; expire=0');
     header('Profile-Update-Interval: 24');
     header('Profile-Title: RPN VPN');
-    header('Content-Disposition: attachment; filename="rpn-config.yaml"');
+    // header('Content-Disposition: attachment; filename="rpn-config.yaml"');
 
     // Конфиг YAML как строка (быстрее чем JSON для Clash)
     $config = <<<'YAML'
