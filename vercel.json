@@ -1,18 +1,12 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
-    "api/*.php": {
+    "RPN/index.php": {
       "runtime": "vercel-php@0.7.3"
     }
   },
   "rewrites": [
     { "source": "/RPN/(.*)", "destination": "/RPN/$1" },
-    { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/(.*)", "destination": "/RPN/index.php" }
-  ],
-  "crons": [
-    {
-      "path": "/api/cleanup",
-      "schedule": "0 4 * * *"
-    }
   ]
 }
