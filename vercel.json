@@ -1,7 +1,13 @@
 {
+  "functions": {
+    "api/*.php": {
+      "runtime": "vercel-php@0.7.3"
+    }
+  },
   "rewrites": [
+    { "source": "/RPN/(.*)", "destination": "/RPN/$1" },
     { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/(.*)", "destination": "/$1" }
+    { "source": "/(.*)", "destination": "/RPN/index.php" }
   ],
   "crons": [
     {
