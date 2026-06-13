@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RRM — Rcat's Roblox Master</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at 50% 50%, #f4fbf7 0%, #e8f7ee 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(22, 163, 74, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col justify-between">
+
+    <nav class="w-full max-w-6xl mx-auto px-4 py-6 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="bg-green-600 text-white p-2.5 rounded-full shadow-md shadow-green-600/20">
+                <i class="fa-solid fa-cubes text-xl"></i>
+            </div>
+            <span class="text-2xl font-bold tracking-tight text-slate-900">RRM<span class="text-green-600">.</span></span>
+        </div>
+        <div class="bg-white/60 backdrop-blur-md p-1.5 rounded-full border border-green-100">
+            <a href="#extensions" class="px-5 py-2 text-sm font-medium text-slate-600 hover:text-green-600 transition-colors rounded-full">Extensions</a>
+        </div>
+    </nav>
+
+    <main class="w-full max-w-4xl mx-auto px-4 py-12 flex-grow flex flex-col items-center justify-center text-center">
+        
+        <div class="inline-flex items-center gap-2 bg-green-100/80 text-green-800 text-xs font-semibold px-4 py-1.5 rounded-full mb-6 uppercase tracking-wider">
+            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Rcat's Roblox Master
+        </div>
+
+        <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-900 mb-6">
+            Мастер по Roblox <br>
+            <span class="text-green-600">в один клик</span>
+        </h1>
+
+        <div class="w-full max-w-md glass-card p-8 rounded-[2rem] shadow-xl shadow-green-900/5 mb-20 text-left">
+            <h3 class="text-xl font-bold text-slate-900 mb-2">Быстрая регистрация</h3>
+            <p class="text-sm text-slate-500 mb-6">Введите ваш никнейм. Система сама найдет ID и отправит запрос на сервер.</p>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2 ml-1">Roblox Username</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+                            <i class="fa-solid fa-user"></i>
+                        </span>
+                        <input type="text" id="usernameInput" placeholder="Например, Builderman" 
+                               class="w-full pl-11 pr-4 py-3.5 bg-white border border-slate-200 rounded-full focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all text-sm">
+                    </div>
+                </div>
+
+                <button onclick="startRegistration()" id="submitBtn" class="w-full py-3.5 bg-green-600 text-white font-semibold rounded-full shadow-lg shadow-green-600/20 hover:bg-green-700 transition-all flex items-center justify-center gap-2 group">
+                    <span>Зарегистрироваться</span>
+                    <i class="fa-solid fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </div>
+
+            <div id="statusContainer" class="hidden mt-6 pt-4 border-t border-slate-100">
+                <div id="loadingStatus" class="hidden flex items-center gap-3 text-slate-600 py-2">
+                    <i class="fa-solid fa-circle-notch animate-spin text-green-600 text-lg"></i>
+                    <span id="loadingText" class="text-sm font-medium">Определяем ID игрока...</span>
+                </div>
+                
+                <div id="successStatus" class="hidden flex flex-col gap-2 bg-emerald-50 p-4 rounded-2xl text-emerald-800">
+                    <div class="flex items-center gap-2 font-bold text-sm">
+                        <i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i>
+                        <span>Зарегистрировали!</span>
+                    </div>
+                    <span class="text-xs opacity-90">Игрок с ID <strong id="resolvedUid"></strong> успешно добавлен в систему RRM.</span>
+                </div>
+
+                <div id="errorStatus" class="hidden flex items-center gap-2 text-rose-600 text-sm font-medium bg-rose-50 p-3 rounded-2xl">
+                    <i class="fa-solid fa-circle-exclamation text-lg"></i>
+                    <span id="errorMessage">Не удалось выполнить регистрацию.</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="extensions" class="w-full text-left scroll-mt-6">
+            <h2 class="text-2xl font-bold text-slate-900 mb-6">Дополнения</h2>
+            <div class="glass-card p-8 rounded-[2rem] border-l-4 border-l-green-600 shadow-md">
+                <div class="w-12 h-12 bg-green-100 text-green-700 rounded-2xl flex items-center justify-center mb-6 text-xl">
+                    <i class="fa-solid fa-puzzle-piece"></i>
+                </div>
+                <h4 class="text-xl font-bold text-slate-900 mb-2">Extensions.</h4>
+                <p class="text-slate-600 text-sm leading-relaxed">
+                    Мастер дополнений для абсолютно любых других проектов. Подключай, настраивай и управляй модулями без костылей.
+                </p>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="w-full max-w-6xl mx-auto px-4 py-6 border-t border-green-100/50 text-center text-xs text-slate-400 font-medium">
+        &copy; 2026 RRM. Rcat Cool Studio.
+    </footer>
+
+    <script>
+       async function startRegistration() {
+    const username = document.getElementById('usernameInput').value.trim();
+    const statusContainer = document.getElementById('statusContainer');
+    const loadingStatus = document.getElementById('loadingStatus');
+    const loadingText = document.getElementById('loadingText');
+    const successStatus = document.getElementById('successStatus');
+    const errorStatus = document.getElementById('errorStatus');
+    const submitBtn = document.getElementById('submitBtn');
+
+    if (!username) {
+        alert('Введите имя пользователя!');
+        return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+    statusContainer.classList.remove('hidden');
+    loadingStatus.classList.remove('hidden');
+    successStatus.classList.add('hidden');
+    errorStatus.classList.add('hidden');
+    
+    loadingText.innerText = "Регистрируем пользователя в RRM...";
+
+    try {
+        // Шлем напрямую никнейм на твой апишник
+        const resVercel = await fetch(`https://orrcs.vercel.app/api/writeRRM?username=${encodeURIComponent(username)}`, {
+            method: 'GET'
+        });
+
+        if (!resVercel.ok) {
+            throw new Error('Сервер регистрации вернул ошибку.');
+        }
+
+        // Если твой сервер возвращает JSON с полученным uid, запишем его в статус
+        try {
+            const data = await resVercel.json();
+            document.getElementById('resolvedUid').innerText = data.uid || username;
+        } catch(e) {
+            document.getElementById('resolvedUid').innerText = username;
+        }
+
+        loadingStatus.classList.add('hidden');
+        successStatus.classList.remove('hidden');
+
+    } catch (err) {
+        loadingStatus.classList.add('hidden');
+        errorStatus.classList.remove('hidden');
+        document.getElementById('errorMessage').innerText = err.message || 'Ошибка сети.';
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+}
+    </script>
+</body>
+</html>
