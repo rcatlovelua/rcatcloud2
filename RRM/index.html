@@ -129,24 +129,32 @@
     successStatus.classList.add('hidden');
     errorStatus.classList.add('hidden');
     
-    loadingText.innerText = "Регистрируем пользователя в RRM...";
+    loadingText.innerText = "Определяем ID игрока...";
 
     try {
-        // Шлем напрямую никнейм на твой апишник
-        const resVercel = await fetch(`https://orrcs.vercel.app/api/writeRRM?username=${encodeURIComponent(username)}`, {
-            method: 'GET'
-        });
+        // Исправлено: теперь это корректный JS комментарий
+        const targetUrl = `https://users.roblox.com/v1/users/search?keyword=${encodeURIComponent(username)}`;
+        const resRoblox = await fetch(`https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`);
+        
+        if (!resRoblox.ok) throw new Error('Не удалось получить данные от Roblox API.');
+        
+        const data = await resRoblox.json();
 
-        if (!resVercel.ok) {
-            throw new Error('Сервер регистрации вернул ошибку.');
+        if (!data.data || data.data.length === 0) {
+            throw new Error('Пользователь с таким никнеймом не найден.');
         }
 
-        // Если твой сервер возвращает JSON с полученным uid, запишем его в статус
-        try {
-            const data = await resVercel.json();
-            document.getElementById('resolvedUid').innerText = data.uid || username;
-        } catch(e) {
-            document.getElementById('resolvedUid').innerText = username;
+        // Исправлено: теперь это корректный JS комментарий
+        const uid = data.data[0].id;
+        document.getElementById('resolvedUid').innerText = uid;
+
+        loadingText.innerText = "Отправляем запрос на сервер...";
+
+        // Исправлено: теперь это корректный JS комментарий
+        const resVercel = await fetch(`https://orrcs.vercel.app/api/writeRRM?uid=${uid}`);
+
+        if (!resVercel.ok) {
+            throw new Error('Сервер регистрации вернул ошибку 400/500.');
         }
 
         loadingStatus.classList.add('hidden');
@@ -155,7 +163,7 @@
     } catch (err) {
         loadingStatus.classList.add('hidden');
         errorStatus.classList.remove('hidden');
-        document.getElementById('errorMessage').innerText = err.message || 'Ошибка сети.';
+        document.getElementById('errorMessage').innerText = err.message || 'Ошибка соединения.';
     } finally {
         submitBtn.disabled = false;
         submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
