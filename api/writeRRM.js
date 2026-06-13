@@ -1,6 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Инициализация Supabase через переменные окружения (EV)
 const supabaseUrl = process.env.SUPABASE_URL
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
@@ -14,15 +13,27 @@ export default async function handler(req, res) {
         return res.status(200).end();
     }
 
-    const { uid } = req.query;
+    // Забираем параметры. Поддерживаем и uid, и username на всякий случай
+    const uid = req.query.uid;
+    const username = req.query.username;
 
-    if (!uid) {
-        return res.status(400).json({ error: "Не указан uid" });
+    // Если нет ни того, ни другого — выдаем понятную ошибку, а не просто "400"
+    if (!uid && !username) {
+        return res.status(400).json({ 
+            error: "Пустой запрос. Не указан uid.", 
+            receivedData: req.query // Покажет в ответе, что реально дошло до сервера
+        });
+    }
+
+    // Если пришел username, а не uid, напоминаем, что бэк ждет именно ID
+    if (!uid && username) {
+        return res.status(400).json({ 
+            error: "Сервер получил username, но для базы нужен числовой uid из Роблокса.", 
+            receivedUsername: username 
+        });
     }
 
     try {
-        // Записываем игрока в таблицу rrm_users. 
-        // upsert означает: если такой uid уже есть, он обновит запись, а не выдаст ошибку.
         const { data, error } = await supabase
             .from('rrm_users')
             .upsert([
