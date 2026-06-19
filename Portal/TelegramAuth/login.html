@@ -336,8 +336,8 @@
             
             console.log(`✅ ${data.message || 'Аккаунт готов'}`);
             
-            // 4. Редирект на Portal с параметрами (для надёжности)
-            window.location.href = `/Portal?id=${user.id}&username=${user.username || ''}&first_name=${user.first_name || ''}`;
+            // В функции onTelegramAuth меняем редирект:
+window.location.href = `/Portal/?id=${user.id}&username=${user.username || ''}&first_name=${user.first_name || ''}`;
             
         } catch (error) {
             console.error('❌ Ошибка:', error);
