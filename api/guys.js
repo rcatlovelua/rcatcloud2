@@ -94,37 +94,56 @@ async function getMessages(req, res) {
   const { chat_id } = req.query;
   if (!chat_id) return res.status(400).json({ error: 'chat_id required' });
 
-  const { data, error } = await supabase
-    .from('portal_messages')
-    .select('id, telegram_id as sender_id, role, content as text, created_at, read, chat_id, receiver_id')
-    .eq('chat_id', chat_id)
-    .order('created_at', { ascending: true })
-    .limit(100);
+  try {
+    const { data, error } = await supabase
+      .from('portal_messages')
+      .select('*')
+      .eq('chat_id', chat_id)
+      .order('created_at', { ascending: true })
+      .limit(100);
 
-  if (error) {
-    console.error('getMessages error:', error);
-    return res.status(500).json({ error: error.message });
-  }
+    if (error) {
+      console.error('getMessages error:', error);
+      return res.status(500).json({ error: error.message });
+    }
 
-  // Добавляем имена отправителей
-  const messagesWithNames = await Promise.all((data || []).map(async (msg) => {
-    if (msg.sender_id) {
-      const { data: user } = await supabase
-        .from('portal_users')
-        .select('first_name, username')
-        .eq('telegram_id', String(msg.sender_id))
-        .maybeSingle();
+    // Преобразуем данные для фронтенда
+    const messages = await Promise.all((data || []).map(async (msg) => {
+      // Получаем имя отправителя из таблицы пользователей
+      let senderName = msg.telegram_id;
+      let avatar = null;
+      
+      if (msg.telegram_id) {
+        const { data: user } = await supabase
+          .from('portal_users')
+          .select('first_name, username')
+          .eq('telegram_id', String(msg.telegram_id))
+          .maybeSingle();
+        
+        if (user) {
+          senderName = user.first_name || user.username || msg.telegram_id;
+          avatar = user.username ? `https://unavatar.io/telegram/${user.username}` : null;
+        }
+      }
       
       return {
-        ...msg,
-        sender_name: user?.first_name || user?.username || msg.sender_id,
-        avatar: user?.username ? `https://unavatar.io/telegram/${user.username}` : null
+        id: msg.id,
+        chat_id: msg.chat_id,
+        sender_id: msg.telegram_id,  // Переименовываем для фронтенда
+        sender_name: senderName,
+        text: msg.content,            // Переименовываем для фронтенда
+        read: msg.read || false,
+        created_at: msg.created_at,
+        receiver_id: msg.receiver_id,
+        avatar: avatar
       };
-    }
-    return msg;
-  }));
+    }));
 
-  return res.status(200).json(messagesWithNames);
+    return res.status(200).json(messages);
+  } catch (err) {
+    console.error('getMessages error:', err);
+    return res.status(500).json({ error: err.message });
+  }
 }
 
 // ===================== SEND MESSAGE =====================
@@ -143,9 +162,33 @@ async function sendMessage(req, res) {
       receiverId = parts.find(id => id !== String(sender_id)) || null;
     }
 
+    // Проверяем, есть ли уже сообщения в этом чате
+    const { data: existing } = await supabase
+      .from('portal_messages')
+      .select('id')
+      .eq('chat_id', chat_id)
+      .limit(1);
+
+    // Если чат новый — создаем запись в portal_chats
+    if (!existing || existing.length === 0) {
+      try {
+        await supabase
+          .from('portal_chats')
+          .upsert({
+            chat_id: chat_id,
+            participants: [String(sender_id), receiverId],
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+      } catch (e) {
+        // Если таблицы нет — игнорируем
+        console.log('portal_chats table not found, skipping');
+      }
+    }
+
     const messageData = {
       chat_id,
-      telegram_id: sender_id,  // ВАЖНО: используем telegram_id вместо sender_id
+      telegram_id: String(sender_id),  // ВАЖНО: используем telegram_id
       role: 'user',
       content: text,
       receiver_id: receiverId,
@@ -163,7 +206,7 @@ async function sendMessage(req, res) {
       return res.status(500).json({ error: error.message });
     }
     
-    // Обновляем последнее сообщение в чате (если таблица есть)
+    // Обновляем последнее сообщение в чате
     try {
       await supabase
         .from('portal_chats')
@@ -174,12 +217,22 @@ async function sendMessage(req, res) {
           updated_at: new Date().toISOString()
         });
     } catch (e) {
-      // Если таблицы нет — игнорируем
+      // Игнорируем
     }
 
+    // Возвращаем в формате для фронтенда
+    const newMsg = data?.[0] || messageData;
     return res.status(200).json({ 
       success: true, 
-      message: data?.[0] || messageData 
+      message: {
+        id: newMsg.id,
+        chat_id: newMsg.chat_id,
+        sender_id: newMsg.telegram_id,
+        text: newMsg.content,
+        read: newMsg.read,
+        created_at: newMsg.created_at,
+        receiver_id: newMsg.receiver_id
+      }
     });
   } catch (err) {
     console.error('sendMessage error:', err);
@@ -302,13 +355,14 @@ async function startChat(req, res) {
         .from('portal_chats')
         .insert({
           chat_id: chatId,
-          participants: [user_id, target_id],
+          participants: [String(user_id), String(target_id)],
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         });
 
       if (error) {
         console.error('startChat insert error:', error);
+        // Возвращаем успех даже если таблицы нет
         return res.status(200).json({ 
           success: true, 
           chat_id: chatId,
@@ -355,7 +409,7 @@ async function createUser(req, res) {
     const { data, error } = await supabase
       .from('portal_users')
       .insert({
-        telegram_id,
+        telegram_id: String(telegram_id),
         username,
         first_name: first_name || username,
         online: false,
