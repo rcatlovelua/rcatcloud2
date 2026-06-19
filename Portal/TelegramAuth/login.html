@@ -297,34 +297,93 @@
     </div>
 
     <script>
-        // Конфигурация
-        const BOT_USERNAME = 'rcstg_robot'; 
+    // Конфигурация
+    const BOT_USERNAME = 'rcstg_robot';
+    const API_URL = 'https://rcatcloud2.vercel.app/api/createUser';
+    
+    // Эта функция вызывается когда юзер нажимает "Принять" в виджете
+    async function onTelegramAuth(user) {
+        console.log('🔑 Получены данные от Telegram:', user);
         
-        // Эта функция вызывается АВТОМАТИЧЕСКИ, когда юзер нажимает "Принять" в виджете
-        function onTelegramAuth(user) {
-            // 1. Сохраняем ID в localStorage, чтобы Portal.html его увидел
-            localStorage.setItem("telegram_id", user.id);
-            
-            // 2. Редирект на страницу профиля
-            window.location.href = '/Portal'; 
-        }
+        // 1. Сохраняем ВСЕ данные в localStorage
+        localStorage.setItem("telegram_id", user.id);
+        localStorage.setItem("telegram_username", user.username || '');
+        localStorage.setItem("telegram_first_name", user.first_name || '');
         
-        // Инициализация официального виджета
-        function initWidget() {
-            const container = document.getElementById('telegram-widget');
-            const script = document.createElement('script');
-            script.src = "https://telegram.org/js/telegram-widget.js?22";
-            script.setAttribute('data-telegram-login', BOT_USERNAME);
-            script.setAttribute('data-size', 'large');
-            script.setAttribute('data-radius', '12');
-            script.setAttribute('data-onauth', 'onTelegramAuth(user)');
-            script.setAttribute('data-request-access', 'write');
-            container.innerHTML = ''; // Очистить "Загрузку"
-            container.appendChild(script);
-        }
+        // 2. Показываем статус
+        const widgetContainer = document.getElementById('telegram-widget');
+        widgetContainer.innerHTML = '<div class="loading">Создаём аккаунт...</div>';
+        
+        try {
+            // 3. Отправляем данные на API для автосоздания аккаунта
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    id: user.id,
+                    username: user.username,
+                    first_name: user.first_name
+                })
+            });
 
-        document.addEventListener('DOMContentLoaded', initWidget);
-        console.log('%c⚡ rcs • telegram auth ready', 'color: #ffffff; background: #000000; padding: 4px 8px; border-radius: 4px; font-family: monospace;');
-    </script>
+            const data = await response.json();
+            
+            if (!data.ok) {
+                throw new Error(data.error || 'Ошибка API');
+            }
+            
+            console.log(`✅ ${data.message || 'Аккаунт готов'}`);
+            
+            // 4. Редирект на Portal с параметрами (для надёжности)
+            window.location.href = `/Portal?id=${user.id}&username=${user.username || ''}&first_name=${user.first_name || ''}`;
+            
+        } catch (error) {
+            console.error('❌ Ошибка:', error);
+            
+            // Показываем ошибку
+            const errorDiv = document.getElementById('errorMessage');
+            if (errorDiv) {
+                errorDiv.innerHTML = `
+                    <p style="margin-bottom: 12px;">⚠️ Не удалось создать аккаунт</p>
+                    <button onclick="window.location.reload()" 
+                            style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-family: inherit;">
+                        Попробовать снова
+                    </button>
+                `;
+                errorDiv.style.display = 'block';
+            }
+            
+            // Показываем fallback кнопку
+            const fallbackBtn = document.getElementById('fallbackButton');
+            if (fallbackBtn) {
+                fallbackBtn.style.display = 'block';
+            }
+        }
+    }
+    
+    // Инициализация виджета
+    function initWidget() {
+        const container = document.getElementById('telegram-widget');
+        const script = document.createElement('script');
+        script.src = "https://telegram.org/js/telegram-widget.js?22";
+        script.setAttribute('data-telegram-login', BOT_USERNAME);
+        script.setAttribute('data-size', 'large');
+        script.setAttribute('data-radius', '12');
+        script.setAttribute('data-onauth', 'onTelegramAuth(user)');
+        script.setAttribute('data-request-access', 'write');
+        container.innerHTML = '';
+        container.appendChild(script);
+    }
+
+    // Fallback редирект на бота
+    function redirectToTelegram() {
+        window.open(`https://t.me/${BOT_USERNAME}`, '_blank');
+    }
+
+    document.addEventListener('DOMContentLoaded', initWidget);
+    console.log('%c⚡ rcs • telegram auth ready', 'color: #ffffff; background: #000000; padding: 4px 8px; border-radius: 4px; font-family: monospace;');
+</script>
 </body>
 </html>
