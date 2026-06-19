@@ -30,13 +30,7 @@ export default async function handler(req, res) {
       passCorrect = (inputHash === user.password_hash);
     }
 
-    // 3. Достаем 10 последних сообщений
-    const { data: history } = await supabase
-      .from('portal_messages')
-      .select('role, content')
-      .eq('telegram_id', id)
-      .order('created_at', { ascending: false })
-      .limit(10);
+    
 
     // 4. Формируем чистый ответ (без хеша пароля!)
     return res.status(200).json({
@@ -44,7 +38,6 @@ export default async function handler(req, res) {
       username: user.username,
       has_plus: user.has_plus,
       pass_correct: passCorrect, // Тот самый флаг
-      history: history ? history.reverse() : []
     });
 
   } catch (err) {
