@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Guys — Мессенджер</title>
 
 <style>
@@ -14,28 +14,33 @@ body {
     height: 100vh;
     display: flex;
     overflow: hidden;
+    position: relative;
 }
 
 /* ===== САЙДБАР ===== */
 .sidebar {
     width: 340px;
+    min-width: 340px;
     background: #0f0f0f;
     border-right: 1px solid #1a1a1a;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
+    transition: transform 0.3s ease;
+    z-index: 10;
 }
 
 .sidebar-header {
-    padding: 20px 24px;
+    padding: 16px 20px;
     border-bottom: 1px solid #1a1a1a;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-shrink: 0;
 }
 
 .sidebar-header h1 {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 600;
 }
 .sidebar-header h1 span { color: #8b5cf6; }
@@ -43,16 +48,18 @@ body {
     color: #666;
     text-decoration: none;
     font-size: 13px;
+    padding: 6px 10px;
 }
 .sidebar-header .back-btn:hover { color: #aaa; }
 
 .search-box {
-    padding: 16px 20px;
+    padding: 12px 16px;
     border-bottom: 1px solid #1a1a1a;
+    flex-shrink: 0;
 }
 .search-box input {
     width: 100%;
-    padding: 10px 16px;
+    padding: 10px 14px;
     background: #161616;
     border: 1px solid #222;
     border-radius: 10px;
@@ -61,23 +68,26 @@ body {
     outline: none;
 }
 .search-box input:focus { border-color: #8b5cf6; }
+.search-box input::placeholder { color: #555; }
 
 .chat-list {
     flex: 1;
     overflow-y: auto;
-    padding: 8px 0;
+    padding: 4px 0;
+    -webkit-overflow-scrolling: touch;
 }
 
 .chat-item {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 12px 20px;
+    gap: 12px;
+    padding: 10px 16px;
     cursor: pointer;
     transition: 0.15s;
-    border-left: 2px solid transparent;
+    border-left: 3px solid transparent;
+    min-height: 60px;
 }
-.chat-item:hover { background: #141414; }
+.chat-item:active { background: #141414; }
 .chat-item.active {
     background: #141414;
     border-left-color: #8b5cf6;
@@ -86,6 +96,7 @@ body {
 .chat-avatar {
     width: 44px;
     height: 44px;
+    min-width: 44px;
     border-radius: 50%;
     background: #1e1e1e;
     display: flex;
@@ -105,8 +116,8 @@ body {
 }
 .chat-avatar .online-dot {
     position: absolute;
-    bottom: 2px;
-    right: 2px;
+    bottom: 1px;
+    right: 1px;
     width: 10px;
     height: 10px;
     border-radius: 50%;
@@ -133,8 +144,9 @@ body {
     align-items: flex-end;
     gap: 4px;
     flex-shrink: 0;
+    margin-left: 8px;
 }
-.chat-time { font-size: 11px; color: #444; }
+.chat-time { font-size: 11px; color: #444; white-space: nowrap; }
 .chat-unread {
     background: #8b5cf6;
     color: white;
@@ -156,42 +168,56 @@ body {
 }
 
 .chat-header {
-    padding: 16px 28px;
+    padding: 12px 16px;
     border-bottom: 1px solid #1a1a1a;
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
     background: #0d0d0d;
+    flex-shrink: 0;
+    min-height: 56px;
 }
-.chat-header .chat-avatar { width: 38px; height: 38px; }
-.chat-header-info { flex: 1; }
-.chat-header-info .name { font-weight: 500; font-size: 16px; }
-.chat-header-info .status { font-size: 13px; color: #666; }
+.chat-header .chat-avatar { width: 36px; height: 36px; min-width: 36px; }
+.chat-header-info { flex: 1; min-width: 0; }
+.chat-header-info .name { font-weight: 500; font-size: 15px; }
+.chat-header-info .status { font-size: 12px; color: #666; }
 .chat-header-info .status.online { color: #22c55e; }
+.chat-header .back-btn-mobile {
+    display: none;
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 4px 8px;
+}
 
 .messages-container {
     flex: 1;
     overflow-y: auto;
-    padding: 20px 28px;
+    padding: 16px;
     display: flex;
     flex-direction: column;
     gap: 4px;
+    -webkit-overflow-scrolling: touch;
 }
 
 .message-row {
     display: flex;
-    gap: 12px;
-    padding: 6px 0;
+    gap: 10px;
+    padding: 4px 0;
+    max-width: 100%;
 }
 .message-row .avatar {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
     border-radius: 50%;
     background: #1a1a1a;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 500;
     color: #888;
     flex-shrink: 0;
@@ -204,50 +230,54 @@ body {
 }
 .message-row .bubble {
     background: #141414;
-    padding: 10px 14px;
+    padding: 8px 12px;
     border-radius: 12px;
-    max-width: 70%;
+    max-width: 85%;
     word-break: break-word;
 }
 .message-row .bubble .sender-name {
-    font-size: 12px;
+    font-size: 11px;
     color: #8b5cf6;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
     font-weight: 500;
 }
-.message-row .bubble .text { font-size: 15px; line-height: 1.4; color: #e5e5e5; }
+.message-row .bubble .text { font-size: 14px; line-height: 1.4; color: #e5e5e5; }
 .message-row .bubble .meta {
     display: flex;
     align-items: center;
     gap: 6px;
-    margin-top: 4px;
-    font-size: 11px;
+    margin-top: 3px;
+    font-size: 10px;
     color: #555;
 }
 .message-row .bubble .meta .status.read { color: #22c55e; }
 .message-row.own { flex-direction: row-reverse; }
 .message-row.own .bubble { background: #1a1a2a; border: 1px solid #2a2a3a; }
+.message-row.own .bubble .sender-name { color: #22c55e; }
 
 .input-area {
-    padding: 16px 28px;
+    padding: 12px 16px;
     border-top: 1px solid #1a1a1a;
     display: flex;
-    gap: 12px;
+    gap: 10px;
     background: #0d0d0d;
+    flex-shrink: 0;
 }
 .input-area input {
     flex: 1;
-    padding: 12px 18px;
+    padding: 10px 16px;
     background: #141414;
     border: 1px solid #222;
     border-radius: 40px;
     color: #e5e5e5;
     font-size: 15px;
     outline: none;
+    min-height: 44px;
 }
 .input-area input:focus { border-color: #8b5cf6; }
+.input-area input::placeholder { color: #555; }
 .input-area button {
-    padding: 12px 24px;
+    padding: 10px 20px;
     background: #8b5cf6;
     border: none;
     border-radius: 40px;
@@ -256,41 +286,45 @@ body {
     font-size: 15px;
     cursor: pointer;
     transition: 0.2s;
+    min-height: 44px;
+    min-width: 52px;
 }
-.input-area button:hover { background: #7c4df0; }
+.input-area button:active { transform: scale(0.95); }
 
-.empty-state { color: #333; text-align: center; margin-top: 60px; font-size: 15px; }
+.empty-state { color: #333; text-align: center; margin-top: 40px; font-size: 14px; }
 .new-chat-btn {
-    padding: 8px 16px;
+    padding: 6px 14px;
     background: #8b5cf6;
     border: none;
     border-radius: 8px;
     color: white;
     cursor: pointer;
     font-weight: 500;
+    font-size: 14px;
+    white-space: nowrap;
 }
-.new-chat-btn:hover { background: #7c4df0; }
+.new-chat-btn:active { opacity: 0.8; }
 
 .error-container {
     text-align: center;
-    padding: 40px;
+    padding: 30px 20px;
     border: 1px solid #2c2c2c;
-    border-radius: 24px;
-    max-width: 400px;
+    border-radius: 20px;
+    max-width: 380px;
+    margin: 20px;
 }
-.error-container .icon { font-size: 60px; margin-bottom: 20px; }
-.error-container h2 { margin-bottom: 12px; }
-.error-container p { color: #666; margin-bottom: 20px; }
+.error-container .icon { font-size: 48px; margin-bottom: 16px; }
+.error-container h2 { font-size: 20px; margin-bottom: 8px; }
+.error-container p { color: #666; margin-bottom: 16px; font-size: 14px; }
 .error-container .btn {
     display: inline-block;
-    padding: 12px 24px;
+    padding: 12px 28px;
     background: #8b5cf6;
     color: white;
     border-radius: 12px;
     text-decoration: none;
     font-weight: 500;
 }
-.error-container .btn:hover { background: #7c4df0; }
 
 /* Модалка */
 .modal-overlay {
@@ -301,27 +335,32 @@ body {
     z-index: 1000;
     justify-content: center;
     align-items: center;
+    padding: 20px;
 }
 .modal-overlay.active { display: flex; }
 .modal {
     background: #141414;
     border: 1px solid #2a2a2a;
     border-radius: 16px;
-    padding: 32px;
+    padding: 24px;
     max-width: 400px;
-    width: 90%;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
 }
-.modal h2 { margin-bottom: 20px; }
+.modal h2 { font-size: 20px; margin-bottom: 16px; }
 .modal input {
     width: 100%;
-    padding: 12px;
+    padding: 12px 14px;
     background: #1a1a1a;
     border: 1px solid #2a2a2a;
     border-radius: 10px;
     color: white;
     font-size: 15px;
     margin-bottom: 12px;
+    outline: none;
 }
+.modal input:focus { border-color: #8b5cf6; }
 .modal .user-item {
     display: flex;
     align-items: center;
@@ -330,12 +369,18 @@ body {
     border-radius: 8px;
     cursor: pointer;
 }
-.modal .user-item:hover { background: #1a1a1a; }
+.modal .user-item:active { background: #1a1a1a; }
 .modal .user-item .avatar {
     width: 32px;
     height: 32px;
     border-radius: 50%;
     overflow: hidden;
+    flex-shrink: 0;
+}
+.modal .user-item .avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 .modal .close-btn {
     margin-top: 12px;
@@ -346,20 +391,121 @@ body {
     color: #888;
     width: 100%;
     cursor: pointer;
+    font-size: 14px;
 }
 
-::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 10px; }
+
+/* ===== АДАПТИВ ===== */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 85%;
+        max-width: 320px;
+        min-width: auto;
+        transform: translateX(-100%);
+        z-index: 100;
+        border-right: 1px solid #1a1a1a;
+        box-shadow: 4px 0 30px rgba(0,0,0,0.8);
+    }
+    .sidebar.open {
+        transform: translateX(0);
+    }
+    
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.6);
+        z-index: 99;
+    }
+    .sidebar-overlay.open {
+        display: block;
+    }
+    
+    .chat-header .back-btn-mobile {
+        display: block;
+    }
+    
+    .messages-container {
+        padding: 12px;
+    }
+    
+    .message-row .bubble {
+        max-width: 90%;
+    }
+    
+    .input-area {
+        padding: 10px 12px;
+        gap: 8px;
+    }
+    .input-area input {
+        padding: 8px 14px;
+        font-size: 14px;
+        min-height: 40px;
+    }
+    .input-area button {
+        padding: 8px 16px;
+        min-height: 40px;
+        min-width: 44px;
+        font-size: 14px;
+    }
+    
+    .chat-header {
+        padding: 10px 12px;
+        min-height: 48px;
+    }
+    .chat-header .chat-avatar { width: 32px; height: 32px; min-width: 32px; }
+    .chat-header-info .name { font-size: 14px; }
+    .chat-header-info .status { font-size: 11px; }
+}
+
+@media (max-width: 400px) {
+    .sidebar {
+        width: 90%;
+        max-width: 300px;
+    }
+    .chat-item {
+        padding: 8px 12px;
+        gap: 10px;
+        min-height: 50px;
+    }
+    .chat-avatar {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+    }
+    .chat-name { font-size: 14px; }
+    .chat-last-msg { font-size: 12px; }
+    .message-row .bubble { padding: 6px 10px; }
+    .message-row .bubble .text { font-size: 13px; }
+}
+
+/* Убираем выделение на мобильных */
+* {
+    -webkit-tap-highlight-color: transparent;
+}
 </style>
 </head>
 <body>
 
+<!-- Оверлей для мобильного меню -->
+<div id="sidebarOverlay" class="sidebar-overlay" onclick="closeSidebar()"></div>
+
 <div id="app" style="display:none;width:100%;height:100vh;">
     <!-- Сайдбар -->
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <h1>Guys <span>✦</span></h1>
-            <div style="display:flex;gap:8px;align-items:center;">
+            <div style="display:flex;gap:6px;align-items:center;">
                 <button class="new-chat-btn" onclick="openNewChatModal()">+</button>
                 <a href="/" class="back-btn">←</a>
             </div>
@@ -373,6 +519,7 @@ body {
     <!-- Основной чат -->
     <div class="chat-main">
         <div id="chatHeader" class="chat-header">
+            <button class="back-btn-mobile" onclick="toggleSidebar()">☰</button>
             <div class="chat-avatar" id="chatHeaderAvatar">?</div>
             <div class="chat-header-info">
                 <div class="name" id="chatHeaderName">Выберите чат</div>
@@ -401,7 +548,7 @@ body {
 
 <script>
 // ============================================================
-//  GUYS — МЕССЕНДЖЕР (ИСПРАВЛЕННАЯ ВЕРСИЯ)
+//  GUYS — МЕССЕНДЖЕР (МОБИЛЬНАЯ ВЕРСИЯ)
 // ============================================================
 
 const API_BASE = 'https://rcatcloud2.vercel.app/api/guys';
@@ -433,6 +580,21 @@ function getInitials(name) {
 
 function getAvatarUrl(username) {
     return username ? `https://unavatar.io/telegram/${username}` : null;
+}
+
+// ===================== МОБИЛЬНОЕ МЕНЮ =====================
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('open');
+}
+
+function closeSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    sidebar.classList.remove('open');
+    overlay.classList.remove('open');
 }
 
 // ===================== API =====================
@@ -484,7 +646,6 @@ async function loadData() {
     allUsers = await apiCall('getUsers');
     if (!allUsers || !Array.isArray(allUsers)) allUsers = [];
     
-    // Формируем чаты
     chats = allUsers
         .filter(u => String(u.telegram_id) !== String(currentUserId))
         .map(u => ({
@@ -501,21 +662,16 @@ async function loadData() {
             avatar: u.avatar || getAvatarUrl(u.username)
         }));
     
-    // Ставим онлайн
     await apiCall('setOnline', 'POST', { telegram_id: currentUserId });
     
-    // Загружаем последние сообщения для всех чатов
     await loadAllLastMessages();
-    
     renderChatList();
     
-    // Открываем первый чат
     if (chats.length > 0) {
         await openChat(chats[0].id);
     }
 }
 
-// ===================== ЗАГРУЗКА ПОСЛЕДНИХ СООБЩЕНИЙ =====================
 async function loadAllLastMessages() {
     for (const chat of chats) {
         const msgs = await apiCall(`getMessages&chat_id=${chat.id}`);
@@ -525,7 +681,6 @@ async function loadAllLastMessages() {
             chat.last_sender = lastMsg.sender_id;
             chat.last_sender_name = lastMsg.sender_name;
             chat.last_msg_time = lastMsg.created_at;
-            // Кэшируем сообщения
             messagesCache[chat.id] = msgs;
         }
     }
@@ -533,11 +688,13 @@ async function loadAllLastMessages() {
 
 function showError(icon, title, message, link) {
     document.body.innerHTML = `
-        <div class="error-container">
-            <div class="icon">${icon}</div>
-            <h2>${title}</h2>
-            <p>${message}</p>
-            <a href="${link}" class="btn">Перейти в портал</a>
+        <div style="display:flex;justify-content:center;align-items:center;height:100vh;background:#0a0a0a;">
+            <div class="error-container">
+                <div class="icon">${icon}</div>
+                <h2>${title}</h2>
+                <p>${message}</p>
+                <a href="${link}" class="btn">Перейти в портал</a>
+            </div>
         </div>
     `;
 }
@@ -545,9 +702,8 @@ function showError(icon, title, message, link) {
 // ===================== РЕНДЕР =====================
 function renderChatList() {
     const container = document.getElementById('chatList');
-    
     if (!chats || chats.length === 0) {
-        container.innerHTML = `<div style="color:#333;padding:20px;text-align:center;">Нет чатов. Начните новый!</div>`;
+        container.innerHTML = `<div style="color:#333;padding:20px;text-align:center;font-size:14px;">Нет чатов. Начните новый!</div>`;
         return;
     }
     
@@ -560,9 +716,9 @@ function renderChatList() {
             : lastMsg;
         
         return `
-            <div class="chat-item ${isActive ? 'active' : ''}" onclick="openChat('${chat.id}')">
+            <div class="chat-item ${isActive ? 'active' : ''}" onclick="openChat('${chat.id}'); closeSidebar();">
                 <div class="chat-avatar">
-                    ${avatar ? `<img src="${avatar}" alt="${chat.name}" />` : getInitials(chat.name)}
+                    ${avatar ? `<img src="${avatar}" alt="${chat.name}" loading="lazy" />` : getInitials(chat.name)}
                     <span class="online-dot ${chat.online ? 'online' : 'offline'}"></span>
                 </div>
                 <div class="chat-info">
@@ -602,7 +758,7 @@ function renderMessages(chatId) {
         return `
             <div class="message-row ${isOwn ? 'own' : ''}">
                 <div class="avatar">
-                    ${avatar ? `<img src="${avatar}" alt="" />` : getInitials(senderName)}
+                    ${avatar ? `<img src="${avatar}" alt="" loading="lazy" />` : getInitials(senderName)}
                 </div>
                 <div class="bubble">
                     ${!isOwn ? `<div class="sender-name">${senderName}</div>` : ''}
@@ -626,7 +782,7 @@ function updateChatHeader(chatId) {
     document.getElementById('chatHeaderName').textContent = chat.name;
     const avatar = chat.avatar || getAvatarUrl(chat.username);
     document.getElementById('chatHeaderAvatar').innerHTML = avatar 
-        ? `<img src="${avatar}" alt="${chat.name}" />` 
+        ? `<img src="${avatar}" alt="${chat.name}" loading="lazy" />` 
         : getInitials(chat.name);
     
     const statusEl = document.getElementById('chatHeaderStatus');
@@ -648,12 +804,10 @@ async function openChat(chatId) {
     
     activeChatId = chatId;
     
-    // Если сообщения не загружены — загружаем
     if (!messagesCache[chatId]) {
         const msgs = await apiCall(`getMessages&chat_id=${chatId}`);
         messagesCache[chatId] = msgs || [];
         
-        // Обновляем последнее сообщение в списке чатов
         const chat = chats.find(c => c.id === chatId);
         if (chat && messagesCache[chatId].length > 0) {
             const lastMsg = messagesCache[chatId][messagesCache[chatId].length - 1];
@@ -668,7 +822,6 @@ async function openChat(chatId) {
     updateChatHeader(chatId);
     renderMessages(chatId);
     
-    // Отмечаем прочитанным
     await apiCall('readChat', 'POST', { 
         chat_id: chatId, 
         receiver_id: currentUserId 
@@ -681,7 +834,6 @@ async function sendMessage() {
     const text = input.value.trim();
     if (!text || !activeChatId) return;
     
-    // Оптимистично добавляем
     const newMsg = {
         sender_id: currentUserId,
         sender_name: currentUser?.first_name || currentUser?.username || 'Я',
@@ -696,14 +848,12 @@ async function sendMessage() {
     renderMessages(activeChatId);
     input.value = '';
     
-    // Отправляем на сервер
     await apiCall('sendMessage', 'POST', {
         chat_id: activeChatId,
         sender_id: currentUserId,
         text: text
     });
     
-    // Обновляем последнее сообщение в списке чатов
     const chat = chats.find(c => c.id === activeChatId);
     if (chat) {
         chat.last_message = text;
@@ -713,7 +863,6 @@ async function sendMessage() {
         renderChatList();
     }
     
-    // Отмечаем прочитанным
     await apiCall('readChat', 'POST', { 
         chat_id: activeChatId, 
         receiver_id: currentUserId 
@@ -754,6 +903,7 @@ async function startNewChat(targetId) {
             renderChatList();
         }
         await openChat(targetId);
+        closeSidebar();
     }
 }
 
@@ -768,7 +918,7 @@ function renderUserSearch(query) {
         });
     
     if (filtered.length === 0) {
-        container.innerHTML = '<div style="color:#444;padding:12px;text-align:center;">Пользователи не найдены</div>';
+        container.innerHTML = '<div style="color:#444;padding:12px;text-align:center;font-size:14px;">Пользователи не найдены</div>';
         return;
     }
     
@@ -777,10 +927,10 @@ function renderUserSearch(query) {
         return `
             <div class="user-item" onclick="startNewChat('${u.telegram_id}')">
                 <div class="avatar">
-                    ${avatar ? `<img src="${avatar}" alt="${u.first_name || u.username}" />` : getInitials(u.first_name || u.username)}
+                    ${avatar ? `<img src="${avatar}" alt="${u.first_name || u.username}" loading="lazy" />` : getInitials(u.first_name || u.username)}
                 </div>
                 <div>
-                    <div style="font-weight:500;">${u.first_name || u.username}</div>
+                    <div style="font-weight:500;font-size:14px;">${u.first_name || u.username}</div>
                     <div style="font-size:12px;color:#666;">@${u.username}</div>
                 </div>
             </div>
@@ -804,7 +954,7 @@ document.getElementById('searchInput').addEventListener('input', (e) => {
     );
     const container = document.getElementById('chatList');
     if (filtered.length === 0) {
-        container.innerHTML = `<div style="color:#333;padding:20px;text-align:center;">Ничего не найдено</div>`;
+        container.innerHTML = `<div style="color:#333;padding:20px;text-align:center;font-size:14px;">Ничего не найдено</div>`;
         return;
     }
     container.innerHTML = filtered.map(chat => {
@@ -816,9 +966,9 @@ document.getElementById('searchInput').addEventListener('input', (e) => {
             : lastMsg;
         
         return `
-            <div class="chat-item ${isActive ? 'active' : ''}" onclick="openChat('${chat.id}')">
+            <div class="chat-item ${isActive ? 'active' : ''}" onclick="openChat('${chat.id}'); closeSidebar();">
                 <div class="chat-avatar">
-                    ${avatar ? `<img src="${avatar}" alt="${chat.name}" />` : getInitials(chat.name)}
+                    ${avatar ? `<img src="${avatar}" alt="${chat.name}" loading="lazy" />` : getInitials(chat.name)}
                     <span class="online-dot ${chat.online ? 'online' : 'offline'}"></span>
                 </div>
                 <div class="chat-info">
