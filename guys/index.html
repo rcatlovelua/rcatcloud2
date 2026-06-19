@@ -13,6 +13,535 @@ body {
     color: #e5e5e5;
     height: 100vh;
     display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.error-container {
+    text-align: center;
+    padding: 40px;
+    border: 1px solid #2c2c2c;
+    border-radius: 24px;
+    max-width: 400px;
+}
+.error-container .icon { font-size: 60px; margin-bottom: 20px; }
+.error-container h2 { margin-bottom: 12px; }
+.error-container p { color: #666; margin-bottom: 20px; }
+.error-container .btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background: #8b5cf6;
+    color: white;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 500;
+}
+.error-container .btn:hover { background: #7c4df0; }
+
+/* Остальные стили мессенджера */
+</style>
+</head>
+<body>
+
+<div id="app" style="display:none;width:100%;height:100vh;">
+    <!-- Сайдбар -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>Guys <span>✦</span></h1>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <button class="new-chat-btn" onclick="openNewChatModal()">+</button>
+                <a href="/" class="back-btn">←</a>
+            </div>
+        </div>
+        <div class="search-box">
+            <input id="searchInput" placeholder="Поиск чатов..." />
+        </div>
+        <div id="chatList" class="chat-list"></div>
+    </div>
+
+    <!-- Основной чат -->
+    <div class="chat-main">
+        <div id="chatHeader" class="chat-header">
+            <div class="chat-avatar" id="chatHeaderAvatar">?</div>
+            <div class="chat-header-info">
+                <div class="name" id="chatHeaderName">Выберите чат</div>
+                <div class="status" id="chatHeaderStatus">───</div>
+            </div>
+        </div>
+        <div id="messagesContainer" class="messages-container">
+            <div class="empty-state">👋 Выберите чат</div>
+        </div>
+        <div class="input-area">
+            <input id="msgInput" placeholder="Сообщение..." />
+            <button id="sendBtn">➜</button>
+        </div>
+    </div>
+</div>
+
+<!-- Модалка -->
+<div id="newChatModal" class="modal-overlay">
+    <div class="modal">
+        <h2>Новый чат</h2>
+        <input id="searchUsersInput" placeholder="Поиск пользователей..." />
+        <div id="userSearchResults" class="user-list" style="max-height:200px;overflow-y:auto;"></div>
+        <button class="close-btn" onclick="closeNewChatModal()">Закрыть</button>
+    </div>
+</div>
+
+<script>
+// ============================================================
+//  GUYS — МЕССЕНДЖЕР
+// ============================================================
+
+const API_BASE = 'https://rcatcloud2.vercel.app/api/guys';
+const TELEGRAM_ID_KEY = 'telegram_id';
+
+// ===================== СОСТОЯНИЕ =====================
+let currentUserId = null;
+let currentUser = null;
+let activeChatId = null;
+let chats = [];
+let messages = {};
+let allUsers = [];
+
+// ===================== УТИЛИТЫ =====================
+function getTelegramId() {
+    return localStorage.getItem(TELEGRAM_ID_KEY);
+}
+
+function getChatId(user1, user2) {
+    return [user1, user2].sort().join('_');
+}
+
+function formatTime(ts) {
+    if (!ts) return '';
+    const d = new Date(ts);
+    return d.toLocaleString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+}
+
+function getInitials(name) {
+    if (!name) return '?';
+    return name.charAt(0).toUpperCase();
+}
+
+function getAvatarUrl(username) {
+    return username ? `https://unavatar.io/telegram/${username}` : null;
+}
+
+// ===================== API =====================
+async function apiCall(action, method = 'GET', body = null) {
+    const url = `${API_BASE}?action=${action}`;
+    const options = {
+        method,
+        headers: { 'Content-Type': 'application/json' }
+    };
+    if (body) options.body = JSON.stringify(body);
+    
+    try {
+        console.log(`📡 API Request: ${method} ${url}`);
+        const res = await fetch(url, options);
+        
+        if (!res.ok) {
+            console.error('API Error:', res.status);
+            return { error: `HTTP ${res.status}` };
+        }
+        
+        const data = await res.json();
+        console.log(`✅ API Response:`, data);
+        return data;
+    } catch (e) {
+        console.error('❌ Fetch Error:', e);
+        return { error: e.message };
+    }
+}
+
+// ===================== ЗАГРУЗКА =====================
+async function loadData() {
+    currentUserId = getTelegramId();
+    
+    // Если нет ID — показываем ошибку вместо редиректа
+    if (!currentUserId) {
+        showError('👻', 'Не авторизован', 'Войдите через Telegram в портале', '/Portal');
+        return;
+    }
+    
+    // Загружаем текущего пользователя
+    const userData = await apiCall(`getUser&id=${currentUserId}`);
+    if (!userData.exists) {
+        showError('❌', 'Профиль не найден', 'Создайте профиль в портале', '/');
+        return;
+    }
+    
+    currentUser = {
+        id: currentUserId,
+        username: userData.username,
+        first_name: userData.first_name,
+        avatar: userData.avatar
+    };
+    
+    // Показываем мессенджер
+    document.getElementById('app').style.display = 'flex';
+    
+    // Загружаем всех пользователей
+    allUsers = await apiCall('getUsers');
+    if (!allUsers || !Array.isArray(allUsers)) {
+        allUsers = [];
+    }
+    
+    // Формируем чаты (все пользователи кроме себя)
+    chats = allUsers
+        .filter(u => u.telegram_id !== currentUserId)
+        .map(u => ({
+            id: u.telegram_id,
+            name: u.first_name || u.username,
+            username: u.username,
+            online: u.online || false,
+            last_seen: u.last_seen,
+            last_message: '',
+            last_sender: '',
+            unread: 0,
+            avatar: u.avatar || getAvatarUrl(u.username)
+        }));
+    
+    // Ставим онлайн
+    await apiCall('setOnline', 'POST', { telegram_id: currentUserId });
+    
+    renderChatList();
+    
+    // Открываем первый чат
+    if (chats.length > 0) {
+        await openChat(chats[0].id);
+    }
+}
+
+function showError(icon, title, message, link) {
+    document.body.innerHTML = `
+        <div class="error-container">
+            <div class="icon">${icon}</div>
+            <h2>${title}</h2>
+            <p>${message}</p>
+            <a href="${link}" class="btn">Перейти в портал</a>
+        </div>
+    `;
+}
+
+// ===================== РЕНДЕР =====================
+function renderChatList() {
+    const container = document.getElementById('chatList');
+    
+    if (!chats || chats.length === 0) {
+        container.innerHTML = `<div style="color:#333;padding:20px;text-align:center;">Нет чатов. Начните новый!</div>`;
+        return;
+    }
+    
+    container.innerHTML = chats.map(chat => {
+        const isActive = chat.id === activeChatId;
+        const avatar = chat.avatar || getAvatarUrl(chat.username);
+        const lastMsg = chat.last_message || 'Нет сообщений';
+        const lastMsgDisplay = chat.last_sender && chat.last_sender !== currentUserId
+            ? `<span class="sender">${chat.last_sender_name || 'Кто-то'}:</span> ${lastMsg}`
+            : lastMsg;
+        
+        return `
+            <div class="chat-item ${isActive ? 'active' : ''}" onclick="openChat('${chat.id}')">
+                <div class="chat-avatar">
+                    ${avatar ? `<img src="${avatar}" alt="${chat.name}" />` : getInitials(chat.name)}
+                    <span class="online-dot ${chat.online ? 'online' : 'offline'}"></span>
+                </div>
+                <div class="chat-info">
+                    <div class="chat-name">${chat.name}</div>
+                    <div class="chat-last-msg">${lastMsgDisplay}</div>
+                </div>
+                <div class="chat-meta">
+                    <div class="chat-time">${chat.last_msg_time ? formatTime(chat.last_msg_time) : ''}</div>
+                    ${chat.unread > 0 ? `<div class="chat-unread">${chat.unread}</div>` : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderMessages(chatId) {
+    const container = document.getElementById('messagesContainer');
+    const msgs = messages[chatId] || [];
+    
+    if (!chatId) {
+        container.innerHTML = `<div class="empty-state">👋 Выберите чат</div>`;
+        return;
+    }
+    
+    if (msgs.length === 0) {
+        container.innerHTML = `<div class="empty-state">💬 Нет сообщений. Напишите первым!</div>`;
+        return;
+    }
+    
+    container.innerHTML = msgs.map(msg => {
+        const isOwn = msg.sender_id === currentUserId;
+        const readStatus = msg.read ? '✓✓' : '✓';
+        const isRead = msg.read;
+        const avatar = msg.avatar || getAvatarUrl(msg.sender_name);
+        const senderName = msg.sender_name || msg.sender_id || 'Unknown';
+        
+        return `
+            <div class="message-row ${isOwn ? 'own' : ''}">
+                <div class="avatar">
+                    ${avatar ? `<img src="${avatar}" alt="" />` : getInitials(senderName)}
+                </div>
+                <div class="bubble">
+                    ${!isOwn ? `<div class="sender-name">${senderName}</div>` : ''}
+                    <div class="text">${msg.text || ''}</div>
+                    <div class="meta">
+                        <span>${formatTime(msg.created_at)}</span>
+                        ${isOwn ? `<span class="status ${isRead ? 'read' : ''}">${readStatus}</span>` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    container.scrollTop = container.scrollHeight;
+}
+
+function updateChatHeader(chatId) {
+    const chat = chats.find(c => c.id === chatId);
+    if (!chat) return;
+    
+    document.getElementById('chatHeaderName').textContent = chat.name;
+    const avatar = chat.avatar || getAvatarUrl(chat.username);
+    document.getElementById('chatHeaderAvatar').innerHTML = avatar 
+        ? `<img src="${avatar}" alt="${chat.name}" />` 
+        : getInitials(chat.name);
+    
+    const statusEl = document.getElementById('chatHeaderStatus');
+    if (chat.online) {
+        statusEl.textContent = '🟢 Онлайн';
+        statusEl.className = 'status online';
+    } else {
+        const lastSeen = chat.last_seen ? new Date(chat.last_seen) : null;
+        statusEl.textContent = lastSeen 
+            ? `⚫ Был(а) ${lastSeen.toLocaleString('ru-RU', { hour:'2-digit', minute:'2-digit' })}` 
+            : '⚫ Не в сети';
+        statusEl.className = 'status';
+    }
+}
+
+// ===================== ОТКРЫТИЕ ЧАТА =====================
+async function openChat(chatId) {
+    if (!chatId) return;
+    
+    activeChatId = chatId;
+    renderChatList();
+    updateChatHeader(chatId);
+    
+    // Загружаем сообщения
+    const msgs = await apiCall(`getMessages&chat_id=${chatId}&user_id=${currentUserId}`);
+    messages[chatId] = msgs || [];
+    renderMessages(chatId);
+    
+    // Отмечаем прочитанным
+    await apiCall('readChat', 'POST', { 
+        chat_id: chatId, 
+        receiver_id: currentUserId 
+    });
+}
+
+// ===================== ОТПРАВКА =====================
+async function sendMessage() {
+    const input = document.getElementById('msgInput');
+    const text = input.value.trim();
+    if (!text || !activeChatId) return;
+    
+    // Оптимистично добавляем
+    const newMsg = {
+        sender_id: currentUserId,
+        sender_name: currentUser?.first_name || currentUser?.username || 'Я',
+        text: text,
+        created_at: new Date().toISOString(),
+        read: false,
+        avatar: currentUser?.avatar
+    };
+    
+    if (!messages[activeChatId]) messages[activeChatId] = [];
+    messages[activeChatId].push(newMsg);
+    renderMessages(activeChatId);
+    input.value = '';
+    
+    // Отправляем на сервер
+    await apiCall('sendMessage', 'POST', {
+        chat_id: activeChatId,
+        sender_id: currentUserId,
+        text: text
+    });
+    
+    // Обновляем последнее сообщение в списке чатов
+    const chat = chats.find(c => c.id === activeChatId);
+    if (chat) {
+        chat.last_message = text;
+        chat.last_sender = currentUserId;
+        chat.last_sender_name = currentUser?.first_name || currentUser?.username;
+        chat.last_msg_time = new Date().toISOString();
+        renderChatList();
+    }
+    
+    // Отмечаем прочитанным
+    await apiCall('readChat', 'POST', { 
+        chat_id: activeChatId, 
+        receiver_id: currentUserId 
+    });
+}
+
+// ===================== НОВЫЙ ЧАТ =====================
+function openNewChatModal() {
+    document.getElementById('newChatModal').classList.add('active');
+    renderUserSearch('');
+}
+
+function closeNewChatModal() {
+    document.getElementById('newChatModal').classList.remove('active');
+}
+
+async function startNewChat(targetId) {
+    const result = await apiCall('startChat', 'POST', {
+        user_id: currentUserId,
+        target_id: targetId
+    });
+    
+    if (result.success) {
+        closeNewChatModal();
+        const target = allUsers.find(u => u.telegram_id === targetId);
+        if (target && !chats.find(c => c.id === targetId)) {
+            chats.push({
+                id: targetId,
+                name: target.first_name || target.username,
+                username: target.username,
+                online: target.online || false,
+                avatar: target.avatar || getAvatarUrl(target.username)
+            });
+            renderChatList();
+        }
+        await openChat(targetId);
+    }
+}
+
+function renderUserSearch(query) {
+    const container = document.getElementById('userSearchResults');
+    const filtered = allUsers
+        .filter(u => u.telegram_id !== currentUserId)
+        .filter(u => {
+            const search = query.toLowerCase();
+            return (u.first_name || '').toLowerCase().includes(search) ||
+                   (u.username || '').toLowerCase().includes(search);
+        });
+    
+    if (filtered.length === 0) {
+        container.innerHTML = '<div style="color:#444;padding:12px;text-align:center;">Пользователи не найдены</div>';
+        return;
+    }
+    
+    container.innerHTML = filtered.map(u => {
+        const avatar = u.avatar || getAvatarUrl(u.username);
+        return `
+            <div class="user-item" onclick="startNewChat('${u.telegram_id}')">
+                <div class="avatar">
+                    ${avatar ? `<img src="${avatar}" alt="${u.first_name || u.username}" />` : getInitials(u.first_name || u.username)}
+                </div>
+                <div>
+                    <div style="font-weight:500;">${u.first_name || u.username}</div>
+                    <div style="font-size:12px;color:#666;">@${u.username}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// ===================== ИНИЦИАЛИЗАЦИЯ =====================
+document.addEventListener('DOMContentLoaded', loadData);
+
+document.getElementById('sendBtn').addEventListener('click', sendMessage);
+document.getElementById('msgInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') sendMessage();
+});
+
+document.getElementById('searchInput').addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase();
+    const filtered = chats.filter(c => 
+        c.name.toLowerCase().includes(query) || 
+        (c.username || '').toLowerCase().includes(query)
+    );
+    const container = document.getElementById('chatList');
+    if (filtered.length === 0) {
+        container.innerHTML = `<div style="color:#333;padding:20px;text-align:center;">Ничего не найдено</div>`;
+        return;
+    }
+    container.innerHTML = filtered.map(chat => {
+        const isActive = chat.id === activeChatId;
+        const avatar = chat.avatar || getAvatarUrl(chat.username);
+        const lastMsg = chat.last_message || 'Нет сообщений';
+        const lastMsgDisplay = chat.last_sender && chat.last_sender !== currentUserId
+            ? `<span class="sender">${chat.last_sender_name || 'Кто-то'}:</span> ${lastMsg}`
+            : lastMsg;
+        
+        return `
+            <div class="chat-item ${isActive ? 'active' : ''}" onclick="openChat('${chat.id}')">
+                <div class="chat-avatar">
+                    ${avatar ? `<img src="${avatar}" alt="${chat.name}" />` : getInitials(chat.name)}
+                    <span class="online-dot ${chat.online ? 'online' : 'offline'}"></span>
+                </div>
+                <div class="chat-info">
+                    <div class="chat-name">${chat.name}</div>
+                    <div class="chat-last-msg">${lastMsgDisplay}</div>
+                </div>
+                <div class="chat-meta">
+                    <div class="chat-time">${chat.last_msg_time ? formatTime(chat.last_msg_time) : ''}</div>
+                    ${chat.unread > 0 ? `<div class="chat-unread">${chat.unread}</div>` : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+});
+
+document.getElementById('searchUsersInput').addEventListener('input', (e) => {
+    renderUserSearch(e.target.value);
+});
+
+// При закрытии
+window.addEventListener('beforeunload', () => {
+    if (currentUserId) {
+        navigator.sendBeacon('https://rcatcloud2.vercel.app/api/guys?action=setOffline', 
+            JSON.stringify({ telegram_id: currentUserId })
+        );
+    }
+});
+
+// Realtime обновление
+setInterval(async () => {
+    try {
+        const users = await apiCall('getUsers');
+        if (users && Array.isArray(users)) {
+            allUsers = users;
+            chats.forEach(chat => {
+                const user = users.find(u => u.telegram_id === chat.id);
+                if (user) {
+                    chat.online = user.online || false;
+                    chat.last_seen = user.last_seen;
+                    chat.avatar = user.avatar || getAvatarUrl(user.username);
+                }
+            });
+            renderChatList();
+            if (activeChatId) updateChatHeader(activeChatId);
+        }
+    } catch (e) { /* ignore */ }
+}, 5000);
+</script>
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #0a0a0a;
+    color: #e5e5e5;
+    height: 100vh;
+    display: flex;
     overflow: hidden;
 }
 
@@ -338,483 +867,5 @@ body {
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 10px; }
 </style>
-</head>
-<body>
-
-<!-- Сайдбар -->
-<div class="sidebar">
-    <div class="sidebar-header">
-        <h1>Guys <span>✦</span></h1>
-        <div style="display:flex;gap:8px;align-items:center;">
-            <button class="new-chat-btn" onclick="openNewChatModal()">+</button>
-            <a href="/" class="back-btn">←</a>
-        </div>
-    </div>
-    <div class="search-box">
-        <input id="searchInput" placeholder="Поиск чатов..." />
-    </div>
-    <div id="chatList" class="chat-list"></div>
-</div>
-
-<!-- Основной чат -->
-<div class="chat-main">
-    <div id="chatHeader" class="chat-header">
-        <div class="chat-avatar" id="chatHeaderAvatar">?</div>
-        <div class="chat-header-info">
-            <div class="name" id="chatHeaderName">Выберите чат</div>
-            <div class="status" id="chatHeaderStatus">───</div>
-        </div>
-    </div>
-    <div id="messagesContainer" class="messages-container">
-        <div class="empty-state">👋 Выберите чат</div>
-    </div>
-    <div class="input-area">
-        <input id="msgInput" placeholder="Сообщение..." />
-        <button id="sendBtn">➜</button>
-    </div>
-</div>
-
-<!-- Модалка -->
-<div id="newChatModal" class="modal-overlay">
-    <div class="modal">
-        <h2>Новый чат</h2>
-        <input id="searchUsersInput" placeholder="Поиск пользователей..." />
-        <div id="userSearchResults" class="user-list" style="max-height:200px;overflow-y:auto;"></div>
-        <button class="close-btn" onclick="closeNewChatModal()">Закрыть</button>
-    </div>
-</div>
-
-<script>
-// ============================================================
-//  GUYS — МЕССЕНДЖЕР
-// ============================================================
-
-const API_BASE = 'https://rcatcloud2.vercel.app/api/guys';
-const TELEGRAM_ID_KEY = 'telegram_id';
-
-// ===================== СОСТОЯНИЕ =====================
-let currentUserId = null;
-let currentUser = null;
-let activeChatId = null;
-let chats = [];
-let messages = {};
-let allUsers = [];
-
-// ===================== УТИЛИТЫ =====================
-function getTelegramId() {
-    const id = localStorage.getItem(TELEGRAM_ID_KEY);
-    if (!id) {
-        window.location.href = '/';
-        return null;
-    }
-    return id;
-}
-
-function getChatId(user1, user2) {
-    return [user1, user2].sort().join('_');
-}
-
-function formatTime(ts) {
-    if (!ts) return '';
-    const d = new Date(ts);
-    return d.toLocaleString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-}
-
-function getInitials(name) {
-    if (!name) return '?';
-    return name.charAt(0).toUpperCase();
-}
-
-function getAvatarUrl(username) {
-    return username ? `https://unavatar.io/telegram/${username}` : null;
-}
-
-// ===================== API =====================
-async function apiCall(action, method = 'GET', body = null) {
-    const url = `${API_BASE}?action=${action}`;
-    const options = {
-        method,
-        headers: { 'Content-Type': 'application/json' }
-    };
-    if (body) options.body = JSON.stringify(body);
-    
-    try {
-        console.log(`📡 API Request: ${method} ${url}`);
-        const res = await fetch(url, options);
-        
-        if (!res.ok) {
-            console.error('API Error:', res.status);
-            return { error: `HTTP ${res.status}` };
-        }
-        
-        const data = await res.json();
-        console.log(`✅ API Response:`, data);
-        return data;
-    } catch (e) {
-        console.error('❌ Fetch Error:', e);
-        return { error: e.message };
-    }
-}
-
-// ===================== ЗАГРУЗКА =====================
-async function loadData() {
-    currentUserId = getTelegramId();
-    if (!currentUserId) return;
-    
-    // Загружаем текущего пользователя
-    const userData = await apiCall(`getUser&id=${currentUserId}`);
-    if (!userData.exists) {
-        localStorage.removeItem(TELEGRAM_ID_KEY);
-        window.location.href = '/';
-        return;
-    }
-    
-    currentUser = {
-        id: currentUserId,
-        username: userData.username,
-        first_name: userData.first_name,
-        avatar: userData.avatar
-    };
-    
-    // Загружаем всех пользователей
-    allUsers = await apiCall('getUsers');
-    if (!allUsers || !Array.isArray(allUsers)) {
-        allUsers = [];
-    }
-    
-    // Формируем чаты (все пользователи кроме себя)
-    chats = allUsers
-        .filter(u => u.telegram_id !== currentUserId)
-        .map(u => ({
-            id: u.telegram_id,
-            name: u.first_name || u.username,
-            username: u.username,
-            online: u.online || false,
-            last_seen: u.last_seen,
-            last_message: '',
-            last_sender: '',
-            unread: 0,
-            avatar: u.avatar || getAvatarUrl(u.username)
-        }));
-    
-    // Ставим онлайн
-    await apiCall('setOnline', 'POST', { telegram_id: currentUserId });
-    
-    renderChatList();
-    
-    // Открываем первый чат
-    if (chats.length > 0) {
-        await openChat(chats[0].id);
-    }
-}
-
-// ===================== РЕНДЕР =====================
-function renderChatList() {
-    const container = document.getElementById('chatList');
-    
-    if (!chats || chats.length === 0) {
-        container.innerHTML = `<div style="color:#333;padding:20px;text-align:center;">Нет чатов. Начните новый!</div>`;
-        return;
-    }
-    
-    container.innerHTML = chats.map(chat => {
-        const isActive = chat.id === activeChatId;
-        const avatar = chat.avatar || getAvatarUrl(chat.username);
-        const lastMsg = chat.last_message || 'Нет сообщений';
-        const lastMsgDisplay = chat.last_sender && chat.last_sender !== currentUserId
-            ? `<span class="sender">${chat.last_sender_name || 'Кто-то'}:</span> ${lastMsg}`
-            : lastMsg;
-        
-        return `
-            <div class="chat-item ${isActive ? 'active' : ''}" onclick="openChat('${chat.id}')">
-                <div class="chat-avatar">
-                    ${avatar ? `<img src="${avatar}" alt="${chat.name}" />` : getInitials(chat.name)}
-                    <span class="online-dot ${chat.online ? 'online' : 'offline'}"></span>
-                </div>
-                <div class="chat-info">
-                    <div class="chat-name">${chat.name}</div>
-                    <div class="chat-last-msg">${lastMsgDisplay}</div>
-                </div>
-                <div class="chat-meta">
-                    <div class="chat-time">${chat.last_msg_time ? formatTime(chat.last_msg_time) : ''}</div>
-                    ${chat.unread > 0 ? `<div class="chat-unread">${chat.unread}</div>` : ''}
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-function renderMessages(chatId) {
-    const container = document.getElementById('messagesContainer');
-    const msgs = messages[chatId] || [];
-    
-    if (!chatId) {
-        container.innerHTML = `<div class="empty-state">👋 Выберите чат</div>`;
-        return;
-    }
-    
-    if (msgs.length === 0) {
-        container.innerHTML = `<div class="empty-state">💬 Нет сообщений. Напишите первым!</div>`;
-        return;
-    }
-    
-    container.innerHTML = msgs.map(msg => {
-        const isOwn = msg.sender_id === currentUserId;
-        const readStatus = msg.read ? '✓✓' : '✓';
-        const isRead = msg.read;
-        const avatar = msg.avatar || getAvatarUrl(msg.sender_name);
-        const senderName = msg.sender_name || msg.sender_id || 'Unknown';
-        
-        return `
-            <div class="message-row ${isOwn ? 'own' : ''}">
-                <div class="avatar">
-                    ${avatar ? `<img src="${avatar}" alt="" />` : getInitials(senderName)}
-                </div>
-                <div class="bubble">
-                    ${!isOwn ? `<div class="sender-name">${senderName}</div>` : ''}
-                    <div class="text">${msg.text || ''}</div>
-                    <div class="meta">
-                        <span>${formatTime(msg.created_at)}</span>
-                        ${isOwn ? `<span class="status ${isRead ? 'read' : ''}">${readStatus}</span>` : ''}
-                    </div>
-                </div>
-            </div>
-        `;
-    }).join('');
-    
-    container.scrollTop = container.scrollHeight;
-}
-
-function updateChatHeader(chatId) {
-    const chat = chats.find(c => c.id === chatId);
-    if (!chat) return;
-    
-    document.getElementById('chatHeaderName').textContent = chat.name;
-    const avatar = chat.avatar || getAvatarUrl(chat.username);
-    document.getElementById('chatHeaderAvatar').innerHTML = avatar 
-        ? `<img src="${avatar}" alt="${chat.name}" />` 
-        : getInitials(chat.name);
-    
-    const statusEl = document.getElementById('chatHeaderStatus');
-    if (chat.online) {
-        statusEl.textContent = '🟢 Онлайн';
-        statusEl.className = 'status online';
-    } else {
-        const lastSeen = chat.last_seen ? new Date(chat.last_seen) : null;
-        statusEl.textContent = lastSeen 
-            ? `⚫ Был(а) ${lastSeen.toLocaleString('ru-RU', { hour:'2-digit', minute:'2-digit' })}` 
-            : '⚫ Не в сети';
-        statusEl.className = 'status';
-    }
-}
-
-// ===================== ОТКРЫТИЕ ЧАТА =====================
-async function openChat(chatId) {
-    if (!chatId) return;
-    
-    activeChatId = chatId;
-    renderChatList();
-    updateChatHeader(chatId);
-    
-    // Загружаем сообщения
-    const msgs = await apiCall(`getMessages&chat_id=${chatId}&user_id=${currentUserId}`);
-    messages[chatId] = msgs || [];
-    renderMessages(chatId);
-    
-    // Отмечаем прочитанным
-    await apiCall('readChat', 'POST', { 
-        chat_id: chatId, 
-        receiver_id: currentUserId 
-    });
-}
-
-// ===================== ОТПРАВКА =====================
-async function sendMessage() {
-    const input = document.getElementById('msgInput');
-    const text = input.value.trim();
-    if (!text || !activeChatId) return;
-    
-    // Оптимистично добавляем
-    const newMsg = {
-        sender_id: currentUserId,
-        sender_name: currentUser?.first_name || currentUser?.username || 'Я',
-        text: text,
-        created_at: new Date().toISOString(),
-        read: false,
-        avatar: currentUser?.avatar
-    };
-    
-    if (!messages[activeChatId]) messages[activeChatId] = [];
-    messages[activeChatId].push(newMsg);
-    renderMessages(activeChatId);
-    input.value = '';
-    
-    // Отправляем на сервер
-    await apiCall('sendMessage', 'POST', {
-        chat_id: activeChatId,
-        sender_id: currentUserId,
-        text: text
-    });
-    
-    // Обновляем последнее сообщение в списке чатов
-    const chat = chats.find(c => c.id === activeChatId);
-    if (chat) {
-        chat.last_message = text;
-        chat.last_sender = currentUserId;
-        chat.last_sender_name = currentUser?.first_name || currentUser?.username;
-        chat.last_msg_time = new Date().toISOString();
-        renderChatList();
-    }
-    
-    // Отмечаем прочитанным
-    await apiCall('readChat', 'POST', { 
-        chat_id: activeChatId, 
-        receiver_id: currentUserId 
-    });
-}
-
-// ===================== НОВЫЙ ЧАТ =====================
-function openNewChatModal() {
-    document.getElementById('newChatModal').classList.add('active');
-    renderUserSearch('');
-}
-
-function closeNewChatModal() {
-    document.getElementById('newChatModal').classList.remove('active');
-}
-
-async function startNewChat(targetId) {
-    const result = await apiCall('startChat', 'POST', {
-        user_id: currentUserId,
-        target_id: targetId
-    });
-    
-    if (result.success) {
-        closeNewChatModal();
-        const target = allUsers.find(u => u.telegram_id === targetId);
-        if (target && !chats.find(c => c.id === targetId)) {
-            chats.push({
-                id: targetId,
-                name: target.first_name || target.username,
-                username: target.username,
-                online: target.online || false,
-                avatar: target.avatar || getAvatarUrl(target.username)
-            });
-            renderChatList();
-        }
-        await openChat(targetId);
-    }
-}
-
-function renderUserSearch(query) {
-    const container = document.getElementById('userSearchResults');
-    const filtered = allUsers
-        .filter(u => u.telegram_id !== currentUserId)
-        .filter(u => {
-            const search = query.toLowerCase();
-            return (u.first_name || '').toLowerCase().includes(search) ||
-                   (u.username || '').toLowerCase().includes(search);
-        });
-    
-    if (filtered.length === 0) {
-        container.innerHTML = '<div style="color:#444;padding:12px;text-align:center;">Пользователи не найдены</div>';
-        return;
-    }
-    
-    container.innerHTML = filtered.map(u => {
-        const avatar = u.avatar || getAvatarUrl(u.username);
-        return `
-            <div class="user-item" onclick="startNewChat('${u.telegram_id}')">
-                <div class="avatar">
-                    ${avatar ? `<img src="${avatar}" alt="${u.first_name || u.username}" />` : getInitials(u.first_name || u.username)}
-                </div>
-                <div>
-                    <div style="font-weight:500;">${u.first_name || u.username}</div>
-                    <div style="font-size:12px;color:#666;">@${u.username}</div>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-// ===================== ИНИЦИАЛИЗАЦИЯ =====================
-document.addEventListener('DOMContentLoaded', loadData);
-
-document.getElementById('sendBtn').addEventListener('click', sendMessage);
-document.getElementById('msgInput').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') sendMessage();
-});
-
-document.getElementById('searchInput').addEventListener('input', (e) => {
-    const query = e.target.value.toLowerCase();
-    const filtered = chats.filter(c => 
-        c.name.toLowerCase().includes(query) || 
-        (c.username || '').toLowerCase().includes(query)
-    );
-    const container = document.getElementById('chatList');
-    if (filtered.length === 0) {
-        container.innerHTML = `<div style="color:#333;padding:20px;text-align:center;">Ничего не найдено</div>`;
-        return;
-    }
-    container.innerHTML = filtered.map(chat => {
-        const isActive = chat.id === activeChatId;
-        const avatar = chat.avatar || getAvatarUrl(chat.username);
-        const lastMsg = chat.last_message || 'Нет сообщений';
-        const lastMsgDisplay = chat.last_sender && chat.last_sender !== currentUserId
-            ? `<span class="sender">${chat.last_sender_name || 'Кто-то'}:</span> ${lastMsg}`
-            : lastMsg;
-        
-        return `
-            <div class="chat-item ${isActive ? 'active' : ''}" onclick="openChat('${chat.id}')">
-                <div class="chat-avatar">
-                    ${avatar ? `<img src="${avatar}" alt="${chat.name}" />` : getInitials(chat.name)}
-                    <span class="online-dot ${chat.online ? 'online' : 'offline'}"></span>
-                </div>
-                <div class="chat-info">
-                    <div class="chat-name">${chat.name}</div>
-                    <div class="chat-last-msg">${lastMsgDisplay}</div>
-                </div>
-                <div class="chat-meta">
-                    <div class="chat-time">${chat.last_msg_time ? formatTime(chat.last_msg_time) : ''}</div>
-                    ${chat.unread > 0 ? `<div class="chat-unread">${chat.unread}</div>` : ''}
-                </div>
-            </div>
-        `;
-    }).join('');
-});
-
-document.getElementById('searchUsersInput').addEventListener('input', (e) => {
-    renderUserSearch(e.target.value);
-});
-
-// При закрытии
-window.addEventListener('beforeunload', () => {
-    if (currentUserId) {
-        navigator.sendBeacon('https://rcatcloud2.vercel.app/api/guys?action=setOffline', 
-            JSON.stringify({ telegram_id: currentUserId })
-        );
-    }
-});
-
-// Realtime обновление
-setInterval(async () => {
-    try {
-        const users = await apiCall('getUsers');
-        if (users && Array.isArray(users)) {
-            allUsers = users;
-            chats.forEach(chat => {
-                const user = users.find(u => u.telegram_id === chat.id);
-                if (user) {
-                    chat.online = user.online || false;
-                    chat.last_seen = user.last_seen;
-                    chat.avatar = user.avatar || getAvatarUrl(user.username);
-                }
-            });
-            renderChatList();
-            if (activeChatId) updateChatHeader(activeChatId);
-        }
-    } catch (e) { /* ignore */ }
-}, 5000);
-</script>
 </body>
 </html>
