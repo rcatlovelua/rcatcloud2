@@ -5,22 +5,37 @@ const supabase = createClient(
     process.env.SUPABASE_KEY
 );
 
-export default async function handler(req, res) {
-    // CORS заголовки
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+// CORS заголовки
+const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Max-Age': '86400',
+};
 
+export default async function handler(req, res) {
+    // Устанавливаем CORS заголовки для ВСЕХ ответов
+    Object.entries(corsHeaders).forEach(([key, value]) => {
+        res.setHeader(key, value);
+    });
+
+    // Обработка preflight запроса (OPTIONS)
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
 
+    // Проверяем метод
     if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Метод не поддерживается' });
+        return res.status(405).json({ 
+            ok: false, 
+            error: 'Метод не поддерживается' 
+        });
     }
 
     try {
         const { id, username, first_name } = req.body;
+
+        console.log('📥 Получены данные:', { id, username, first_name });
 
         if (!id) {
             return res.status(400).json({ 
@@ -29,14 +44,23 @@ export default async function handler(req, res) {
             });
         }
 
-        // 1. Проверяем, существует ли пользователь
+        // Проверяем, существует ли пользователь
         const { data: existingUser, error: checkError } = await supabase
             .from('portal_users')
-            .select('telegram_id')
+            .select('telegram_id, username, first_name')
             .eq('telegram_id', id)
             .single();
 
-        // 2. Если пользователя НЕТ — создаём новый аккаунт
+        // Игнорируем ошибку "не найдено" (это нормально)
+        if (checkError && checkError.code !== 'PGRST116') {
+            console.error('❌ Ошибка проверки:', checkError);
+            return res.status(500).json({ 
+                ok: false, 
+                error: 'Ошибка базы данных' 
+            });
+        }
+
+        // Если пользователя НЕТ — создаём
         if (!existingUser) {
             console.log(`👤 Создаём новый аккаунт для Telegram ID: ${id}`);
             
@@ -52,10 +76,10 @@ export default async function handler(req, res) {
                 });
 
             if (insertError) {
-                console.error('❌ Ошибка создания аккаунта:', insertError);
+                console.error('❌ Ошибка создания:', insertError);
                 return res.status(500).json({ 
                     ok: false, 
-                    error: 'Ошибка создания аккаунта' 
+                    error: 'Ошибка создания аккаунта: ' + insertError.message
                 });
             }
 
@@ -67,7 +91,7 @@ export default async function handler(req, res) {
             });
         }
 
-        // 3. Если пользователь УЖЕ есть — просто обновляем last_login
+        // Если пользователь ЕСТЬ — обновляем last_login
         console.log(`👤 Пользователь уже существует: ${id}`);
         
         const { error: updateError } = await supabase
@@ -80,8 +104,8 @@ export default async function handler(req, res) {
             .eq('telegram_id', id);
 
         if (updateError) {
-            console.error('⚠️ Ошибка обновления last_login:', updateError);
-            // Не критично, просто логируем
+            console.error('⚠️ Ошибка обновления:', updateError);
+            // Не критично, продолжаем
         }
 
         return res.status(200).json({ 
@@ -94,7 +118,7 @@ export default async function handler(req, res) {
         console.error('💥 Критическая ошибка:', error);
         return res.status(500).json({ 
             ok: false, 
-            error: 'Внутренняя ошибка сервера' 
+            error: 'Внутренняя ошибка сервера: ' + error.message
         });
     }
 }
