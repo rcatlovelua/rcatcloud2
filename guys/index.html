@@ -640,13 +640,13 @@ async function loadData() {
     currentUserId = getTelegramId();
     
     if (!currentUserId) {
-        showError('👻', 'Не авторизован', 'Войдите через Telegram в портале', '/');
+        showError('👻', 'Не авторизован', 'Войдите через Telegram в портале', '/Portal');
         return;
     }
     
     const userData = await apiCall(`getUser&id=${currentUserId}`);
     if (!userData.exists) {
-        showError('❌', 'Профиль не найден', 'Создайте профиль в портале', '/');
+        showError('❌', 'Профиль не найден', 'Создайте профиль в портале', '/Portal');
         return;
     }
     
