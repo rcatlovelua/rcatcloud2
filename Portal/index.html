@@ -221,12 +221,7 @@ function renderUser(user) {
         <div class="profile" style="animation: fadeIn 0.5s ease;">
             <h2 style="margin-bottom:5px; font-weight: 600;">${escapeHtml(firstName)}</h2>
             <p style="color: #888; font-size: 14px; margin-bottom: 20px;">@${escapeHtml(username)}</p>
-            
-            <div style="background: rgba(255,255,255,0.03); padding: 16px; border: 1px solid #2c2c2c; border-radius: 16px; margin-bottom: 24px;">
-                <p style="color: #666; font-size: 12px; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px;">Telegram ID</p>
-                <code style="font-family: monospace; font-size: 16px; color: #fff;">${escapeHtml(user.telegram_id)}</code>
-                ${user.has_plus ? '<p style="color: gold; margin-top: 8px;">⭐ PLUS активирован</p>' : ''}
-            </div>
+    
 
             <button onclick="logout()" class="btn" style="background: transparent; color: #ff4444; border: 1px solid #442222;">
                 Выйти из аккаунта
