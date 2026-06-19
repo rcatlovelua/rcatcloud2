@@ -389,7 +389,7 @@ body {
 //  GUYS — МЕССЕНДЖЕР
 // ============================================================
 
-const API_BASE = '/api/guys';
+const API_BASE = 'https://rcatcloud2.vercel.app/api/guys';
 const TELEGRAM_ID_KEY = 'telegram_id';
 
 // ===================== СОСТОЯНИЕ =====================
@@ -439,14 +439,19 @@ async function apiCall(action, method = 'GET', body = null) {
     if (body) options.body = JSON.stringify(body);
     
     try {
+        console.log(`📡 API Request: ${method} ${url}`);
         const res = await fetch(url, options);
+        
         if (!res.ok) {
             console.error('API Error:', res.status);
             return { error: `HTTP ${res.status}` };
         }
-        return res.json();
+        
+        const data = await res.json();
+        console.log(`✅ API Response:`, data);
+        return data;
     } catch (e) {
-        console.error('Fetch Error:', e);
+        console.error('❌ Fetch Error:', e);
         return { error: e.message };
     }
 }
@@ -516,7 +521,6 @@ function renderChatList() {
         const isActive = chat.id === activeChatId;
         const avatar = chat.avatar || getAvatarUrl(chat.username);
         const lastMsg = chat.last_message || 'Нет сообщений';
-        // Если сообщение от другого пользователя, показываем кто написал
         const lastMsgDisplay = chat.last_sender && chat.last_sender !== currentUserId
             ? `<span class="sender">${chat.last_sender_name || 'Кто-то'}:</span> ${lastMsg}`
             : lastMsg;
@@ -559,7 +563,6 @@ function renderMessages(chatId) {
         const readStatus = msg.read ? '✓✓' : '✓';
         const isRead = msg.read;
         const avatar = msg.avatar || getAvatarUrl(msg.sender_name);
-        // Показываем имя отправителя
         const senderName = msg.sender_name || msg.sender_id || 'Unknown';
         
         return `
@@ -647,7 +650,7 @@ async function sendMessage() {
     input.value = '';
     
     // Отправляем на сервер
-    const result = await apiCall('sendMessage', 'POST', {
+    await apiCall('sendMessage', 'POST', {
         chat_id: activeChatId,
         sender_id: currentUserId,
         text: text
@@ -787,7 +790,7 @@ document.getElementById('searchUsersInput').addEventListener('input', (e) => {
 // При закрытии
 window.addEventListener('beforeunload', () => {
     if (currentUserId) {
-        navigator.sendBeacon('/api/guys?action=setOffline', 
+        navigator.sendBeacon('https://rcatcloud2.vercel.app/api/guys?action=setOffline', 
             JSON.stringify({ telegram_id: currentUserId })
         );
     }
