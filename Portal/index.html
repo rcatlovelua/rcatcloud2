@@ -98,11 +98,20 @@ async function loadProfile() {
     const params = new URLSearchParams(window.location.search);
     let userId = localStorage.getItem("telegram_id");
 
-    // Если мы только что пришли после логина (параметры в URL)
+    // Если пришли с параметрами после логина
     if (params.get("id")) {
         userId = params.get("id");
         localStorage.setItem("telegram_id", userId);
-        // Очищаем URL от параметров для красоты
+        
+        // Сохраняем доп. данные если есть
+        if (params.get("username")) {
+            localStorage.setItem("telegram_username", params.get("username"));
+        }
+        if (params.get("first_name")) {
+            localStorage.setItem("telegram_first_name", params.get("first_name"));
+        }
+        
+        // Очищаем URL
         window.history.replaceState({}, document.title, window.location.pathname);
     }
 
@@ -112,11 +121,12 @@ async function loadProfile() {
     }
 
     try {
-        // Стучимся в твой API на Vercel
+        // Стучимся в API
         const res = await fetch(`/api/getUser?id=${userId}`);
         
         if (!res.ok) {
-            showGuest();
+            // Если API недоступен - показываем данные из localStorage
+            showLocalUser();
             return;
         }
 
@@ -124,30 +134,61 @@ async function loadProfile() {
 
         if (data.exists) {
             renderUser(data);
-            // Если есть Плюс — включаем значок
             if (data.has_plus) {
                 document.getElementById("plusBadge").style.display = "inline-block";
             }
         } else {
-            showGuest();
+            // Аккаунт не найден в БД, но есть в localStorage
+            showLocalUser();
         }
 
     } catch (err) {
         console.error("Ошибка API:", err);
-        showGuest();
+        // Fallback на localStorage
+        showLocalUser();
     }
 }
 
-// Отрисовка профиля (Material 3 style)
+// Показываем пользователя из localStorage (если API недоступен)
+function showLocalUser() {
+    const userId = localStorage.getItem("telegram_id");
+    const username = localStorage.getItem("telegram_username") || 'unknown';
+    const firstName = localStorage.getItem("telegram_first_name") || 'Пользователь';
+    
+    if (!userId) {
+        showGuest();
+        return;
+    }
+    
+    document.getElementById("content").innerHTML = `
+        <div class="profile" style="animation: fadeIn 0.5s ease;">
+            <h2 style="margin-bottom:5px; font-weight: 600;">${firstName}</h2>
+            <p style="color: #888; font-size: 14px; margin-bottom: 20px;">@${username}</p>
+            
+            <div style="background: rgba(255,255,255,0.03); padding: 16px; border: 1px solid #2c2c2c; border-radius: 16px; margin-bottom: 24px;">
+                <p style="color: #666; font-size: 12px; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px;">Telegram ID</p>
+                <code style="font-family: monospace; font-size: 16px; color: #fff;">${userId}</code>
+                <p style="color: #ffaa00; font-size: 11px; margin-top: 8px;">⚠️ Локальный режим (API недоступен)</p>
+            </div>
+
+            <button onclick="logout()" class="btn" style="background: transparent; color: #ff4444; border: 1px solid #442222;">
+                Выйти из аккаунта
+            </button>
+        </div>
+    `;
+}
+
+// Отрисовка профиля из API
 function renderUser(user) {
     document.getElementById("content").innerHTML = `
         <div class="profile" style="animation: fadeIn 0.5s ease;">
-            <h2 style="margin-bottom:5px; font-weight: 600;">${user.first_name || user.username}</h2>
-            <p style="color: #888; font-size: 14px; margin-bottom: 20px;">@${user.username}</p>
+            <h2 style="margin-bottom:5px; font-weight: 600;">${user.first_name || user.username || 'Пользователь'}</h2>
+            <p style="color: #888; font-size: 14px; margin-bottom: 20px;">@${user.username || 'unknown'}</p>
             
             <div style="background: rgba(255,255,255,0.03); padding: 16px; border: 1px solid #2c2c2c; border-radius: 16px; margin-bottom: 24px;">
                 <p style="color: #666; font-size: 12px; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px;">Telegram ID</p>
                 <code style="font-family: monospace; font-size: 16px; color: #fff;">${user.telegram_id}</code>
+                ${user.has_plus ? '<p style="color: gold; margin-top: 8px;">⭐ PLUS активирован</p>' : ''}
             </div>
 
             <button onclick="logout()" class="btn" style="background: transparent; color: #ff4444; border: 1px solid #442222;">
@@ -161,19 +202,16 @@ function renderUser(user) {
 function showGuest() {
     document.getElementById("content").innerHTML = `
         <div class="ghost" style="margin-bottom: 10px;">👻</div>
-        <p style="color: #888; margin-bottom: 20px;">Вы не авторизованы или аккаунт не найден</p>
-        <a href="redirect/tg" class="btn">Открыть бота для авторатизации в дб.</a>
+        <p style="color: #888; margin-bottom: 20px;">Вы не авторизованы</p>
         <a href="Auth.html" class="btn">Войти через Telegram</a>
     `;
 }
 
-// Выход
 function logout() {
-    localStorage.removeItem("telegram_id");
+    localStorage.clear(); // Очищаем всё
     window.location.href = "Auth.html";
 }
 
-// Точка входа
 document.addEventListener("DOMContentLoaded", loadProfile);
 </script>
 
