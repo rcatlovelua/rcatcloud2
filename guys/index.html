@@ -593,6 +593,7 @@ function getAvatarUrl(username) {
 }
 
 // ===================== UNIFIED API =====================
+// Пример вызова
 async function apiCall(action, method = 'GET', body = null) {
     const url = `${API_BASE}?action=${action}`;
     const options = {
