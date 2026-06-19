@@ -412,16 +412,12 @@ let currentUserId = null;
 let currentUser = null;
 let activeChatId = null;
 let chats = [];
-let messagesCache = {};  // кэш сообщений по chat_id
+let messagesCache = {};
 let allUsers = [];
 
 // ===================== УТИЛИТЫ =====================
 function getTelegramId() {
     return localStorage.getItem(TELEGRAM_ID_KEY);
-}
-
-function getChatId(user1, user2) {
-    return [String(user1), String(user2)].sort().join('_');
 }
 
 function formatTime(ts) {
@@ -497,8 +493,10 @@ async function loadData() {
             username: u.username,
             online: u.online || false,
             last_seen: u.last_seen,
-            last_message: '',
-            last_sender: '',
+            last_message: 'Нет сообщений',
+            last_sender: null,
+            last_sender_name: null,
+            last_msg_time: null,
             unread: 0,
             avatar: u.avatar || getAvatarUrl(u.username)
         }));
@@ -506,11 +504,30 @@ async function loadData() {
     // Ставим онлайн
     await apiCall('setOnline', 'POST', { telegram_id: currentUserId });
     
+    // Загружаем последние сообщения для всех чатов
+    await loadAllLastMessages();
+    
     renderChatList();
     
     // Открываем первый чат
     if (chats.length > 0) {
         await openChat(chats[0].id);
+    }
+}
+
+// ===================== ЗАГРУЗКА ПОСЛЕДНИХ СООБЩЕНИЙ =====================
+async function loadAllLastMessages() {
+    for (const chat of chats) {
+        const msgs = await apiCall(`getMessages&chat_id=${chat.id}`);
+        if (msgs && msgs.length > 0) {
+            const lastMsg = msgs[msgs.length - 1];
+            chat.last_message = lastMsg.text || 'Сообщение';
+            chat.last_sender = lastMsg.sender_id;
+            chat.last_sender_name = lastMsg.sender_name;
+            chat.last_msg_time = lastMsg.created_at;
+            // Кэшируем сообщения
+            messagesCache[chat.id] = msgs;
+        }
     }
 }
 
@@ -538,7 +555,7 @@ function renderChatList() {
         const isActive = chat.id === activeChatId;
         const avatar = chat.avatar || getAvatarUrl(chat.username);
         const lastMsg = chat.last_message || 'Нет сообщений';
-        const lastMsgDisplay = chat.last_sender && chat.last_sender !== currentUserId
+        const lastMsgDisplay = chat.last_sender && String(chat.last_sender) !== String(currentUserId)
             ? `<span class="sender">${chat.last_sender_name || 'Кто-то'}:</span> ${lastMsg}`
             : lastMsg;
         
@@ -629,21 +646,26 @@ function updateChatHeader(chatId) {
 async function openChat(chatId) {
     if (!chatId) return;
     
-    // Обновляем активный чат
     activeChatId = chatId;
     
-    // Обновляем список чатов (подсветка активного)
-    renderChatList();
-    
-    // Обновляем хедер
-    updateChatHeader(chatId);
-    
-    // Загружаем сообщения, если их нет в кэше
+    // Если сообщения не загружены — загружаем
     if (!messagesCache[chatId]) {
         const msgs = await apiCall(`getMessages&chat_id=${chatId}`);
         messagesCache[chatId] = msgs || [];
+        
+        // Обновляем последнее сообщение в списке чатов
+        const chat = chats.find(c => c.id === chatId);
+        if (chat && messagesCache[chatId].length > 0) {
+            const lastMsg = messagesCache[chatId][messagesCache[chatId].length - 1];
+            chat.last_message = lastMsg.text || 'Сообщение';
+            chat.last_sender = lastMsg.sender_id;
+            chat.last_sender_name = lastMsg.sender_name;
+            chat.last_msg_time = lastMsg.created_at;
+        }
     }
     
+    renderChatList();
+    updateChatHeader(chatId);
     renderMessages(chatId);
     
     // Отмечаем прочитанным
@@ -723,6 +745,10 @@ async function startNewChat(targetId) {
                 name: target.first_name || target.username,
                 username: target.username,
                 online: target.online || false,
+                last_message: 'Нет сообщений',
+                last_sender: null,
+                last_sender_name: null,
+                last_msg_time: null,
                 avatar: target.avatar || getAvatarUrl(target.username)
             });
             renderChatList();
@@ -765,15 +791,11 @@ function renderUserSearch(query) {
 // ===================== ИНИЦИАЛИЗАЦИЯ =====================
 document.addEventListener('DOMContentLoaded', loadData);
 
-// Кнопка отправки
 document.getElementById('sendBtn').addEventListener('click', sendMessage);
-
-// Enter для отправки
 document.getElementById('msgInput').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') sendMessage();
 });
 
-// Поиск чатов
 document.getElementById('searchInput').addEventListener('input', (e) => {
     const query = e.target.value.toLowerCase();
     const filtered = chats.filter(c => 
@@ -789,7 +811,7 @@ document.getElementById('searchInput').addEventListener('input', (e) => {
         const isActive = chat.id === activeChatId;
         const avatar = chat.avatar || getAvatarUrl(chat.username);
         const lastMsg = chat.last_message || 'Нет сообщений';
-        const lastMsgDisplay = chat.last_sender && chat.last_sender !== currentUserId
+        const lastMsgDisplay = chat.last_sender && String(chat.last_sender) !== String(currentUserId)
             ? `<span class="sender">${chat.last_sender_name || 'Кто-то'}:</span> ${lastMsg}`
             : lastMsg;
         
@@ -812,12 +834,10 @@ document.getElementById('searchInput').addEventListener('input', (e) => {
     }).join('');
 });
 
-// Поиск пользователей в модалке
 document.getElementById('searchUsersInput').addEventListener('input', (e) => {
     renderUserSearch(e.target.value);
 });
 
-// При закрытии страницы — офлайн
 window.addEventListener('beforeunload', () => {
     if (currentUserId) {
         navigator.sendBeacon('https://rcatcloud2.vercel.app/api/guys?action=setOffline', 
@@ -826,7 +846,7 @@ window.addEventListener('beforeunload', () => {
     }
 });
 
-// Realtime обновление статусов
+// Realtime обновление
 setInterval(async () => {
     try {
         const users = await apiCall('getUsers');
