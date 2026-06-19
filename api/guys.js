@@ -11,7 +11,10 @@ export default async function handler(req, res) {
   
   if (req.method === 'OPTIONS') return res.status(200).end();
   
+  // Правильно парсим action из query
   const { action } = req.query;
+  
+  console.log('Action:', action); // Для дебага в логах Vercel
   
   try {
     switch (action) {
@@ -32,10 +35,11 @@ export default async function handler(req, res) {
       case 'startChat':
         return await startChat(req, res);
       default:
-        return res.status(400).json({ error: 'Unknown action' });
+        return res.status(400).json({ error: `Unknown action: ${action}` });
     }
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    console.error('API Error:', err);
+    return res.status(500).json({ error: err.message, stack: err.stack });
   }
 }
 
@@ -50,12 +54,15 @@ async function getUser(req, res) {
     .eq('telegram_id', id)
     .single();
 
-  if (error || !user) return res.status(404).json({ exists: false });
+  if (error || !user) {
+    console.log('User not found:', id);
+    return res.status(200).json({ exists: false });
+  }
 
   return res.status(200).json({
     exists: true,
     ...user,
-    avatar: `https://unavatar.io/telegram/${user.username}`
+    avatar: user.username ? `https://unavatar.io/telegram/${user.username}` : null
   });
 }
 
@@ -70,7 +77,7 @@ async function getUsers(req, res) {
 
   const users = (data || []).map(u => ({
     ...u,
-    avatar: `https://unavatar.io/telegram/${u.username}`
+    avatar: u.username ? `https://unavatar.io/telegram/${u.username}` : null
   }));
 
   return res.status(200).json(users);
@@ -90,7 +97,7 @@ async function getMessages(req, res) {
 
   if (error) throw error;
 
-  // Добавляем аватары для отправителей
+  // Добавляем аватары
   const messagesWithAvatars = await Promise.all((data || []).map(async (msg) => {
     if (msg.sender_id) {
       const { data: user } = await supabase
@@ -203,7 +210,7 @@ async function startChat(req, res) {
     return res.status(400).json({ error: 'user_id and target_id required' });
   }
 
-  // Создаем уникальный ID чата (сортируем ID для консистентности)
+  // Создаем уникальный ID чата
   const chatId = [user_id, target_id].sort().join('_');
   
   // Проверяем, существует ли уже чат
@@ -211,7 +218,7 @@ async function startChat(req, res) {
     .from('portal_chats')
     .select('chat_id')
     .eq('chat_id', chatId)
-    .single();
+    .maybeSingle();
 
   if (!existing) {
     // Создаем новый чат
