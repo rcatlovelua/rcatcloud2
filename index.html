@@ -3,14 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>В разработке</title>
+    <title>JustRcat — Просто ркат. Простые идеи.</title>
+    <meta name="description" content="Личный сайт JustRcat. Проекты, моды и идеи.">
     
+    <!-- Preconnect для ускорения загрузки ресурсов -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://dump.justrcat.lol">
+
     <!-- Geist Font через CDN -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css">
 
     <style>
         /* ==========================================
-           1. ПОДКЛЮЧЕНИЕ ПИКСЕЛЬНОГО ШРИФТА FFFLAUTA
+           1. ПЕРЕМЕННЫЕ И СБРОС СТИЛЕЙ
+           ========================================== */
+        :root {
+            --bg-main: #0b0d10;
+            --bg-card: #12151c;
+            --border-card: #1e2330;
+            --border-card-hover: #2a3245;
+            
+            --color-primary: #1d6aff;
+            --color-primary-hover: #3b82f6;
+            --color-green: #10b981;
+            --color-disabled: #374151;
+            
+            --text-main: #ffffff;
+            --text-body: #888d96;
+            --text-muted: #6a707c;
+            --text-sub: #a0a6b2;
+            --text-footer: #525866;
+
+            --font-main: 'Geist Sans', 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-flauta: 'FFFlauta', monospace, sans-serif;
+            --font-mc: 'Minecraft', monospace;
+        }
+
+        /* ==========================================
+           2. ПОДКЛЮЧЕНИЕ ШРИФТОВ
            ========================================== */
         @font-face {
             font-family: 'FFFlauta';
@@ -22,70 +52,88 @@
             font-display: swap;
         }
 
+        @font-face {
+            font-family: 'Minecraft';
+            src: url('https://dump.justrcat.lol/fonts/minecraft.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
         /* ==========================================
-           2. СТИЛИ СТРАНИЦЫ
+           3. Базовые стили
            ========================================== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            border-radius: 0 !important; /* Строгий пиксельный стиль без скруглений */
         }
 
         body {
-            font-family: 'Geist Sans', 'Geist', -apple-system, sans-serif;
-            background-color: #0b0d10;
-            color: #888d96;
+            font-family: var(--font-main);
+            background-color: var(--bg-main);
+            color: var(--text-body);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
             padding: 20px;
             position: relative;
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Фоновый свет СВЕРХУ */
+        /* Адаптивный фоновый свечение */
         body::before {
             content: '';
             position: absolute;
             top: -100px;
-            width: 400px;
-            height: 400px;
+            width: clamp(250px, 40vw, 450px);
+            height: clamp(250px, 40vw, 450px);
             background: rgba(29, 106, 255, 0.15);
             filter: blur(140px);
-            border-radius: 50%;
             z-index: 0;
             pointer-events: none;
         }
 
-        /* Фоновый свет СНИЗУ */
         body::after {
             content: '';
             position: absolute;
             bottom: -100px;
-            width: 450px;
-            height: 450px;
+            width: clamp(250px, 45vw, 500px);
+            height: clamp(250px, 45vw, 500px);
             background: rgba(29, 106, 255, 0.12);
             filter: blur(150px);
-            border-radius: 50%;
             z-index: 0;
             pointer-events: none;
         }
 
-        .container {
+        main.container {
             position: relative;
             z-index: 1;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 40px;
-            max-width: 850px;
+            max-width: 900px;
             width: 100%;
             margin: auto 0;
         }
 
-        /* Стили картинки слева */
+        /* ==========================================
+           4. HERO СЕКЦИЯ
+           ========================================== */
+        .hero-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            width: 100%;
+        }
+
         .side-image {
             width: 100%;
             max-width: 240px;
@@ -94,6 +142,7 @@
             object-fit: contain;
             flex-shrink: 0;
             filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
+            user-select: none;
         }
 
         .content {
@@ -101,49 +150,147 @@
             max-width: 480px;
         }
 
-        /* ЗАГОЛОВОК */
         h1 {
-            font-family: 'FFFlauta', monospace, sans-serif;
-            font-size: clamp(2rem, 5vw, 3.5rem);
-            color: rgba(29, 106, 255, 1);
-            margin-bottom: 16px;
-            line-height: 1;
+            font-family: var(--font-flauta);
+            font-size: clamp(2.2rem, 5vw, 3.5rem);
+            color: var(--color-primary);
+            margin-bottom: 12px;
+            line-height: 1.1;
             white-space: nowrap;
-            
-            -webkit-font-smoothing: none;
-            -moz-osx-font-smoothing: unset;
-            text-rendering: optimizeSpeed;
+            image-rendering: pixelated;
         }
 
-        /* ПОДЗАГОЛОВОК */
         .subtitle {
             font-size: clamp(1rem, 2vw, 1.25rem);
-            color: #a0a6b2;
+            color: var(--text-sub);
             font-weight: 500;
             margin-bottom: 12px;
         }
 
-        /* ТЕКСТ */
         p {
             font-size: 0.95rem;
-            color: #6a707c;
+            color: var(--text-muted);
             line-height: 1.6;
         }
 
         /* ==========================================
-           3. ФУТЕР (ВНИЗУ)
+           5. СЕТКА КАРТОЧЕК (MINECRAFT СТИЛЬ)
+           ========================================== */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-card);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+            font-family: var(--font-mc);
+            image-rendering: pixelated;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--border-card-hover);
+        }
+
+        .card-stripe {
+            height: 4px;
+            width: 100%;
+            background-color: var(--color-primary);
+        }
+
+        .card-stripe.green { 
+            background-color: var(--color-green); 
+        }
+
+        .card-image {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-bottom: 1px solid var(--border-card);
+            background-color: #0d0f14;
+        }
+
+        .card-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .card-text {
+            font-size: 0.85rem;
+            color: var(--text-body);
+            line-height: 1.5;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        /* Квадратная кнопка / ссылка */
+        .card-button-sq {
+            width: 42px;
+            height: 42px;
+            background-color: var(--color-primary);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mc);
+            font-size: 1.2rem;
+            text-decoration: none;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .card-button-sq:hover {
+            background-color: var(--color-primary-hover);
+        }
+
+        .card-button-sq:active {
+            transform: scale(0.95);
+        }
+
+        .card-button-sq.disabled {
+            background-color: var(--color-disabled);
+            cursor: not-allowed;
+            color: var(--text-muted);
+        }
+
+        /* ==========================================
+           6. ФУТЕР И АДОПТИВ
            ========================================== */
         footer {
             position: relative;
             z-index: 1;
-            margin-top: auto;
-            padding-top: 20px;
+            width: 100%;
+            padding-top: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 16px;
             font-size: 0.85rem;
-            color: #525866;
+            color: var(--text-footer);
             flex-wrap: wrap;
         }
 
@@ -151,26 +298,30 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            color: #888d96;
+            color: var(--text-body);
             text-decoration: none;
-            transition: color 0.2s ease, opacity 0.2s ease;
+            transition: color 0.2s ease;
         }
 
         .github-link:hover {
-            color: rgba(29, 106, 255, 1);
-            opacity: 0.9;
+            color: var(--color-primary);
         }
 
         .github-icon {
             width: 20px;
             height: 20px;
             object-fit: contain;
-            border-radius: 4px; /* Квадратная иконка */
         }
 
-        /* Адаптив для мобилок */
+        /* Управление фокусом с клавиатуры */
+        a:focus-visible,
+        button:focus-visible {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+
         @media (max-width: 768px) {
-            .container {
+            .hero-section {
                 flex-direction: column;
                 text-align: center;
             }
@@ -192,37 +343,93 @@
 </head>
 <body>
 
-    <div class="container">
-        <!-- Картинка слева -->
-        <img 
-            src="https://dump.justrcat.lol/images/cute-sit-mc.webp" 
-            alt="Illustration" 
-            class="side-image"
-            width="640" 
-            height="889"
-        >
+    <main class="container">
+        <!-- Главный промо-блок -->
+        <section class="hero-section">
+            <img 
+                src="https://dump.justrcat.lol/images/cute-sit-mc.webp" 
+                alt="Иллюстрация персонажа JustRcat" 
+                class="side-image"
+                width="640" 
+                height="889"
+                loading="eager"
+            >
 
-        <!-- Основной контент справа -->
-        <div class="content">
-            <h1>IN DEV</h1>
-            
-            <div class="subtitle">Скоро здесь появится кое-что интересное</div>
-            
-            <p>Мы работаем над сайтом. Вернемся совсем скоро с обновленным функционалом и новым дизайном.</p>
-        </div>
-    </div>
+            <div class="content">
+                <h1>JustRcat</h1>
+                <div class="subtitle">Просто ркат. Простые идеи.</div>
+            </div>
+        </section>
 
+        <!-- Сетка с карточками проектов -->
+        <section class="cards-grid" aria-label="Проекты">
+            
+            <!-- Карточка 1 (Yahooste) -->
+            <article class="card">
+                <div class="card-stripe"></div>
+                <img 
+                    src="https://github.com/rcatlovelua/Yahooste/blob/main/.not-for-mod-srcc/yahoostee.jpg?raw=true" 
+                    alt="Превью мода Yahooste" 
+                    class="card-image"
+                    loading="lazy"
+                >
+                <div class="card-body">
+                    <h2 class="card-title">Мод "Yahooste"</h2>
+                    <p class="card-text">Yahooste (Yahoo + Paste) — простой мод для сохранения и быстрой вставки фрагментов текста в чат, которые утомительно набирать вручную.</p>
+                    <div class="card-footer">
+                        <a 
+                            href="https://modrinth.com/mod/yahooste" 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            class="card-button-sq" 
+                            title="Открыть мод на Modrinth"
+                            aria-label="Перейти на страницу мода Yahooste"
+                        >→</a>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Карточка 2 (Broken Dream) -->
+            <article class="card">
+                <div class="card-stripe green"></div>
+                <img 
+                    src="https://dump.justrcat.lol/images/future_preview.webp" 
+                    alt="Превью проекта Broken Dream в Minecraft" 
+                    class="card-image"
+                    loading="lazy"
+                >
+                <div class="card-body">
+                    <h2 class="card-title">Прошлое будущее из Broken Dream в Minecraft</h2>
+                    <p class="card-text">Прошлое будущее — вторая мечта в главе 2 игры Broken Dream. Этот город соответствует популярной эстетике Frutiger Aero. Скоро вы сможете оценить его на сервере Flowerense!</p>
+                    <div class="card-footer">
+                        <span 
+                            class="card-button-sq disabled" 
+                            title="Достройка в процессе" 
+                            aria-disabled="true"
+                        >?</span>
+                    </div>
+                </div>
+            </article>
+
+        </section>
+    </main>
+    
     <!-- Футер -->
     <footer>
         <span>jr (MIT-Лицензия)</span>
         <span>•</span>
-        <a href="https://github.com/rcatlovelua/rcatcloud2" target="_blank" rel="noopener noreferrer" class="github-link">
-            <span>Justrcat на GitHub:</span>
-            <img src="https://dump.justrcat.lol/images/github-big.svg" alt="GitHub" class="github-icon">
+        <a 
+            href="https://github.com/rcatlovelua/rcatcloud2" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            class="github-link"
+        >
+            <span>Justrcat на GitHub</span>
+            <img src="https://dump.justrcat.lol/images/github-big.svg" alt="" class="github-icon" aria-hidden="true">
         </a>
     </footer>
 
-    <!-- Пасхалка в консоли (Discord style) -->
+    <!-- Пасхалка в консоли -->
     <script>
         console.log(
             "%c Привет! %c\n\nПриходи помогать с кодом: https://justrcat.lol/yawork",
