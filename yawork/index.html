@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YaWork! В разработке</title>
+    
+    <!-- Geist Font через CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css">
+
+    <style>
+        /* ==========================================
+           1. ПОДКЛЮЧЕНИЕ ПИКСЕЛЬНОГО ШРИФТА FFFLAUTA
+           ========================================== */
+        @font-face {
+            font-family: 'FFFlauta';
+            src: url('https://dump.justrcat.lol/fonts/ffflauta/FFFlauta-Regular.woff2') format('woff2'),
+                 url('https://dump.justrcat.lol/fonts/ffflauta/FFFlauta-Regular.ttf') format('truetype'),
+                 local('FFFlauta');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        /* ==========================================
+           2. СТИЛИ СТРАНИЦЫ
+           ========================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Geist Sans', 'Geist', -apple-system, sans-serif;
+            background-color: #ffffff; /* Светлый фон */
+            color: #111111; /* Тёмный текст */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-width: 850px;
+            width: 100%;
+            margin: auto 0;
+        }
+
+        .content {
+            text-align: center;
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Иконка проекта */
+        .project-icon {
+            width: 64px;
+            height: 64px;
+            object-fit: contain;
+            margin-bottom: 20px;
+            border-radius: 0; /* Без закруглений */
+        }
+
+        /* ЗАГОЛОВОК */
+        h1 {
+            font-family: 'FFFlauta', monospace, sans-serif;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            color: #000000;
+            margin-bottom: 16px;
+            line-height: 1;
+            white-space: nowrap;
+            
+            -webkit-font-smoothing: none;
+            -moz-osx-font-smoothing: unset;
+            text-rendering: optimizeSpeed;
+        }
+
+        /* ПОДЗАГОЛОВОК */
+        .subtitle {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            color: #222222;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        /* ТЕКСТ */
+        p {
+            font-size: 0.95rem;
+            color: #444444;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+p2 {
+            font-size: 1rem;
+            color: #ADADAD;
+            line-height: 0.1;
+            margin-bottom: 1px;
+        }
+        /* КНОПКА (СТРОГО БЕЗ ЗАКРУГЛЕНИЙ) */
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            background-color: #000000;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 0 !important; /* Острые углы */
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            border: 1px solid #000000;
+        }
+
+        .cta-button:hover {
+            background-color: #222222;
+        }
+
+        .cta-button:active {
+            transform: translateY(1px);
+        }
+
+        .tg-icon {
+            width: 200px;
+            height: 100px;
+            object-fit: contain;
+            filter: invert(1); /* Делает иконку белой внутри черной кнопки */
+        }
+
+        /* ==========================================
+           3. ФУТЕР
+           ========================================== */
+        footer {
+            position: relative;
+            z-index: 1;
+            margin-top: auto;
+            padding-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            font-size: 0.85rem;
+            color: #666666;
+            flex-wrap: wrap;
+        }
+
+        .github-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #222222;
+            text-decoration: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .github-link:hover {
+            opacity: 0.7;
+        }
+
+        .github-icon {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+            border-radius: 0; /* Без закруглений */
+        }
+
+
+        /* Адаптив для мобилок */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            footer {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="content">
+            <!-- Иконка проекта -->
+            <img src="https://dump.justrcat.lol/images/iconblack.png" alt="YaWork! Icon" class="project-icon">
+
+            <h1>YAwork!</h1>
+            
+            <div class="subtitle">Приходи писать код!</div>
+            
+            <p>JR (Justrcat) - комманда пока(?) из 1 человека которая пишет всякие проекты к соожалению бесплатно/очень нищево и по рофлу.</p>
+
+            <!-- Кнопка к Telegram -->
+            <a href="https://t.me/rccstu" target="_blank" rel="noopener noreferrer" class="cta-button">
+                <span>Хочу страдать хуйнёй!</span>
+                <img src="https://dump.justrcat.lol/images/tgblack.png" alt="Telegram" class="tg-icon">
+            </a>
+        </div>
+    </div>
+
+    <!-- Футер -->
+    <footer>
+<p2>Всё что начинается на YA - является не jr а самого рката |</p2>
+        <span>jr (MIT-Лицензия)</span>
+        <span>•</span>
+        <a href="https://github.com/rcatlovelua/rcatcloud2" target="_blank" rel="noopener noreferrer" class="github-link">
+            <span2>Justrcat на GitHub:</span2>
+            <img src="https://dump.justrcat.lol/images/github-big.svg" alt="GitHub" class="github-icon">
+        </a>
+    </footer>
+
+    <!-- Пасхалка в консоли -->
+    <script>
+        console.log(
+            "%c Привет! %c\n\nПриходи помогать с кодом: https://t.me/rccstu",
+            "color: #000000; font-size: 32px; font-weight: bold;",
+            "color: #555555; font-size: 16px; font-weight: 500;"
+        );
+    </script>
+
+</body>
+</html>
