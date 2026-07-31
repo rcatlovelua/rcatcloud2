@@ -4,8 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JustRcat — Просто ркат. Простые идеи.</title>
-    <meta name="description" content="Личный сайт JustRcat. Проекты, моды и идеи.">
-    
+    <meta name="description" content="Личный сайт JustRcat. Проекты, моды и идеи для Minecraft.">
+    <meta name="theme-color" content="#0b0d10">
+    <meta name="color-scheme" content="dark">
+
+    <!-- Open Graph / соцсети -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="JustRcat — Просто ркат. Простые идеи.">
+    <meta property="og:description" content="Личный сайт JustRcat. Проекты, моды и идеи для Minecraft.">
+    <meta property="og:image" content="https://dump.justrcat.lol/images/cute-sit-mc.webp">
+    <meta property="og:locale" content="ru_RU">
+    <meta name="twitter:card" content="summary_large_image">
+
     <!-- Preconnect для ускорения загрузки ресурсов -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link rel="preconnect" href="https://dump.justrcat.lol">
@@ -26,6 +36,7 @@
             --color-primary: #1d6aff;
             --color-primary-hover: #3b82f6;
             --color-green: #10b981;
+            --color-white: #e5e7eb;
             --color-disabled: #374151;
             
             --text-main: #ffffff;
@@ -156,7 +167,7 @@
             color: var(--color-primary);
             margin-bottom: 12px;
             line-height: 1.1;
-            white-space: nowrap;
+            word-break: break-word;
             image-rendering: pixelated;
         }
 
@@ -209,7 +220,7 @@
         .card-stripe.green { 
             background-color: var(--color-green); 
         }
-        .card-stripe.white{ 
+        .card-stripe.white { 
             background-color: var(--color-white); 
         }
 
@@ -414,24 +425,23 @@
                 </div>
             </article>
 <article class="card">
-                <div class="card-stripe.white"></div>
+                <div class="card-stripe white"></div>
                 <img 
                     src="https://dump.justrcat.lol/images/yawork.webp" 
-                    alt="Превью мода Yahooste" 
+                    alt="Превью раздела «Работай на джр»" 
                     class="card-image"
                     loading="lazy"
                 >
                 <div class="card-body">
                     <h2 class="card-title">Работай на джр</h2>
-                    <p class="card-text">Зарпалта: Стоны в гс</p>
+                    <p class="card-text">Зарплата: стоны в гс.</p>
                     <div class="card-footer">
                         <a 
-                            href="yawork" 
-                            target="_blank" 
+                            href="/yawork" 
                             rel="noopener noreferrer" 
                             class="card-button-sq" 
                             title="Хочу"
-                            aria-label="Погнали чо"
+                            aria-label="Перейти в раздел «Работай на джр»"
                         >></a>
                     </div>
                 </div>
