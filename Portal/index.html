@@ -1,264 +1,100 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RCS Portal</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 — Вход приостановлен | JustRcat</title>
+    
+    <!-- Preconnect -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://dump.justrcat.lol">
 
-<style>
-body {
-    margin: 0;
-    font-family: Inter, sans-serif;
-    background: #000;
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
+    <!-- Geist Font -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css">
 
-/* контейнер */
-.container {
-    border: 1px solid #2c2c2c;
-    border-radius: 24px;
-    padding: 40px;
-    width: 400px;
-    text-align: center;
-}
+    <style>
+        :root {
+            --bg-main: #0b0d10;
+            --bg-card: #12151c;
+            --border-card: #1e2330;
+            --color-primary: #1d6aff;
+            --color-primary-hover: #3b82f6;
+            --color-red: #ef4444;
+            --text-main: #ffffff;
+            --text-body: #888d96;
+            --text-muted: #6a707c;
+            --font-main: 'Geist Sans', -apple-system, sans-serif;
+            --font-flauta: 'FFFlauta', monospace;
+            --font-mc: 'Minecraft', monospace;
+        }
 
-/* заголовок */
-h1 {
-    font-size: 32px;
-    margin-bottom: 20px;
-}
+        * { margin: 0; padding: 0; box-sizing: border-box; border-radius: 0 !important; }
 
-.rcs {
-    color: white;
-}
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-main);
+            color: var(--text-body);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
-.portal {
-    color: #8b5cf6;
-}
+        main.container {
+            max-width: 650px;
+            width: 100%;
+        }
 
-/* плюс */
-.plus {
-    color: gold;
-    font-size: 14px;
-    margin-left: 6px;
-}
+        .error-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-card);
+            width: 100%;
+        }
 
-/* профиль */
-.profile {
-    margin-top: 20px;
-}
+        .card-stripe { height: 4px; width: 100%; background-color: var(--color-red); }
 
-/* кнопка */
-.btn {
-    margin-top: 30px;
-    background: white;
-    color: black;
-    padding: 12px;
-    border-radius: 12px;
-    text-decoration: none;
-    display: inline-block;
-    width: 100%;
-    font-weight: 500;
-    box-sizing: border-box;
-    cursor: pointer;
-    border: none;
-    font-family: inherit;
-    font-size: 15px;
-}
+        .card-body { padding: 30px; display: flex; flex-direction: column; gap: 16px; }
 
-.btn:hover {
-    background: #e5e5e5;
-}
+        h1.error-code { font-family: var(--font-flauta); font-size: 5rem; color: var(--color-red); line-height: 1; }
 
-/* призрак */
-.ghost {
-    font-size: 60px;
-    opacity: 0.7;
-    margin-top: 20px;
-}
+        .error-title { font-size: 1.5rem; color: var(--text-main); }
 
-.loading-text {
-    color: #888;
-    animation: pulse 1.5s infinite;
-}
+        .error-text { font-size: 1rem; color: var(--text-body); line-height: 1.6; }
 
-@keyframes pulse {
-    0%, 100% { opacity: 0.5; }
-    50% { opacity: 1; }
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-</style>
+        .status-box {
+            background-color: rgba(239, 68, 68, 0.05);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 16px;
+            font-size: 0.9rem;
+            color: #ff9999;
+        }
+    </style>
 </head>
-
 <body>
 
-<div class="container">
+    <main class="container">
+        <article class="error-card">
+            <div class="card-stripe"></div>
+            <div class="card-body">
+                <h1 class="error-code">403</h1>
+                <h2 class="error-title">Вход приостановлен</h2>
+                
+                <p class="error-text">
+                    В соответствии с законодательством РФ использование иностранных сервисов ограничено. 
+                    Регистрация и вход в систему были приостановлены на неопределенное время.
+                </p>
 
-<h1>
-<span class="rcs">RCS</span>
-<span class="portal">Portal</span>
-<span id="plusBadge" class="plus" style="display:none;">★ PLUS</span>
-</h1>
-
-<div id="content">
-    <div class="loading-text">Загрузка...</div>
-</div>
-
-</div>
-
-<script>
-// Основная функция загрузки профиля
-async function loadProfile() {
-    const params = new URLSearchParams(window.location.search);
-    let userId = localStorage.getItem("telegram_id");
-
-    console.log('🔍 Проверка:', {
-        localStorage_id: localStorage.getItem("telegram_id"),
-        url_id: params.get("id"),
-        all_params: window.location.search
-    });
-
-    // Если пришли с параметрами после логина
-    if (params.get("id")) {
-        userId = params.get("id");
-        localStorage.setItem("telegram_id", userId);
-        
-        // Сохраняем доп. данные
-        if (params.get("username")) {
-            localStorage.setItem("telegram_username", params.get("username"));
-        }
-        if (params.get("first_name")) {
-            localStorage.setItem("telegram_first_name", params.get("first_name"));
-        }
-        
-        // Очищаем URL для красоты
-        window.history.replaceState({}, document.title, '/Portal/');
-    }
-
-    if (!userId) {
-        console.log('❌ Нет telegram_id');
-        showGuest();
-        return;
-    }
-
-    console.log('✅ Найден telegram_id:', userId);
-
-    try {
-        // Запрос к API
-        const apiUrl = `https://rcatcloud2.vercel.app/api/getUser?id=${userId}`;
-        console.log('🌐 Запрос к API:', apiUrl);
-        
-        const res = await fetch(apiUrl);
-        
-        if (!res.ok) {
-            console.log('⚠️ API ответил с ошибкой:', res.status);
-            showLocalUser(userId);
-            return;
-        }
-
-        const data = await res.json();
-        console.log('📦 Ответ API:', data);
-
-        if (data.exists) {
-            renderUser(data);
-            if (data.has_plus) {
-                document.getElementById("plusBadge").style.display = "inline-block";
-            }
-        } else {
-            console.log('👤 Пользователь не найден в БД, показываем локальные данные');
-            showLocalUser(userId);
-        }
-
-    } catch (err) {
-        console.error('💥 Ошибка API:', err);
-        showLocalUser(userId);
-    }
-}
-
-// Показываем пользователя из localStorage
-function showLocalUser(userId) {
-    const username = localStorage.getItem("telegram_username") || 'unknown';
-    const firstName = localStorage.getItem("telegram_first_name") || 'Пользователь';
-    
-    document.getElementById("content").innerHTML = `
-        <div class="profile" style="animation: fadeIn 0.5s ease;">
-            <h2 style="margin-bottom:5px; font-weight: 600;">${escapeHtml(firstName)}</h2>
-            <p style="color: #888; font-size: 14px; margin-bottom: 20px;">@${escapeHtml(username)}</p>
-            
-            <div style="background: rgba(255,255,255,0.03); padding: 16px; border: 1px solid #2c2c2c; border-radius: 16px; margin-bottom: 24px;">
-                <p style="color: #666; font-size: 12px; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px;">Telegram ID</p>
-                <code style="font-family: monospace; font-size: 16px; color: #fff;">${escapeHtml(userId)}</code>
-                <p style="color: #ffaa00; font-size: 11px; margin-top: 8px;">⚠️ Локальный режим</p>
+                <div class="status-box">
+                    Статус: Ожидание обновлений правового поля
+                </div>
             </div>
+        </article>
+    </main>
 
-            <button onclick="logout()" class="btn" style="background: transparent; color: #ff4444; border: 1px solid #442222;">
-                Выйти из аккаунта
-            </button>
-        </div>
-    `;
-}
-
-// Отрисовка профиля из API
-function renderUser(user) {
-    const firstName = user.first_name || user.username || 'Пользователь';
-    const username = user.username || 'unknown';
-    
-    document.getElementById("content").innerHTML = `
-        <div class="profile" style="animation: fadeIn 0.5s ease;">
-            <h2 style="margin-bottom:5px; font-weight: 600;">${escapeHtml(firstName)}</h2>
-            <p style="color: #888; font-size: 14px; margin-bottom: 20px;">@${escapeHtml(username)}</p>
-    
-
-            <button onclick="logout()" class="btn" style="background: transparent; color: #ff4444; border: 1px solid #442222;">
-                Выйти из аккаунта
-            </button>
-        </div>
-    `;
-}
-
-// Состояние гостя
-function showGuest() {
-    document.getElementById("content").innerHTML = `
-        <div class="ghost" style="margin-bottom: 10px;">👻</div>
-        <p style="color: #888; margin-bottom: 20px;">Вы не авторизованы</p>
-        <a href="/Auth.html" class="btn">Войти через Telegram</a>
-    `;
-}
-
-// Защита от XSS
-function escapeHtml(text) {
-    if (!text) return '';
-    return String(text)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-}
-
-// Выход
-function logout() {
-    localStorage.clear();
-    window.location.href = "/Auth.html";
-}
-
-// Запуск при загрузке
-document.addEventListener("DOMContentLoaded", loadProfile);
-</script>
-
+    <script>
+        console.log("%c 403 Forbidden: Сервис недоступен ", "color: #ef4444; font-weight: bold; font-size: 20px;");
+    </script>
 </body>
 </html>
