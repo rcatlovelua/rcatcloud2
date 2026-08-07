@@ -1,36 +1,32 @@
-import { next } from '@vercel/edge';
+import { NextResponse } from 'next/server';
 
-export const config = {
-  // Применяем middleware ко всем страницам, чтобы работали заголовки безопасности
-  matcher: '/((?!api|_next/static|_next/image|favicon.ico).*)',
-};
+// 1. Укажите двухбуквенные ISO-коды разрешённых стран
+const ALLOWED_COUNTRIES = ['RU', 'BY', 'KZ']; // Замените на ваши страны
 
-export default function middleware(req) {
-  const url = new URL(req.url);
-  const ua = req.headers.get('user-agent') || '';
+export function middleware(request) {
+  // 2. Получаем код страны из Vercel Geolocation API
+  const country = request.geo?.country || request.headers.get('x-vercel-ip-country');
 
-
-  if (url.pathname.startsWith('/RACOnlie/')) {
-    if (!ua.includes('Roblox')) {
-      return new Response(
-        JSON.stringify({ error: "Access Denied", message: "Roblox-only directory" }), 
-        { 
-          status: 403, 
-          headers: { 'content-type': 'application/json' } 
-        }
-      );
-    }
+  // 3. Если страна определена и её НЕТ в белом списке — перенаправляем
+  if (country && !ALLOWED_COUNTRIES.includes(country)) {
+    // NextResponse.rewrite сохраняет исходный URL, но показывает содержимое страницы 403.
+    // Если нужно именно изменить URL в браузере пользователя, замените .rewrite на .redirect
+    return NextResponse.rewrite(new URL('/403notbecauseyou.html', request.url));
   }
 
-  // 2. Если проверка пройдена или путь другой, отдаем страницу с вашими заголовками
-  return next({
-    headers: {
-      'Referrer-Policy': 'origin-when-cross-origin',
-      'X-Frame-Options': 'DENY',
-      'X-Content-Type-Options': 'nosniff',
-      'X-DNS-Prefetch-Control': 'on',
-      'Strict-Transport-Security':
-        'max-age=31536000; includeSubDomains; preload',
-    },
-  });
+  return NextResponse.next();
 }
+
+// 4. Важно: исключаем саму страницу 403 и статические файлы из проверки,
+// чтобы не получить бесконечный цикл редиректов.
+export const config = {
+  matcher: [
+    /*
+     * Применять middleware к всем маршрутам, КРОМЕ:
+     * - /403notbecauseyou.html (сама страница ошибки)
+     * - системных файлов (_next, favicon и т.д.)
+     * - статических ресурсов (картинки, CSS, JS)
+     */
+    '/((?!403notbecauseyou\\.html|_next/static|_next/image|favicon\\.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|css|js)$).*)',
+  ],
+};
