@@ -4,8 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JustRcat — Просто ркат. Простые идеи.</title>
-    <meta name="description" content="Личный сайт JustRcat. Проекты, моды и идеи.">
-    
+    <meta name="description" content="Личный сайт JustRcat. Проекты, моды и идеи для Minecraft.">
+    <meta name="theme-color" content="#0b0d10">
+    <meta name="color-scheme" content="dark">
+
+    <!-- Open Graph / соцсети -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="JustRcat — Просто ркат. Простые идеи.">
+    <meta property="og:description" content="Личный сайт JustRcat. Проекты, моды и идеи для Minecraft.">
+    <meta property="og:image" content="https://dump.justrcat.lol/images/cute-sit-mc.webp">
+    <meta property="og:locale" content="ru_RU">
+    <meta name="twitter:card" content="summary_large_image">
+
     <!-- Preconnect для ускорения загрузки ресурсов -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link rel="preconnect" href="https://dump.justrcat.lol">
@@ -26,6 +36,7 @@
             --color-primary: #1d6aff;
             --color-primary-hover: #3b82f6;
             --color-green: #10b981;
+            --color-white: #e5e7eb;
             --color-disabled: #374151;
             
             --text-main: #ffffff;
@@ -110,6 +121,20 @@
             pointer-events: none;
         }
 
+        /* Тонкая пиксельная сетка поверх фона */
+        .grid-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(42, 50, 69, 0.25) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(42, 50, 69, 0.25) 1px, transparent 1px);
+            background-size: 32px 32px;
+            mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.9), transparent 75%);
+            -webkit-mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.9), transparent 75%);
+        }
+
         main.container {
             position: relative;
             z-index: 1;
@@ -143,6 +168,12 @@
             flex-shrink: 0;
             filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
             user-select: none;
+            animation: float 5s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
         .content {
@@ -156,8 +187,26 @@
             color: var(--color-primary);
             margin-bottom: 12px;
             line-height: 1.1;
-            white-space: nowrap;
+            word-break: break-word;
             image-rendering: pixelated;
+            text-shadow: 0 0 24px rgba(29, 106, 255, 0.35);
+        }
+
+        /* Мигающий пиксельный курсор после заголовка */
+        h1::after {
+            content: '_';
+            color: var(--color-primary);
+            animation: blink 1.1s steps(1) infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            50.01%, 100% { opacity: 0; }
+        }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
         .subtitle {
@@ -190,15 +239,41 @@
             display: flex;
             flex-direction: column;
             position: relative;
-            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+            overflow: hidden;
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, box-shadow 0.2s ease;
             font-family: var(--font-mc);
             image-rendering: pixelated;
+            opacity: 0;
+            animation: rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
+
+        .card:nth-child(1) { animation-delay: 0.05s; }
+        .card:nth-child(2) { animation-delay: 0.15s; }
+        .card:nth-child(3) { animation-delay: 0.25s; }
 
         .card:hover {
             transform: translateY(-4px);
             border-color: var(--border-card-hover);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(29, 106, 255, 0.15);
         }
+
+        /* Бейдж статуса в углу карточки */
+        .card-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            z-index: 2;
+            font-family: var(--font-mc);
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 4px 8px;
+            color: var(--text-main);
+            background-color: var(--color-primary);
+        }
+
+        .card-badge.green { background-color: var(--color-green); }
+        .card-badge.muted { background-color: var(--color-disabled); color: var(--text-sub); }
 
         .card-stripe {
             height: 4px;
@@ -209,7 +284,7 @@
         .card-stripe.green { 
             background-color: var(--color-green); 
         }
-        .card-stripe.white{ 
+        .card-stripe.white { 
             background-color: var(--color-white); 
         }
 
@@ -219,6 +294,17 @@
             object-fit: cover;
             border-bottom: 1px solid var(--border-card);
             background-color: #0d0f14;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease;
+        }
+
+        .card:hover .card-image {
+            transform: scale(1.05);
+            filter: saturate(1.1) brightness(1.05);
+        }
+
+        /* Стрелка "плывёт" при наведении на карточку */
+        .card:hover .card-button-sq:not(.disabled) {
+            background-color: var(--color-primary-hover);
         }
 
         .card-body {
@@ -323,6 +409,16 @@
             outline-offset: 2px;
         }
 
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation: none !important;
+                transition: none !important;
+            }
+            .card { opacity: 1; }
+        }
+
         @media (max-width: 768px) {
             .hero-section {
                 flex-direction: column;
@@ -345,6 +441,8 @@
     </style>
 </head>
 <body>
+
+    <div class="grid-overlay" aria-hidden="true"></div>
 
     <main class="container">
         <!-- Главный промо-блок -->
@@ -370,6 +468,7 @@
             <!-- Карточка 1 (Yahooste) -->
             <article class="card">
                 <div class="card-stripe"></div>
+                <span class="card-badge">Мод</span>
                 <img 
                     src="https://github.com/rcatlovelua/Yahooste/blob/main/.not-for-mod-srcc/yahoostee.jpg?raw=true" 
                     alt="Превью мода Yahooste" 
@@ -395,6 +494,7 @@
             <!-- Карточка 2 (Broken Dream) -->
             <article class="card">
                 <div class="card-stripe green"></div>
+                <span class="card-badge muted">Скоро</span>
                 <img 
                     src="https://dump.justrcat.lol/images/future_preview.webp" 
                     alt="Превью проекта Broken Dream в Minecraft" 
@@ -414,24 +514,24 @@
                 </div>
             </article>
 <article class="card">
-                <div class="card-stripe.white"></div>
+                <div class="card-stripe white"></div>
+                <span class="card-badge green">Работа</span>
                 <img 
                     src="https://dump.justrcat.lol/images/yawork.webp" 
-                    alt="Превью мода Yahooste" 
+                    alt="Превью раздела «Работай на джр»" 
                     class="card-image"
                     loading="lazy"
                 >
                 <div class="card-body">
                     <h2 class="card-title">Работай на джр</h2>
-                    <p class="card-text">Зарпалта: Стоны в гс</p>
+                    <p class="card-text">Зарплата: стоны в гс.</p>
                     <div class="card-footer">
                         <a 
-                            href="yawork" 
-                            target="_blank" 
+                            href="/yawork" 
                             rel="noopener noreferrer" 
                             class="card-button-sq" 
                             title="Хочу"
-                            aria-label="Погнали чо"
+                            aria-label="Перейти в раздел «Работай на джр»"
                         >></a>
                     </div>
                 </div>
