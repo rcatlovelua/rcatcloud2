@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 // 1. Укажите двухбуквенные ISO-коды разрешённых стран
-const ALLOWED_COUNTRIES = ['RU', 'BY', 'KZ']; // Замените на ваши страны
+const ALLOWED_COUNTRIES = ['RU', 'BY', 'KZ', 'DE']; // Замените на ваши страны
 
 export function middleware(request) {
   // 2. Получаем код страны из Vercel Geolocation API
