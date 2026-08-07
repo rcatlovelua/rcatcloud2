@@ -1,3 +1,100 @@
-<script async src="https://oauth.telegram.org/js/telegram-login.js?5" data-client-id="8351626999" data-onauth="console.log(data)" data-request-access="write"></script>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 — Вход приостановлен | JustRcat</title>
+    
+    <!-- Preconnect -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://dump.justrcat.lol">
 
-<button class="tg-auth-button" data-style="shine">Sign In with Telegram</button>
+    <!-- Geist Font -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css">
+
+    <style>
+        :root {
+            --bg-main: #0b0d10;
+            --bg-card: #12151c;
+            --border-card: #1e2330;
+            --color-primary: #1d6aff;
+            --color-primary-hover: #3b82f6;
+            --color-red: #ef4444;
+            --text-main: #ffffff;
+            --text-body: #888d96;
+            --text-muted: #6a707c;
+            --font-main: 'Geist Sans', -apple-system, sans-serif;
+            --font-flauta: 'FFFlauta', monospace;
+            --font-mc: 'Minecraft', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; border-radius: 0 !important; }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-main);
+            color: var(--text-body);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        main.container {
+            max-width: 650px;
+            width: 100%;
+        }
+
+        .error-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-card);
+            width: 100%;
+        }
+
+        .card-stripe { height: 4px; width: 100%; background-color: var(--color-red); }
+
+        .card-body { padding: 30px; display: flex; flex-direction: column; gap: 16px; }
+
+        h1.error-code { font-family: var(--font-flauta); font-size: 5rem; color: var(--color-red); line-height: 1; }
+
+        .error-title { font-size: 1.5rem; color: var(--text-main); }
+
+        .error-text { font-size: 1rem; color: var(--text-body); line-height: 1.6; }
+
+        .status-box {
+            background-color: rgba(239, 68, 68, 0.05);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 16px;
+            font-size: 0.9rem;
+            color: #ff9999;
+        }
+    </style>
+</head>
+<body>
+
+    <main class="container">
+        <article class="error-card">
+            <div class="card-stripe"></div>
+            <div class="card-body">
+                <h1 class="error-code">403</h1>
+                <h2 class="error-title">Вход приостановлен</h2>
+                
+                <p class="error-text">
+                    В соответствии с законодательством РФ использование иностранных сервисов ограничено. 
+                    Регистрация и вход в систему были приостановлены на неопределенное время.
+                </p>
+
+                <div class="status-box">
+                    Статус: Ожидание обновлений правового поля
+                </div>
+            </div>
+        </article>
+    </main>
+
+    <script>
+        console.log("%c 403 Forbidden: Сервис недоступен ", "color: #ef4444; font-weight: bold; font-size: 20px;");
+    </script>
+</body>
+</html>
