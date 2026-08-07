@@ -1,14 +1,17 @@
 // middleware.js
-// ✅ Правильный импорт для Edge Runtime
+
 import { NextResponse } from 'next/server';
 
-const ALLOWED_COUNTRIES = ['RU', 'BY', 'KZ'];
+// Добавили Германию ('DE')
+const ALLOWED_COUNTRIES = ['RU', 'BY', 'KZ', 'DE'];
 
 export function middleware(request) {
-  // Получаем страну из geo (работает только на Vercel)
-  const country = request.geo?.country;
+  // Получаем код страны из заголовка Vercel или из request.geo
+  const country = 
+    request.headers.get('x-vercel-ip-country') || 
+    request.geo?.country;
   
-  console.log('🌍 Detected country:', country); // Для отладки
+  console.log('🌍 Detected country:', country);
 
   if (country && !ALLOWED_COUNTRIES.includes(country)) {
     // Перенаправляем на страницу 403
@@ -20,10 +23,7 @@ export function middleware(request) {
   return NextResponse.next();
 }
 
-// 👇 ЯВНО указываем Edge runtime
-export const runtime = 'edge';
-
-// 👇 Конфиг для middleware
+// Конфиг для middleware (матчинг путей)
 export const config = {
   matcher: [
     '/((?!403notbecauseyou\\.html|_next/static|_next/image|favicon\\.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|css|js)$).*)',
