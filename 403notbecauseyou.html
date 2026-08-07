@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 — Доступ ограничен | JustRcat</title>
+    
+    <!-- Preconnect -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://dump.justrcat.lol">
+
+    <!-- Geist Font -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css">
+
+    <style>
+        /* ==========================================
+           1. ПЕРЕМЕННЫЕ И СБРОС СТИЛЕЙ
+           ========================================== */
+        :root {
+            --bg-main: #0b0d10;
+            --bg-card: #12151c;
+            --border-card: #1e2330;
+            --border-card-hover: #2a3245;
+            
+            --color-primary: #1d6aff;
+            --color-primary-hover: #3b82f6;
+            --color-red: #ef4444;
+            --color-disabled: #374151;
+            
+            --text-main: #ffffff;
+            --text-body: #888d96;
+            --text-muted: #6a707c;
+            --text-sub: #a0a6b2;
+            --text-footer: #525866;
+
+            --font-main: 'Geist Sans', 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-flauta: 'FFFlauta', monospace, sans-serif;
+            --font-mc: 'Minecraft', monospace;
+        }
+
+        @font-face {
+            font-family: 'FFFlauta';
+            src: url('https://dump.justrcat.lol/fonts/ffflauta/FFFlauta-Regular.woff2') format('woff2'),
+                 url('https://dump.justrcat.lol/fonts/ffflauta/FFFlauta-Regular.ttf') format('truetype'),
+                 local('FFFlauta');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'Minecraft';
+            src: url('https://dump.justrcat.lol/fonts/minecraft.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            border-radius: 0 !important;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-main);
+            color: var(--text-body);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Красное свечение для ошибки */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            width: clamp(250px, 40vw, 450px);
+            height: clamp(250px, 40vw, 450px);
+            background: rgba(239, 68, 68, 0.15);
+            filter: blur(140px);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        main.container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            max-width: 650px;
+            width: 100%;
+            margin: auto 0;
+        }
+
+        .error-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-card);
+            width: 100%;
+            font-family: var(--font-mc);
+            image-rendering: pixelated;
+        }
+
+        .card-stripe {
+            height: 4px;
+            width: 100%;
+            background-color: var(--color-red);
+        }
+
+        .card-body {
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        h1.error-code {
+            font-family: var(--font-flauta);
+            font-size: clamp(3rem, 8vw, 5rem);
+            color: var(--color-red);
+            line-height: 1;
+            image-rendering: pixelated;
+        }
+
+        .error-title {
+            font-size: 1.3rem;
+            color: var(--text-main);
+            line-height: 1.3;
+        }
+
+        .error-text {
+            font-size: 0.9rem;
+            color: var(--text-body);
+            line-height: 1.6;
+        }
+
+        .vpn-hint {
+            background-color: rgba(255, 174, 66, 0.1);
+            border-left: 3px solid var(--color-primary);
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            line-height: 1.5;
+        }
+
+        .error-details {
+            background-color: #0d0f14;
+            border: 1px dashed var(--border-card);
+            padding: 12px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .card-footer {
+            margin-top: 10px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        /* Кнопка действия */
+        .card-button-sq {
+            height: 42px;
+            padding: 0 16px;
+            background-color: var(--color-primary);
+            color: var(--text-main);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mc);
+            font-size: 0.9rem;
+            border: none;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .card-button-sq:hover {
+            background-color: var(--color-primary-hover);
+        }
+
+        .card-button-sq:active {
+            transform: scale(0.95);
+        }
+
+        footer {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            padding-top: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            font-size: 0.85rem;
+            color: var(--text-footer);
+            flex-wrap: wrap;
+        }
+
+        .github-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-body);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .github-link:hover {
+            color: var(--color-primary);
+        }
+
+        .github-icon {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+        }
+
+        a:focus-visible,
+        button:focus-visible {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+
+        @media (max-width: 768px) {
+            footer {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <main class="container">
+        <article class="error-card">
+            <div class="card-stripe"></div>
+            <div class="card-body">
+                <h1 class="error-code" data-translate>403</h1>
+                <h2 class="error-title" data-translate>Упс! Вход закрыт.</h2>
+                
+                <p class="error-text" data-translate>
+                    Похоже, твоя локация попала под ограничение. Твоя страна может быть формально разрешена по законодательству РФ, но увы — она отсутствует в личном белом списке JR.
+                </p>
+
+                <div class="vpn-hint" data-translate>
+                     <b>Совет:</b> Отключи VPN или измени страну подключения, после чего нажми кнопку ниже.
+                </div>
+
+                <div class="error-details">
+                    Твоя локация заблокирована
+                </div>
+
+                <div class="card-footer">
+                    <button 
+                        type="button"
+                        onclick="window.location.reload();" 
+                        class="card-button-sq" 
+                        title="Перезагрузить страницу"
+                        data-translate
+                    >Повторить попытку ↻</button>
+                </div>
+            </div>
+        </article>
+    </main>
+    
+    <!-- Футер -->
+    <footer>
+        <span data-translate>jr (MIT-Лицензия)</span>
+        <span>•</span>
+        <a 
+            href="https://github.com/rcatlovelua/rcatcloud2" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            class="github-link"
+        >
+            <span data-translate>Justrcat на GitHub</span>
+            <img src="https://dump.justrcat.lol/images/github-big.svg" alt="" class="github-icon" aria-hidden="true">
+        </a>
+    </footer>
+
+    <!-- Пасхалка в консоли -->
+    <script>
+        console.log(
+            "%c 403 Forbidden %c\n\nНе попал в белый список? Смени регион VPN и нажми «Повторить попытку»!",
+            "color: #ef4444; font-size: 28px; font-weight: bold; -webkit-text-stroke: 1px black;",
+            "color: #a0a6b2; font-size: 14px; font-weight: 500;"
+        );
+
+        /* =========================================================
+           АВТОМАТИЧЕСКИЙ ПЕРЕВОД 
+           ========================================================= */
+        (async function autoTranslate() {
+            const userLang = (navigator.language || navigator.userLanguage).slice(0, 2).toLowerCase();
+
+            if (userLang === 'ru') return;
+
+            const elementsToTranslate = document.querySelectorAll('[data-translate]');
+
+            for (const el of elementsToTranslate) {
+                const originalText = el.innerHTML.trim();
+                
+                try {
+                    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=ru&tl=${userLang}&dt=t&q=${encodeURIComponent(originalText)}`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    if (data && data[0]) {
+                        let translatedText = data[0].map(item => item[0]).join('');
+                        el.innerHTML = translatedText;
+                    }
+                } catch (e) {
+                    console.warn("Translation failed:", e);
+                }
+            }
+        })();
+    </script>
+
+</body>
+</html>
