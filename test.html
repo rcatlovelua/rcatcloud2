@@ -314,247 +314,48 @@
 </div>
 
 <script>
-    (function() {
-        "use strict";
+         // Преобразуем строку в массив байтов UTF-8
+function stringToBytes(str) {
+    const encoder = new TextEncoder();
+    return encoder.encode(str);
+}
 
-        // -------------------- элементы DOM --------------------
-        const keyInput = document.getElementById('keyInput');
-        const setKeyBtn = document.getElementById('setKeyBtn');
-        const plainInput = document.getElementById('plainInput');
-        const cipherInput = document.getElementById('cipherInput');
-        const encryptBtn = document.getElementById('encryptBtn');
-        const decryptBtn = document.getElementById('decryptBtn');
-        const resultDisplay = document.getElementById('resultDisplay');
-        const statusBadge = document.getElementById('statusBadge');
+// Преобразуем байты обратно в строку
+function bytesToString(bytes) {
+    const decoder = new TextDecoder();
+    return decoder.decode(bytes);
+}
 
-        const encryptTrueBtn = document.getElementById('encryptTrueBtn');
-        const decryptToTrueBtn = document.getElementById('decryptToTrueBtn');
-        const clearAllBtn = document.getElementById('clearAllBtn');
+// Шифрование (работает с байтами)
+function encryptXor(plainText, key) {
+    const plainBytes = stringToBytes(plainText);
+    const keyBytes = stringToBytes(key);
+    const result = new Uint8Array(plainBytes.length);
 
-        // -------------------- состояние --------------------
-        // текущий ключ (по умолчанию "ключ")
-        let currentKey = 'ключ';
-        keyInput.value = currentKey;
+    for (let i = 0; i < plainBytes.length; i++) {
+        result[i] = plainBytes[i] ^ keyBytes[i % keyBytes.length];
+    }
 
-        // вспомогательные функции
-        function setResult(text, isError = false, isPlaceholder = false) {
-            resultDisplay.textContent = text;
-            resultDisplay.classList.remove('empty');
-            if (isError) {
-                resultDisplay.style.color = '#f7a9a9';
-                statusBadge.textContent = 'ошибка';
-                statusBadge.style.color = '#f7a9a9';
-            } else if (isPlaceholder) {
-                resultDisplay.style.color = '#3c5277';
-                statusBadge.textContent = 'ожидание';
-                statusBadge.style.color = '#8aa2ca';
-            } else {
-                resultDisplay.style.color = '#d6e5ff';
-                statusBadge.textContent = 'успешно';
-                statusBadge.style.color = '#b7d0ff';
-            }
-        }
+    // Превращаем байты в hex-строку
+    return Array.from(result)
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+}
 
-        function setEmptyResult() {
-            resultDisplay.textContent = '—';
-            resultDisplay.classList.add('empty');
-            resultDisplay.style.color = '#3c5277';
-            statusBadge.textContent = 'готов';
-            statusBadge.style.color = '#8aa2ca';
-        }
+// Расшифровка
+function decryptXor(hexString, key) {
+    const bytes = new Uint8Array(
+        hexString.match(/.{1,2}/g).map(hex => parseInt(hex, 16))
+    );
+    const keyBytes = stringToBytes(key);
+    const result = new Uint8Array(bytes.length);
 
-        // -------------------- ядро шифрования / дешифрования --------------------
-        // Используем простой XOR с ключом (симметричный)
-        // возвращает закодированную строку в hex
-        function encryptXor(plainText, key) {
-            if (!key || key.length === 0) {
-                throw new Error('Ключ не может быть пустым');
-            }
-            let result = '';
-            for (let i = 0; i < plainText.length; i++) {
-                const charCode = plainText.charCodeAt(i);
-                const keyChar = key.charCodeAt(i % key.length);
-                const xorCode = charCode ^ keyChar;
-                // переводим в hex (2 символа)
-                const hex = xorCode.toString(16).padStart(2, '0');
-                result += hex;
-            }
-            return result;
-        }
+    for (let i = 0; i < bytes.length; i++) {
+        result[i] = bytes[i] ^ keyBytes[i % keyBytes.length];
+    }
 
-        function decryptXor(hexString, key) {
-            if (!key || key.length === 0) {
-                throw new Error('Ключ не может быть пустым');
-            }
-            if (hexString.length % 2 !== 0) {
-                throw new Error('Некорректный зашифрованный формат (должен быть чётным)');
-            }
-            let result = '';
-            for (let i = 0; i < hexString.length; i += 2) {
-                const hex = hexString.substr(i, 2);
-                const xorCode = parseInt(hex, 16);
-                if (isNaN(xorCode)) {
-                    throw new Error('Некорректный hex-символ');
-                }
-                const keyChar = key.charCodeAt((i / 2) % key.length);
-                const originalChar = String.fromCharCode(xorCode ^ keyChar);
-                result += originalChar;
-            }
-            return result;
-        }
-
-        // -------------------- обработчики --------------------
-        function handleEncrypt() {
-            const plain = plainInput.value.trim();
-            if (plain === '') {
-                setResult('Введите текст для шифрования', true);
-                return;
-            }
-            if (!currentKey || currentKey.length === 0) {
-                setResult('Установите ключевое слово', true);
-                return;
-            }
-            try {
-                const encrypted = encryptXor(plain, currentKey);
-                cipherInput.value = encrypted;
-                setResult(`🔒 ${encrypted}`, false);
-                // также показываем в plain (на всякий)
-                // но не меняем plainInput
-            } catch (e) {
-                setResult('Ошибка: ' + e.message, true);
-            }
-        }
-
-        function handleDecrypt() {
-            const cipher = cipherInput.value.trim();
-            if (cipher === '') {
-                setResult('Введите зашифрованный текст', true);
-                return;
-            }
-            if (!currentKey || currentKey.length === 0) {
-                setResult('Установите ключевое слово', true);
-                return;
-            }
-            try {
-                const decrypted = decryptXor(cipher, currentKey);
-                plainInput.value = decrypted;
-                setResult(`🔓 ${decrypted}`, false);
-            } catch (e) {
-                setResult('Ошибка: ' + e.message, true);
-            }
-        }
-
-        // установка ключа
-        function setKey() {
-            const newKey = keyInput.value.trim();
-            if (newKey === '') {
-                setResult('Ключ не может быть пустым', true);
-                return;
-            }
-            currentKey = newKey;
-            setResult(`Ключ установлен: «${currentKey}»`, false);
-            statusBadge.textContent = 'ключ готов';
-            statusBadge.style.color = '#b7d0ff';
-            // дополнительно можно сбросить результат через пару секунд, но оставим как есть
-            // поставим таймер на сброс сообщения через 2 секунды
-            setTimeout(() => {
-                if (resultDisplay.textContent === `Ключ установлен: «${currentKey}»`) {
-                    setEmptyResult();
-                }
-            }, 2000);
-        }
-
-        // специальные кнопки
-        function encryptTrue() {
-            plainInput.value = 'true';
-            handleEncrypt();
-        }
-
-        function decryptToTrue() {
-            // нужно чтобы в cipher было зашифрованное true с текущим ключом
-            // сначала зашифруем 'true' этим же ключом, потом расшифруем (но это цирк)
-            // но по заданию: "true" шифруется под введенное ключевое слово и расшифровывается
-            // сделаем красиво: если в поле cipher пусто, то зашифруем true и покажем
-            // если там уже есть шифр, попробуем расшифровать и проверить что это true
-            if (cipherInput.value.trim() === '') {
-                // зашифруем true и покажем
-                plainInput.value = 'true';
-                handleEncrypt();
-                // затем расшифруем
-                // но handleEncrypt уже положил шифр в cipherInput, вызовем расшифровку
-                setTimeout(() => {
-                    handleDecrypt();
-                }, 50);
-            } else {
-                // пытаемся расшифровать то что в cipher
-                handleDecrypt();
-                // после расшифровки если результат не true, то подскажем
-                setTimeout(() => {
-                    if (plainInput.value.trim() !== 'true') {
-                        // но мы не можем принудительно поставить true, только предупредим
-                        // но можно сделать мягко: если расшифровка не дала true, предложим зашифровать true
-                        if (plainInput.value.trim() !== 'true') {
-                            // но чтобы не перетирать, просто покажем сообщение
-                            setResult('Расшифровано, но не "true". Проверьте ключ или шифр.', true);
-                        }
-                    }
-                }, 50);
-            }
-        }
-
-        function clearAll() {
-            plainInput.value = '';
-            cipherInput.value = '';
-            setEmptyResult();
-            statusBadge.textContent = 'очищено';
-            statusBadge.style.color = '#8aa2ca';
-            setTimeout(() => {
-                statusBadge.textContent = 'готов';
-            }, 800);
-        }
-
-        // -------------------- привязка событий --------------------
-        encryptBtn.addEventListener('click', handleEncrypt);
-        decryptBtn.addEventListener('click', handleDecrypt);
-        setKeyBtn.addEventListener('click', setKey);
-
-        encryptTrueBtn.addEventListener('click', encryptTrue);
-        decryptToTrueBtn.addEventListener('click', decryptToTrue);
-        clearAllBtn.addEventListener('click', clearAll);
-
-        // дополнительно: Enter в полях
-        plainInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') handleEncrypt();
-        });
-        cipherInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') handleDecrypt();
-        });
-        keyInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') setKey();
-        });
-
-        // инициализация: показываем приветствие
-        setEmptyResult();
-        // по умолчанию зашифруем true, чтобы показать пример (но не обязательно)
-        // закомментируем, чтобы пользователь видел чистый старт
-        // но можно показать пример: зашифруем true с ключом "ключ"
-        setTimeout(() => {
-            // демонстрация: шифруем true с ключом по умолчанию
-            plainInput.value = 'true';
-            try {
-                const demoEnc = encryptXor('true', currentKey);
-                cipherInput.value = demoEnc;
-                setResult(`🔒 ${demoEnc}`, false);
-                statusBadge.textContent = 'демо';
-                setTimeout(() => {
-                    setEmptyResult();
-                    statusBadge.textContent = 'готов';
-                }, 2500);
-            } catch (e) {
-                // игнорируем
-            }
-        }, 300);
-    })();
+    return bytesToString(result);
+}
 </script>
 </body>
           </html>
