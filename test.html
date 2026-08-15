@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест шифрования: true ↔ ключ</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #0b1120 0%, #1a2639 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .card {
+            max-width: 700px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 42px;
+            padding: 32px 28px;
+            box-shadow: 0 30px 50px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.05);
+            transition: 0.2s;
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+        h1 {
+            font-weight: 500;
+            font-size: 1.9rem;
+            letter-spacing: -0.02em;
+            color: #eef3ff;
+            text-align: center;
+            margin-bottom: 28px;
+            text-shadow: 0 2px 3px rgba(0,0,0,0.6);
+        }
+        h1 span {
+            background: #2d3b57;
+            padding: 0 14px;
+            border-radius: 60px;
+            color: #b7cdff;
+            font-weight: 400;
+            font-size: 1.2rem;
+            margin-left: 10px;
+            border: 1px solid #4a5c80;
+        }
+        .control-panel {
+            background: #111c2b;
+            border-radius: 32px;
+            padding: 24px 20px 20px;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.6), 0 6px 12px rgba(0,0,0,0.3);
+            border: 1px solid #2a3a53;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 24px;
+        }
+        .input-group label {
+            color: #a6bbdd;
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .input-group label i {
+            opacity: 0.7;
+            font-style: normal;
+            background: #1f3147;
+            padding: 0 10px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            color: #90adf0;
+        }
+        .input-field {
+            display: flex;
+            align-items: center;
+            background: #0a121f;
+            border-radius: 60px;
+            padding: 4px 4px 4px 20px;
+            border: 1px solid #2b3f5e;
+            transition: 0.2s;
+        }
+        .input-field:focus-within {
+            border-color: #6f96f0;
+            box-shadow: 0 0 0 3px rgba(79, 130, 255, 0.2);
+        }
+        .input-field input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            padding: 16px 8px 16px 0;
+            color: #eaf1ff;
+            font-size: 1rem;
+            outline: none;
+            font-weight: 400;
+            letter-spacing: 0.3px;
+        }
+        .input-field input::placeholder {
+            color: #495e7e;
+            font-weight: 300;
+        }
+        .input-field button {
+            background: #2b3f62;
+            border: none;
+            border-radius: 60px;
+            padding: 12px 24px;
+            color: white;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.15s;
+            white-space: nowrap;
+            border: 1px solid #405a82;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+        }
+        .input-field button:hover {
+            background: #3b5280;
+            transform: scale(1.01);
+            border-color: #6b8ed9;
+        }
+        .input-field button:active {
+            transform: scale(0.95);
+            background: #1e3150;
+        }
+        .row-2col {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .row-2col > div {
+            flex: 1 1 160px;
+        }
+        .result-box {
+            background: #0b1424;
+            border-radius: 28px;
+            padding: 16px 20px;
+            margin-top: 20px;
+            border: 1px solid #263a57;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.6);
+        }
+        .result-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #8aa2ca;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 8px;
+        }
+        .result-value {
+            font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+            font-size: 1.3rem;
+            font-weight: 500;
+            color: #d6e5ff;
+            word-break: break-all;
+            background: #040a14;
+            padding: 12px 16px;
+            border-radius: 40px;
+            border: 1px solid #1e3150;
+            min-height: 58px;
+            display: flex;
+            align-items: center;
+        }
+        .result-value.empty {
+            color: #3c5277;
+            font-style: italic;
+            font-weight: 300;
+        }
+        .action-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 22px;
+            flex-wrap: wrap;
+        }
+        .action-row button {
+            flex: 1;
+            background: #1f3150;
+            border: none;
+            border-radius: 50px;
+            padding: 14px 12px;
+            color: #d3e2ff;
+            font-weight: 500;
+            font-size: 0.95rem;
+            border: 1px solid #3d5780;
+            cursor: pointer;
+            transition: 0.15s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            letter-spacing: 0.4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .action-row button:hover {
+            background: #2e4570;
+            border-color: #5d7fc0;
+            color: white;
+        }
+        .action-row button:active {
+            transform: scale(0.96);
+            background: #14243e;
+        }
+        .action-row button.primary {
+            background: #3d5e95;
+            border-color: #6b8fe0;
+            color: white;
+            flex: 1.3;
+        }
+        .action-row button.primary:hover {
+            background: #4f74b3;
+        }
+        .hint {
+            color: #6d86b0;
+            font-size: 0.8rem;
+            text-align: center;
+            margin-top: 18px;
+            border-top: 1px solid #1f3150;
+            padding-top: 18px;
+            letter-spacing: 0.2px;
+        }
+        .hint strong {
+            color: #a8c0f0;
+            font-weight: 500;
+        }
+        .badge {
+            background: #1b2d49;
+            border-radius: 30px;
+            padding: 2px 14px;
+            color: #9bb6ed;
+            font-size: 0.7rem;
+            border: 1px solid #37517a;
+        }
+        .flex-icon {
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+        @media (max-width: 480px) {
+            .card { padding: 20px 16px; }
+            .input-field button { padding: 10px 14px; font-size: 0.8rem; }
+            .row-2col { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>
+        🔐 тест шифра
+        <span>true</span>
+    </h1>
+
+    <div class="control-panel">
+        <!-- Ввод ключа -->
+        <div class="input-group">
+            <label>
+                <span>🔑 Ключевое слово</span>
+                <i>(пароль шифрования)</i>
+            </label>
+            <div class="input-field">
+                <input type="text" id="keyInput" placeholder="например: секрет" value="ключ">
+                <button id="setKeyBtn">Установить</button>
+            </div>
+        </div>
+
+        <!-- Две колонки: ввод true / false -->
+        <div class="row-2col">
+            <div class="input-group" style="margin-bottom: 0;">
+                <label>📥 <span style="color:#b7d0ff;">Исходное значение</span></label>
+                <div class="input-field">
+                    <input type="text" id="plainInput" placeholder="true или false" value="true">
+                    <button id="encryptBtn">Шифровать</button>
+                </div>
+            </div>
+            <div class="input-group" style="margin-bottom: 0;">
+                <label>📤 <span style="color:#b7d0ff;">Зашифрованный текст</span></label>
+                <div class="input-field">
+                    <input type="text" id="cipherInput" placeholder="вставьте шифр">
+                    <button id="decryptBtn">Расшифровать</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Результат -->
+        <div class="result-box">
+            <div class="result-label">
+                <span>📋 Результат</span>
+                <span class="badge" id="statusBadge">готов</span>
+            </div>
+            <div class="result-value" id="resultDisplay">—</div>
+        </div>
+
+        <!-- Действия -->
+        <div class="action-row">
+            <button id="encryptTrueBtn" class="primary">🔒 Зашифровать "true"</button>
+            <button id="decryptToTrueBtn">🔓 Расшифровать → true</button>
+            <button id="clearAllBtn">🧹 Очистить</button>
+        </div>
+
+        <div class="hint">
+            <strong>Как работает:</strong> значение <strong>«true»</strong> (или любое другое) шифруется с помощью ключевого слова.
+            Расшифровка возможна только с тем же ключом.
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        "use strict";
+
+        // -------------------- элементы DOM --------------------
+        const keyInput = document.getElementById('keyInput');
+        const setKeyBtn = document.getElementById('setKeyBtn');
+        const plainInput = document.getElementById('plainInput');
+        const cipherInput = document.getElementById('cipherInput');
+        const encryptBtn = document.getElementById('encryptBtn');
+        const decryptBtn = document.getElementById('decryptBtn');
+        const resultDisplay = document.getElementById('resultDisplay');
+        const statusBadge = document.getElementById('statusBadge');
+
+        const encryptTrueBtn = document.getElementById('encryptTrueBtn');
+        const decryptToTrueBtn = document.getElementById('decryptToTrueBtn');
+        const clearAllBtn = document.getElementById('clearAllBtn');
+
+        // -------------------- состояние --------------------
+        // текущий ключ (по умолчанию "ключ")
+        let currentKey = 'ключ';
+        keyInput.value = currentKey;
+
+        // вспомогательные функции
+        function setResult(text, isError = false, isPlaceholder = false) {
+            resultDisplay.textContent = text;
+            resultDisplay.classList.remove('empty');
+            if (isError) {
+                resultDisplay.style.color = '#f7a9a9';
+                statusBadge.textContent = 'ошибка';
+                statusBadge.style.color = '#f7a9a9';
+            } else if (isPlaceholder) {
+                resultDisplay.style.color = '#3c5277';
+                statusBadge.textContent = 'ожидание';
+                statusBadge.style.color = '#8aa2ca';
+            } else {
+                resultDisplay.style.color = '#d6e5ff';
+                statusBadge.textContent = 'успешно';
+                statusBadge.style.color = '#b7d0ff';
+            }
+        }
+
+        function setEmptyResult() {
+            resultDisplay.textContent = '—';
+            resultDisplay.classList.add('empty');
+            resultDisplay.style.color = '#3c5277';
+            statusBadge.textContent = 'готов';
+            statusBadge.style.color = '#8aa2ca';
+        }
+
+        // -------------------- ядро шифрования / дешифрования --------------------
+        // Используем простой XOR с ключом (симметричный)
+        // возвращает закодированную строку в hex
+        function encryptXor(plainText, key) {
+            if (!key || key.length === 0) {
+                throw new Error('Ключ не может быть пустым');
+            }
+            let result = '';
+            for (let i = 0; i < plainText.length; i++) {
+                const charCode = plainText.charCodeAt(i);
+                const keyChar = key.charCodeAt(i % key.length);
+                const xorCode = charCode ^ keyChar;
+                // переводим в hex (2 символа)
+                const hex = xorCode.toString(16).padStart(2, '0');
+                result += hex;
+            }
+            return result;
+        }
+
+        function decryptXor(hexString, key) {
+            if (!key || key.length === 0) {
+                throw new Error('Ключ не может быть пустым');
+            }
+            if (hexString.length % 2 !== 0) {
+                throw new Error('Некорректный зашифрованный формат (должен быть чётным)');
+            }
+            let result = '';
+            for (let i = 0; i < hexString.length; i += 2) {
+                const hex = hexString.substr(i, 2);
+                const xorCode = parseInt(hex, 16);
+                if (isNaN(xorCode)) {
+                    throw new Error('Некорректный hex-символ');
+                }
+                const keyChar = key.charCodeAt((i / 2) % key.length);
+                const originalChar = String.fromCharCode(xorCode ^ keyChar);
+                result += originalChar;
+            }
+            return result;
+        }
+
+        // -------------------- обработчики --------------------
+        function handleEncrypt() {
+            const plain = plainInput.value.trim();
+            if (plain === '') {
+                setResult('Введите текст для шифрования', true);
+                return;
+            }
+            if (!currentKey || currentKey.length === 0) {
+                setResult('Установите ключевое слово', true);
+                return;
+            }
+            try {
+                const encrypted = encryptXor(plain, currentKey);
+                cipherInput.value = encrypted;
+                setResult(`🔒 ${encrypted}`, false);
+                // также показываем в plain (на всякий)
+                // но не меняем plainInput
+            } catch (e) {
+                setResult('Ошибка: ' + e.message, true);
+            }
+        }
+
+        function handleDecrypt() {
+            const cipher = cipherInput.value.trim();
+            if (cipher === '') {
+                setResult('Введите зашифрованный текст', true);
+                return;
+            }
+            if (!currentKey || currentKey.length === 0) {
+                setResult('Установите ключевое слово', true);
+                return;
+            }
+            try {
+                const decrypted = decryptXor(cipher, currentKey);
+                plainInput.value = decrypted;
+                setResult(`🔓 ${decrypted}`, false);
+            } catch (e) {
+                setResult('Ошибка: ' + e.message, true);
+            }
+        }
+
+        // установка ключа
+        function setKey() {
+            const newKey = keyInput.value.trim();
+            if (newKey === '') {
+                setResult('Ключ не может быть пустым', true);
+                return;
+            }
+            currentKey = newKey;
+            setResult(`Ключ установлен: «${currentKey}»`, false);
+            statusBadge.textContent = 'ключ готов';
+            statusBadge.style.color = '#b7d0ff';
+            // дополнительно можно сбросить результат через пару секунд, но оставим как есть
+            // поставим таймер на сброс сообщения через 2 секунды
+            setTimeout(() => {
+                if (resultDisplay.textContent === `Ключ установлен: «${currentKey}»`) {
+                    setEmptyResult();
+                }
+            }, 2000);
+        }
+
+        // специальные кнопки
+        function encryptTrue() {
+            plainInput.value = 'true';
+            handleEncrypt();
+        }
+
+        function decryptToTrue() {
+            // нужно чтобы в cipher было зашифрованное true с текущим ключом
+            // сначала зашифруем 'true' этим же ключом, потом расшифруем (но это цирк)
+            // но по заданию: "true" шифруется под введенное ключевое слово и расшифровывается
+            // сделаем красиво: если в поле cipher пусто, то зашифруем true и покажем
+            // если там уже есть шифр, попробуем расшифровать и проверить что это true
+            if (cipherInput.value.trim() === '') {
+                // зашифруем true и покажем
+                plainInput.value = 'true';
+                handleEncrypt();
+                // затем расшифруем
+                // но handleEncrypt уже положил шифр в cipherInput, вызовем расшифровку
+                setTimeout(() => {
+                    handleDecrypt();
+                }, 50);
+            } else {
+                // пытаемся расшифровать то что в cipher
+                handleDecrypt();
+                // после расшифровки если результат не true, то подскажем
+                setTimeout(() => {
+                    if (plainInput.value.trim() !== 'true') {
+                        // но мы не можем принудительно поставить true, только предупредим
+                        // но можно сделать мягко: если расшифровка не дала true, предложим зашифровать true
+                        if (plainInput.value.trim() !== 'true') {
+                            // но чтобы не перетирать, просто покажем сообщение
+                            setResult('Расшифровано, но не "true". Проверьте ключ или шифр.', true);
+                        }
+                    }
+                }, 50);
+            }
+        }
+
+        function clearAll() {
+            plainInput.value = '';
+            cipherInput.value = '';
+            setEmptyResult();
+            statusBadge.textContent = 'очищено';
+            statusBadge.style.color = '#8aa2ca';
+            setTimeout(() => {
+                statusBadge.textContent = 'готов';
+            }, 800);
+        }
+
+        // -------------------- привязка событий --------------------
+        encryptBtn.addEventListener('click', handleEncrypt);
+        decryptBtn.addEventListener('click', handleDecrypt);
+        setKeyBtn.addEventListener('click', setKey);
+
+        encryptTrueBtn.addEventListener('click', encryptTrue);
+        decryptToTrueBtn.addEventListener('click', decryptToTrue);
+        clearAllBtn.addEventListener('click', clearAll);
+
+        // дополнительно: Enter в полях
+        plainInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') handleEncrypt();
+        });
+        cipherInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') handleDecrypt();
+        });
+        keyInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') setKey();
+        });
+
+        // инициализация: показываем приветствие
+        setEmptyResult();
+        // по умолчанию зашифруем true, чтобы показать пример (но не обязательно)
+        // закомментируем, чтобы пользователь видел чистый старт
+        // но можно показать пример: зашифруем true с ключом "ключ"
+        setTimeout(() => {
+            // демонстрация: шифруем true с ключом по умолчанию
+            plainInput.value = 'true';
+            try {
+                const demoEnc = encryptXor('true', currentKey);
+                cipherInput.value = demoEnc;
+                setResult(`🔒 ${demoEnc}`, false);
+                statusBadge.textContent = 'демо';
+                setTimeout(() => {
+                    setEmptyResult();
+                    statusBadge.textContent = 'готов';
+                }, 2500);
+            } catch (e) {
+                // игнорируем
+            }
+        }, 300);
+    })();
+</script>
+</body>
+          </html>
