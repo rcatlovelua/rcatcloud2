@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Тест шифрования: true ↔ ключ</title>
+    <title>Шифрование true ↔ ключ (русский работает!)</title>
     <style>
         * {
             box-sizing: border-box;
@@ -19,7 +19,7 @@
             padding: 20px;
         }
         .card {
-            max-width: 700px;
+            max-width: 750px;
             width: 100%;
             background: rgba(255, 255, 255, 0.07);
             backdrop-filter: blur(10px);
@@ -27,7 +27,6 @@
             border-radius: 42px;
             padding: 32px 28px;
             box-shadow: 0 30px 50px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.05);
-            transition: 0.2s;
             border: 1px solid rgba(255,255,255,0.03);
         }
         h1 {
@@ -160,7 +159,7 @@
         }
         .result-value {
             font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 500;
             color: #d6e5ff;
             word-break: break-all;
@@ -307,55 +306,252 @@
         </div>
 
         <div class="hint">
-            <strong>Как работает:</strong> значение <strong>«true»</strong> (или любое другое) шифруется с помощью ключевого слова.
-            Расшифровка возможна только с тем же ключом.
+            <strong>Русский работает!</strong> Шифрование через UTF-8 байты + XOR.
+            Ключ «<span id="demoKeyDisplay">ключ</span>» шифрует "true" в <span id="demoEncDisplay">130f0415</span>
         </div>
     </div>
 </div>
 
 <script>
-         // Преобразуем строку в массив байтов UTF-8
-function stringToBytes(str) {
-    const encoder = new TextEncoder();
-    return encoder.encode(str);
-}
+    (function() {
+        "use strict";
 
-// Преобразуем байты обратно в строку
-function bytesToString(bytes) {
-    const decoder = new TextDecoder();
-    return decoder.decode(bytes);
-}
+        // -------------------- элементы DOM --------------------
+        const keyInput = document.getElementById('keyInput');
+        const setKeyBtn = document.getElementById('setKeyBtn');
+        const plainInput = document.getElementById('plainInput');
+        const cipherInput = document.getElementById('cipherInput');
+        const encryptBtn = document.getElementById('encryptBtn');
+        const decryptBtn = document.getElementById('decryptBtn');
+        const resultDisplay = document.getElementById('resultDisplay');
+        const statusBadge = document.getElementById('statusBadge');
+        const demoKeyDisplay = document.getElementById('demoKeyDisplay');
+        const demoEncDisplay = document.getElementById('demoEncDisplay');
 
-// Шифрование (работает с байтами)
-function encryptXor(plainText, key) {
-    const plainBytes = stringToBytes(plainText);
-    const keyBytes = stringToBytes(key);
-    const result = new Uint8Array(plainBytes.length);
+        const encryptTrueBtn = document.getElementById('encryptTrueBtn');
+        const decryptToTrueBtn = document.getElementById('decryptToTrueBtn');
+        const clearAllBtn = document.getElementById('clearAllBtn');
 
-    for (let i = 0; i < plainBytes.length; i++) {
-        result[i] = plainBytes[i] ^ keyBytes[i % keyBytes.length];
-    }
+        // -------------------- состояние --------------------
+        let currentKey = 'ключ';
+        keyInput.value = currentKey;
+        demoKeyDisplay.textContent = currentKey;
 
-    // Превращаем байты в hex-строку
-    return Array.from(result)
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
-}
+        // -------------------- вспомогательные функции --------------------
+        function setResult(text, isError = false, isPlaceholder = false) {
+            resultDisplay.textContent = text;
+            resultDisplay.classList.remove('empty');
+            if (isError) {
+                resultDisplay.style.color = '#f7a9a9';
+                statusBadge.textContent = 'ошибка';
+                statusBadge.style.color = '#f7a9a9';
+            } else if (isPlaceholder) {
+                resultDisplay.style.color = '#3c5277';
+                statusBadge.textContent = 'ожидание';
+                statusBadge.style.color = '#8aa2ca';
+            } else {
+                resultDisplay.style.color = '#d6e5ff';
+                statusBadge.textContent = 'успешно';
+                statusBadge.style.color = '#b7d0ff';
+            }
+        }
 
-// Расшифровка
-function decryptXor(hexString, key) {
-    const bytes = new Uint8Array(
-        hexString.match(/.{1,2}/g).map(hex => parseInt(hex, 16))
-    );
-    const keyBytes = stringToBytes(key);
-    const result = new Uint8Array(bytes.length);
+        function setEmptyResult() {
+            resultDisplay.textContent = '—';
+            resultDisplay.classList.add('empty');
+            resultDisplay.style.color = '#3c5277';
+            statusBadge.textContent = 'готов';
+            statusBadge.style.color = '#8aa2ca';
+        }
 
-    for (let i = 0; i < bytes.length; i++) {
-        result[i] = bytes[i] ^ keyBytes[i % keyBytes.length];
-    }
+        // -------------------- UTF-8 конвертеры --------------------
+        function stringToBytes(str) {
+            const encoder = new TextEncoder();
+            return encoder.encode(str);
+        }
 
-    return bytesToString(result);
-}
+        function bytesToString(bytes) {
+            const decoder = new TextDecoder();
+            return decoder.decode(bytes);
+        }
+
+        // -------------------- ядро шифрования (байтовое) --------------------
+        function encryptXor(plainText, key) {
+            if (!key || key.length === 0) {
+                throw new Error('Ключ не может быть пустым');
+            }
+            const plainBytes = stringToBytes(plainText);
+            const keyBytes = stringToBytes(key);
+            const result = new Uint8Array(plainBytes.length);
+            for (let i = 0; i < plainBytes.length; i++) {
+                result[i] = plainBytes[i] ^ keyBytes[i % keyBytes.length];
+            }
+            // в hex
+            return Array.from(result)
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+        }
+
+        function decryptXor(hexString, key) {
+            if (!key || key.length === 0) {
+                throw new Error('Ключ не может быть пустым');
+            }
+            if (hexString.length % 2 !== 0) {
+                throw new Error('Некорректный зашифрованный формат (должен быть чётным)');
+            }
+            const bytes = new Uint8Array(
+                hexString.match(/.{1,2}/g).map(hex => parseInt(hex, 16))
+            );
+            const keyBytes = stringToBytes(key);
+            const result = new Uint8Array(bytes.length);
+            for (let i = 0; i < bytes.length; i++) {
+                result[i] = bytes[i] ^ keyBytes[i % keyBytes.length];
+            }
+            return bytesToString(result);
+        }
+
+        // обновляем демо-подсказку
+        function updateDemoHint() {
+            try {
+                const demoEnc = encryptXor('true', currentKey);
+                demoEncDisplay.textContent = demoEnc;
+                demoKeyDisplay.textContent = currentKey;
+            } catch (e) {
+                demoEncDisplay.textContent = 'ошибка';
+            }
+        }
+        updateDemoHint();
+
+        // -------------------- обработчики --------------------
+        function handleEncrypt() {
+            const plain = plainInput.value;
+            if (plain === '') {
+                setResult('Введите текст для шифрования', true);
+                return;
+            }
+            if (!currentKey || currentKey.length === 0) {
+                setResult('Установите ключевое слово', true);
+                return;
+            }
+            try {
+                const encrypted = encryptXor(plain, currentKey);
+                cipherInput.value = encrypted;
+                setResult(`🔒 ${encrypted}`, false);
+            } catch (e) {
+                setResult('Ошибка: ' + e.message, true);
+            }
+        }
+
+        function handleDecrypt() {
+            const cipher = cipherInput.value.trim();
+            if (cipher === '') {
+                setResult('Введите зашифрованный текст', true);
+                return;
+            }
+            if (!currentKey || currentKey.length === 0) {
+                setResult('Установите ключевое слово', true);
+                return;
+            }
+            try {
+                const decrypted = decryptXor(cipher, currentKey);
+                plainInput.value = decrypted;
+                setResult(`🔓 ${decrypted}`, false);
+            } catch (e) {
+                setResult('Ошибка: ' + e.message, true);
+            }
+        }
+
+        function setKey() {
+            const newKey = keyInput.value.trim();
+            if (newKey === '') {
+                setResult('Ключ не может быть пустым', true);
+                return;
+            }
+            currentKey = newKey;
+            updateDemoHint();
+            setResult(`Ключ установлен: «${currentKey}»`, false);
+            statusBadge.textContent = 'ключ готов';
+            statusBadge.style.color = '#b7d0ff';
+            setTimeout(() => {
+                if (resultDisplay.textContent === `Ключ установлен: «${currentKey}»`) {
+                    setEmptyResult();
+                }
+            }, 2000);
+        }
+
+        function encryptTrue() {
+            plainInput.value = 'true';
+            handleEncrypt();
+        }
+
+        function decryptToTrue() {
+            // если поле cipher пустое — зашифруем true и расшифруем
+            if (cipherInput.value.trim() === '') {
+                plainInput.value = 'true';
+                handleEncrypt();
+                setTimeout(() => {
+                    handleDecrypt();
+                }, 50);
+            } else {
+                handleDecrypt();
+                // если после расшифровки не true — подскажем
+                setTimeout(() => {
+                    if (plainInput.value.trim() !== 'true') {
+                        setResult('Расшифровано, но не "true". Проверьте ключ или шифр.', true);
+                    }
+                }, 50);
+            }
+        }
+
+        function clearAll() {
+            plainInput.value = '';
+            cipherInput.value = '';
+            setEmptyResult();
+            statusBadge.textContent = 'очищено';
+            statusBadge.style.color = '#8aa2ca';
+            setTimeout(() => {
+                statusBadge.textContent = 'готов';
+            }, 800);
+        }
+
+        // -------------------- привязка событий --------------------
+        encryptBtn.addEventListener('click', handleEncrypt);
+        decryptBtn.addEventListener('click', handleDecrypt);
+        setKeyBtn.addEventListener('click', setKey);
+
+        encryptTrueBtn.addEventListener('click', encryptTrue);
+        decryptToTrueBtn.addEventListener('click', decryptToTrue);
+        clearAllBtn.addEventListener('click', clearAll);
+
+        plainInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') handleEncrypt();
+        });
+        cipherInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') handleDecrypt();
+        });
+        keyInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') setKey();
+        });
+
+        // -------------------- инициализация --------------------
+        setEmptyResult();
+        // показываем демо-пример через 0.5 сек
+        setTimeout(() => {
+            plainInput.value = 'true';
+            try {
+                const demoEnc = encryptXor('true', currentKey);
+                cipherInput.value = demoEnc;
+                setResult(`🔒 ${demoEnc} (демо)`, false);
+                statusBadge.textContent = 'демо';
+                setTimeout(() => {
+                    setEmptyResult();
+                    statusBadge.textContent = 'готов';
+                }, 2500);
+            } catch (e) {
+                // игнорируем
+            }
+        }, 400);
+    })();
 </script>
 </body>
-          </html>
+</html>
