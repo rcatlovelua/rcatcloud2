@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Шифрование текста и картинок</title>
+    <title>AES-256-GCM шифрование</title>
     <style>
         * {
             box-sizing: border-box;
@@ -23,7 +23,6 @@
             width: 100%;
             background: rgba(255, 255, 255, 0.07);
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
             border-radius: 42px;
             padding: 32px 28px;
             box-shadow: 0 30px 50px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.05);
@@ -32,65 +31,26 @@
         h1 {
             font-weight: 500;
             font-size: 1.9rem;
-            letter-spacing: -0.02em;
             color: #eef3ff;
             text-align: center;
             margin-bottom: 28px;
-            text-shadow: 0 2px 3px rgba(0,0,0,0.6);
         }
-        h1 span {
-            background: #2d3b57;
-            padding: 0 14px;
-            border-radius: 60px;
-            color: #b7cdff;
-            font-weight: 400;
-            font-size: 1.2rem;
-            margin-left: 10px;
-            border: 1px solid #4a5c80;
-        }
-        .tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-            background: #0f1a2b;
-            padding: 6px;
-            border-radius: 60px;
-            border: 1px solid #1f3147;
-        }
-        .tabs button {
-            flex: 1;
-            background: transparent;
-            border: none;
-            padding: 12px 20px;
+        .badge-aes {
+            background: #1b4a3b;
+            color: #7ddfb0;
+            padding: 4px 16px;
             border-radius: 40px;
-            color: #8aa2ca;
-            font-weight: 500;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: 0.2s;
-            letter-spacing: 0.3px;
-        }
-        .tabs button.active {
-            background: #2b3f62;
-            color: white;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        }
-        .tabs button:hover:not(.active) {
-            background: #1a2a45;
-            color: #c0d2f5;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
+            font-size: 0.9rem;
+            border: 1px solid #2d7a60;
+            display: inline-block;
+            margin-left: 10px;
         }
         .control-panel {
             background: #111c2b;
             border-radius: 32px;
-            padding: 24px 20px 20px;
-            box-shadow: inset 0 2px 8px rgba(0,0,0,0.6), 0 6px 12px rgba(0,0,0,0.3);
+            padding: 24px 20px;
             border: 1px solid #2a3a53;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
         }
         .input-group {
             display: flex;
@@ -102,19 +62,9 @@
             color: #a6bbdd;
             font-size: 0.9rem;
             font-weight: 500;
-            letter-spacing: 0.3px;
             display: flex;
             align-items: center;
             gap: 8px;
-        }
-        .input-group label i {
-            opacity: 0.7;
-            font-style: normal;
-            background: #1f3147;
-            padding: 0 10px;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            color: #90adf0;
         }
         .input-field {
             display: flex;
@@ -126,10 +76,10 @@
             transition: 0.2s;
         }
         .input-field:focus-within {
-            border-color: #6f96f0;
-            box-shadow: 0 0 0 3px rgba(79, 130, 255, 0.2);
+            border-color: #4ecf9e;
+            box-shadow: 0 0 0 3px rgba(78, 207, 158, 0.2);
         }
-        .input-field input {
+        .input-field input, .input-field textarea {
             width: 100%;
             background: transparent;
             border: none;
@@ -137,15 +87,15 @@
             color: #eaf1ff;
             font-size: 1rem;
             outline: none;
-            font-weight: 400;
-            letter-spacing: 0.3px;
+            resize: vertical;
+            font-family: monospace;
         }
-        .input-field input::placeholder {
-            color: #495e7e;
-            font-weight: 300;
+        .input-field textarea {
+            min-height: 60px;
+            padding: 12px 8px 12px 0;
         }
         .input-field button {
-            background: #2b3f62;
+            background: #1b4a3b;
             border: none;
             border-radius: 60px;
             padding: 12px 24px;
@@ -155,18 +105,12 @@
             cursor: pointer;
             transition: 0.15s;
             white-space: nowrap;
-            border: 1px solid #405a82;
-            letter-spacing: 0.5px;
+            border: 1px solid #2d7a60;
             box-shadow: 0 4px 8px rgba(0,0,0,0.4);
         }
         .input-field button:hover {
-            background: #3b5280;
-            transform: scale(1.01);
-            border-color: #6b8ed9;
-        }
-        .input-field button:active {
-            transform: scale(0.95);
-            background: #1e3150;
+            background: #2a6b55;
+            border-color: #4ecf9e;
         }
         .row-2col {
             display: flex;
@@ -174,50 +118,42 @@
             flex-wrap: wrap;
         }
         .row-2col > div {
-            flex: 1 1 160px;
+            flex: 1 1 200px;
         }
         .result-box {
             background: #0b1424;
             border-radius: 28px;
             padding: 16px 20px;
             margin-top: 16px;
-            border: 1px solid #263a57;
-            box-shadow: inset 0 2px 6px rgba(0,0,0,0.6);
-        }
-        .result-label {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #8aa2ca;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            margin-bottom: 8px;
+            border: 1px solid #1b4a3b;
         }
         .result-value {
-            font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
-            font-size: 1.1rem;
-            font-weight: 500;
-            color: #d6e5ff;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            color: #7ddfb0;
             word-break: break-all;
             background: #040a14;
             padding: 12px 16px;
             border-radius: 40px;
-            border: 1px solid #1e3150;
+            border: 1px solid #1a3a2e;
             min-height: 58px;
             display: flex;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .result-value .label {
+            color: #5a7a8a;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+        .result-value .value {
+            color: #7ddfb0;
+            font-weight: 400;
         }
         .result-value.empty {
             color: #3c5277;
             font-style: italic;
-            font-weight: 300;
-        }
-        .result-value img {
-            max-width: 100%;
-            max-height: 200px;
-            border-radius: 12px;
-            object-fit: contain;
         }
         .action-row {
             display: flex;
@@ -233,219 +169,111 @@
             padding: 14px 12px;
             color: #d3e2ff;
             font-weight: 500;
-            font-size: 0.95rem;
             border: 1px solid #3d5780;
             cursor: pointer;
             transition: 0.15s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            letter-spacing: 0.4px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
         }
         .action-row button:hover {
             background: #2e4570;
-            border-color: #5d7fc0;
-            color: white;
-        }
-        .action-row button:active {
-            transform: scale(0.96);
-            background: #14243e;
+            border-color: #4ecf9e;
         }
         .action-row button.primary {
-            background: #3d5e95;
-            border-color: #6b8fe0;
+            background: #1b4a3b;
+            border-color: #2d7a60;
             color: white;
-            flex: 1.3;
         }
         .action-row button.primary:hover {
-            background: #4f74b3;
+            background: #2a6b55;
+        }
+        .badge {
+            background: #1b2d49;
+            border-radius: 30px;
+            padding: 2px 14px;
+            color: #7ddfb0;
+            font-size: 0.7rem;
+            border: 1px solid #1b4a3b;
         }
         .hint {
             color: #6d86b0;
             font-size: 0.8rem;
             text-align: center;
             margin-top: 18px;
-            border-top: 1px solid #1f3150;
             padding-top: 18px;
-            letter-spacing: 0.2px;
+            border-top: 1px solid #1f3150;
         }
-        .hint strong {
-            color: #a8c0f0;
-            font-weight: 500;
-        }
-        .badge {
-            background: #1b2d49;
-            border-radius: 30px;
-            padding: 2px 14px;
-            color: #9bb6ed;
-            font-size: 0.7rem;
-            border: 1px solid #37517a;
-        }
-        .image-upload {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap;
-            background: #0a121f;
-            padding: 12px 16px;
-            border-radius: 60px;
-            border: 1px solid #2b3f5e;
-        }
-        .image-upload input[type="file"] {
-            display: none;
-        }
-        .image-upload label {
-            background: #2b3f62;
-            padding: 10px 20px;
+        .security-badge {
+            background: #0f2a1f;
+            padding: 8px 16px;
             border-radius: 40px;
-            color: white;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 0.9rem;
-            transition: 0.15s;
-            border: 1px solid #405a82;
-        }
-        .image-upload label:hover {
-            background: #3b5280;
-        }
-        .image-upload .file-name {
-            color: #a6bbdd;
-            font-size: 0.9rem;
-            flex: 1;
-        }
-        .image-preview {
-            margin-top: 12px;
-            text-align: center;
-        }
-        .image-preview img {
-            max-width: 100%;
-            max-height: 200px;
-            border-radius: 16px;
-            border: 1px solid #2b3f5e;
+            color: #7ddfb0;
+            font-size: 0.8rem;
+            display: inline-block;
+            border: 1px solid #1b4a3b;
         }
         @media (max-width: 480px) {
             .card { padding: 20px 16px; }
             .input-field button { padding: 10px 14px; font-size: 0.8rem; }
             .row-2col { flex-direction: column; }
-            .tabs button { font-size: 0.8rem; padding: 10px 12px; }
         }
     </style>
 </head>
 <body>
 <div class="card">
     <h1>
-        🖼️ Шифрование
-        <span>текст + картинки</span>
+        🔐 AES-256-GCM
+        <span class="badge-aes">безопасное шифрование</span>
     </h1>
 
-    <!-- Вкладки -->
-    <div class="tabs">
-        <button class="active" data-tab="text">📝 Текст</button>
-        <button data-tab="image">🖼️ Картинка</button>
-    </div>
-
-    <!-- Вкладка: Текст -->
-    <div id="tab-text" class="tab-content active">
-        <div class="control-panel">
-            <div class="input-group">
-                <label>
-                    <span>🔑 Ключевое слово</span>
-                    <i>(пароль шифрования)</i>
-                </label>
-                <div class="input-field">
-                    <input type="text" id="keyInput" placeholder="например: секрет" value="ключ">
-                    <button id="setKeyBtn">Установить</button>
-                </div>
-            </div>
-            <div class="row-2col">
-                <div class="input-group" style="margin-bottom: 0;">
-                    <label>📥 <span style="color:#b7d0ff;">Исходный текст</span></label>
-                    <div class="input-field">
-                        <input type="text" id="plainInput" placeholder="true или false" value="true">
-                        <button id="encryptBtn">Шифровать</button>
-                    </div>
-                </div>
-                <div class="input-group" style="margin-bottom: 0;">
-                    <label>📤 <span style="color:#b7d0ff;">Зашифрованный текст</span></label>
-                    <div class="input-field">
-                        <input type="text" id="cipherInput" placeholder="вставьте шифр">
-                        <button id="decryptBtn">Расшифровать</button>
-                    </div>
-                </div>
-            </div>
-            <div class="result-box">
-                <div class="result-label">
-                    <span>📋 Результат</span>
-                    <span class="badge" id="statusBadge">готов</span>
-                </div>
-                <div class="result-value" id="resultDisplay">—</div>
-            </div>
-            <div class="action-row">
-                <button id="encryptTrueBtn" class="primary">🔒 Зашифровать "true"</button>
-                <button id="decryptToTrueBtn">🔓 Расшифровать → true</button>
-                <button id="clearAllBtn">🧹 Очистить</button>
+    <div class="control-panel">
+        <div class="input-group">
+            <label>
+                <span>🔑 Пароль</span>
+                <span class="security-badge">256-битный ключ</span>
+            </label>
+            <div class="input-field">
+                <input type="password" id="passwordInput" placeholder="Введите пароль (минимум 8 символов)" value="мой_секретный_пароль_123">
+                <button id="generateKeyBtn">🎲 Сгенерировать</button>
             </div>
         </div>
-    </div>
 
-    <!-- Вкладка: Картинка -->
-    <div id="tab-image" class="tab-content">
-        <div class="control-panel">
-            <div class="input-group">
-                <label>
-                    <span>🔑 Ключевое слово</span>
-                    <i>(для шифрования картинки)</i>
-                </label>
+        <div class="row-2col">
+            <div class="input-group" style="margin-bottom:0;">
+                <label>📥 Исходный текст</label>
                 <div class="input-field">
-                    <input type="text" id="keyImageInput" placeholder="ключ для картинки" value="ключ">
-                    <button id="setImageKeyBtn">Установить</button>
+                    <textarea id="plainInput" rows="2" placeholder="Введите текст для шифрования">Привет, мир! Это тестовое сообщение.</textarea>
                 </div>
             </div>
-            <div class="input-group">
-                <label>📤 <span style="color:#b7d0ff;">Загрузить картинку</span></label>
-                <div class="image-upload">
-                    <label for="imageInput">📁 Выбрать файл</label>
-                    <input type="file" id="imageInput" accept="image/*">
-                    <span class="file-name" id="fileName">Файл не выбран</span>
+            <div class="input-group" style="margin-bottom:0;">
+                <label>📤 Зашифрованный текст (base64)</label>
+                <div class="input-field">
+                    <textarea id="cipherInput" rows="2" placeholder="Вставьте зашифрованный текст"></textarea>
                 </div>
-            </div>
-            <div class="image-preview" id="imagePreviewContainer">
-                <img id="imagePreview" style="display:none;" alt="Предпросмотр">
-            </div>
-            <div class="row-2col">
-                <div class="input-group" style="margin-bottom: 0;">
-                    <label>🔒 <span style="color:#b7d0ff;">Зашифрованная картинка</span></label>
-                    <div class="input-field">
-                        <input type="text" id="cipherImageInput" placeholder="шифр картинки (hex)">
-                        <button id="encryptImageBtn">Шифровать</button>
-                    </div>
-                </div>
-                <div class="input-group" style="margin-bottom: 0;">
-                    <label>🔓 <span style="color:#b7d0ff;">Расшифровать картинку</span></label>
-                    <div class="input-field">
-                        <input type="text" id="decryptImageInput" placeholder="вставьте шифр">
-                        <button id="decryptImageBtn">Расшифровать</button>
-                    </div>
-                </div>
-            </div>
-            <div class="result-box">
-                <div class="result-label">
-                    <span>🖼️ Результат</span>
-                    <span class="badge" id="imageStatusBadge">готов</span>
-                </div>
-                <div class="result-value" id="imageResultDisplay">—</div>
-            </div>
-            <div class="action-row">
-                <button id="clearImageBtn">🧹 Очистить</button>
             </div>
         </div>
-    </div>
 
-    <div class="hint">
-        <strong>Русский и картинки работают!</strong> Шифрование через UTF-8 байты + XOR.
-        Ключ «<span id="demoKeyDisplay">ключ</span>» шифрует "true" в <span id="demoEncDisplay">130f0415</span>
+        <div class="action-row">
+            <button id="encryptBtn" class="primary">🔒 Зашифровать</button>
+            <button id="decryptBtn" class="primary">🔓 Расшифровать</button>
+            <button id="clearBtn">🧹 Очистить</button>
+        </div>
+
+        <div class="result-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="color:#8aa2ca; font-size:0.8rem; text-transform:uppercase;">📋 Результат</span>
+                <span class="badge" id="statusBadge">готов</span>
+            </div>
+            <div class="result-value" id="resultDisplay">
+                <span style="color:#3c5277;">—</span>
+            </div>
+        </div>
+
+        <div class="hint">
+            <strong>AES-256-GCM</strong> — современный стандарт шифрования.
+            Используется в банках, VPN, правительственных системах.
+            <span style="display:block; margin-top:6px; color:#4a6a7a; font-size:0.7rem;">
+                ⚠️ Пароль должен быть длинным и сложным. Для максимальной безопасности используйте 16+ символов.
+            </span>
+        </div>
     </div>
 </div>
 
@@ -454,362 +282,250 @@
         "use strict";
 
         // -------------------- Элементы DOM --------------------
-        // Вкладки
-        const tabs = document.querySelectorAll('.tabs button');
-        const tabContents = {
-            text: document.getElementById('tab-text'),
-            image: document.getElementById('tab-image')
-        };
-
-        // Текстовая вкладка
-        const keyInput = document.getElementById('keyInput');
-        const setKeyBtn = document.getElementById('setKeyBtn');
+        const passwordInput = document.getElementById('passwordInput');
+        const generateKeyBtn = document.getElementById('generateKeyBtn');
         const plainInput = document.getElementById('plainInput');
         const cipherInput = document.getElementById('cipherInput');
         const encryptBtn = document.getElementById('encryptBtn');
         const decryptBtn = document.getElementById('decryptBtn');
+        const clearBtn = document.getElementById('clearBtn');
         const resultDisplay = document.getElementById('resultDisplay');
         const statusBadge = document.getElementById('statusBadge');
-        const encryptTrueBtn = document.getElementById('encryptTrueBtn');
-        const decryptToTrueBtn = document.getElementById('decryptToTrueBtn');
-        const clearAllBtn = document.getElementById('clearAllBtn');
 
-        // Картинка вкладка
-        const keyImageInput = document.getElementById('keyImageInput');
-        const setImageKeyBtn = document.getElementById('setImageKeyBtn');
-        const imageInput = document.getElementById('imageInput');
-        const fileName = document.getElementById('fileName');
-        const imagePreview = document.getElementById('imagePreview');
-        const cipherImageInput = document.getElementById('cipherImageInput');
-        const decryptImageInput = document.getElementById('decryptImageInput');
-        const encryptImageBtn = document.getElementById('encryptImageBtn');
-        const decryptImageBtn = document.getElementById('decryptImageBtn');
-        const imageResultDisplay = document.getElementById('imageResultDisplay');
-        const imageStatusBadge = document.getElementById('imageStatusBadge');
-        const clearImageBtn = document.getElementById('clearImageBtn');
+        // -------------------- Криптография (браузерная) --------------------
+        async function getKeyFromPassword(password) {
+            const encoder = new TextEncoder();
+            const passwordData = encoder.encode(password);
+            // Используем PBKDF2 для получения ключа из пароля
+            const keyMaterial = await crypto.subtle.importKey(
+                'raw',
+                passwordData,
+                'PBKDF2',
+                false,
+                ['deriveKey']
+            );
+            return crypto.subtle.deriveKey(
+                {
+                    name: 'PBKDF2',
+                    salt: encoder.encode('aes-gcm-salt-2024'), // фиксированная соль для простоты
+                    iterations: 100000,
+                    hash: 'SHA-256'
+                },
+                keyMaterial,
+                {
+                    name: 'AES-GCM',
+                    length: 256
+                },
+                false,
+                ['encrypt', 'decrypt']
+            );
+        }
 
-        const demoKeyDisplay = document.getElementById('demoKeyDisplay');
-        const demoEncDisplay = document.getElementById('demoEncDisplay');
+        async function encryptAES(plainText, password) {
+            if (!password || password.length < 8) {
+                throw new Error('Пароль должен быть минимум 8 символов');
+            }
+            const key = await getKeyFromPassword(password);
+            const encoder = new TextEncoder();
+            const data = encoder.encode(plainText);
+            
+            // Генерируем случайный IV (12 байт для GCM)
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+            
+            const encrypted = await crypto.subtle.encrypt(
+                {
+                    name: 'AES-GCM',
+                    iv: iv,
+                    tagLength: 128 // 16 байт тег аутентификации
+                },
+                key,
+                data
+            );
+            
+            // Объединяем IV + зашифрованные данные
+            const result = new Uint8Array(iv.length + encrypted.byteLength);
+            result.set(iv, 0);
+            result.set(new Uint8Array(encrypted), iv.length);
+            
+            // Возвращаем base64
+            return btoa(String.fromCharCode(...result));
+        }
 
-        // -------------------- Состояние --------------------
-        let currentKey = 'ключ';
-        let currentImageKey = 'ключ';
-        let currentImageData = null; // ArrayBuffer
-        let currentImageType = '';
+        async function decryptAES(cipherBase64, password) {
+            if (!password || password.length < 8) {
+                throw new Error('Пароль должен быть минимум 8 символов');
+            }
+            const key = await getKeyFromPassword(password);
+            
+            // Декодируем base64
+            const cipherData = Uint8Array.from(atob(cipherBase64), c => c.charCodeAt(0));
+            
+            // Извлекаем IV (первые 12 байт)
+            const iv = cipherData.slice(0, 12);
+            const encrypted = cipherData.slice(12);
+            
+            const decrypted = await crypto.subtle.decrypt(
+                {
+                    name: 'AES-GCM',
+                    iv: iv,
+                    tagLength: 128
+                },
+                key,
+                encrypted
+            );
+            
+            const decoder = new TextDecoder();
+            return decoder.decode(decrypted);
+        }
 
-        keyInput.value = currentKey;
-        keyImageInput.value = currentImageKey;
-        demoKeyDisplay.textContent = currentKey;
+        // -------------------- Генерация пароля --------------------
+        function generatePassword() {
+            const length = 24;
+            const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=';
+            let password = '';
+            const array = new Uint8Array(length);
+            crypto.getRandomValues(array);
+            for (let i = 0; i < length; i++) {
+                password += charset[array[i] % charset.length];
+            }
+            return password;
+        }
 
-        // -------------------- Вкладки --------------------
-        tabs.forEach(btn => {
-            btn.addEventListener('click', function() {
-                tabs.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                const tab = this.dataset.tab;
-                Object.keys(tabContents).forEach(key => {
-                    tabContents[key].classList.toggle('active', key === tab);
-                });
-            });
+        generateKeyBtn.addEventListener('click', function() {
+            const newPassword = generatePassword();
+            passwordInput.value = newPassword;
+            setResult('🔑 Сгенерирован новый пароль', false);
+            statusBadge.textContent = 'пароль обновлён';
+            setTimeout(() => {
+                if (resultDisplay.textContent.includes('Сгенерирован новый пароль')) {
+                    setEmptyResult();
+                }
+            }, 2500);
         });
 
-        // -------------------- Вспомогательные функции --------------------
-        function setResult(display, text, isError = false, isPlaceholder = false) {
-            display.textContent = text;
-            display.classList.remove('empty');
-            if (isError) {
-                display.style.color = '#f7a9a9';
-            } else if (isPlaceholder) {
-                display.style.color = '#3c5277';
-            } else {
-                display.style.color = '#d6e5ff';
+        // -------------------- Основные функции --------------------
+        function setResult(text, isError = false) {
+            resultDisplay.innerHTML = text;
+            resultDisplay.classList.remove('empty');
+            resultDisplay.style.color = isError ? '#f7a9a9' : '#7ddfb0';
+            statusBadge.textContent = isError ? 'ошибка' : 'успешно';
+            statusBadge.style.color = isError ? '#f7a9a9' : '#7ddfb0';
+        }
+
+        function setEmptyResult() {
+            resultDisplay.innerHTML = '<span style="color:#3c5277;">—</span>';
+            resultDisplay.classList.add('empty');
+            statusBadge.textContent = 'готов';
+            statusBadge.style.color = '#8aa2ca';
+        }
+
+        function formatResult(text, details = '') {
+            if (text.length > 100) {
+                return `<span class="label">результат</span> 
+                        <span class="value">${text.substring(0, 100)}...</span>
+                        <br><span style="font-size:0.7rem;color:#5a7a8a;">длина: ${text.length} символов</span>`;
             }
+            return `<span class="label">результат</span> 
+                    <span class="value">${text}</span>`;
         }
 
-        function setEmptyResult(display, badge, text = '—') {
-            display.textContent = text;
-            display.classList.add('empty');
-            display.style.color = '#3c5277';
-            if (badge) {
-                badge.textContent = 'готов';
-                badge.style.color = '#8aa2ca';
-            }
-        }
-
-        function setStatus(badge, text, color = '#b7d0ff') {
-            badge.textContent = text;
-            badge.style.color = color;
-        }
-
-        // -------------------- UTF-8 конвертеры --------------------
-        function stringToBytes(str) {
-            return new TextEncoder().encode(str);
-        }
-
-        function bytesToString(bytes) {
-            return new TextDecoder().decode(bytes);
-        }
-
-        // -------------------- Ядро шифрования (байтовое) --------------------
-        function encryptXorBytes(data, key) {
-            if (!key || key.length === 0) throw new Error('Ключ не может быть пустым');
-            const keyBytes = stringToBytes(key);
-            const result = new Uint8Array(data.length);
-            for (let i = 0; i < data.length; i++) {
-                result[i] = data[i] ^ keyBytes[i % keyBytes.length];
-            }
-            return result;
-        }
-
-        function encryptXor(plainText, key) {
-            const bytes = stringToBytes(plainText);
-            const encrypted = encryptXorBytes(bytes, key);
-            return Array.from(encrypted).map(b => b.toString(16).padStart(2, '0')).join('');
-        }
-
-        function decryptXor(hexString, key) {
-            if (hexString.length % 2 !== 0) throw new Error('Некорректный формат');
-            const bytes = new Uint8Array(
-                hexString.match(/.{1,2}/g).map(hex => parseInt(hex, 16))
-            );
-            const decrypted = encryptXorBytes(bytes, key);
-            return bytesToString(decrypted);
-        }
-
-        function decryptXorToBytes(hexString, key) {
-            if (hexString.length % 2 !== 0) throw new Error('Некорректный формат');
-            const bytes = new Uint8Array(
-                hexString.match(/.{1,2}/g).map(hex => parseInt(hex, 16))
-            );
-            return encryptXorBytes(bytes, key);
-        }
-
-        function bytesToHex(bytes) {
-            return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
-        }
-
-        // Обновляем демо-подсказку
-        function updateDemoHint() {
-            try {
-                const demoEnc = encryptXor('true', currentKey);
-                demoEncDisplay.textContent = demoEnc;
-                demoKeyDisplay.textContent = currentKey;
-            } catch (e) {
-                demoEncDisplay.textContent = 'ошибка';
-            }
-        }
-        updateDemoHint();
-
-        // -------------------- Текстовая вкладка --------------------
-        function handleEncrypt() {
+        async function handleEncrypt() {
             const plain = plainInput.value;
-            if (!plain) { setResult(resultDisplay, 'Введите текст', true); return; }
+            const password = passwordInput.value;
+            
+            if (!plain) {
+                setResult('❌ Введите текст для шифрования', true);
+                return;
+            }
+            if (!password || password.length < 8) {
+                setResult('❌ Пароль должен быть минимум 8 символов', true);
+                return;
+            }
+            
             try {
-                const encrypted = encryptXor(plain, currentKey);
+                const encrypted = await encryptAES(plain, password);
                 cipherInput.value = encrypted;
-                setResult(resultDisplay, `🔒 ${encrypted}`);
-                setStatus(statusBadge, 'успешно');
+                setResult(formatResult(encrypted, 'Зашифровано'));
+                statusBadge.textContent = '✅ зашифровано';
             } catch (e) {
-                setResult(resultDisplay, 'Ошибка: ' + e.message, true);
-                setStatus(statusBadge, 'ошибка', '#f7a9a9');
+                setResult('❌ Ошибка: ' + e.message, true);
+                statusBadge.textContent = 'ошибка';
+                statusBadge.style.color = '#f7a9a9';
             }
         }
 
-        function handleDecrypt() {
-            const cipher = cipherInput.value.trim();
-            if (!cipher) { setResult(resultDisplay, 'Введите шифр', true); return; }
+        async function handleDecrypt() {
+            const cipher = cipherInput.value;
+            const password = passwordInput.value;
+            
+            if (!cipher) {
+                setResult('❌ Введите зашифрованный текст', true);
+                return;
+            }
+            if (!password || password.length < 8) {
+                setResult('❌ Пароль должен быть минимум 8 символов', true);
+                return;
+            }
+            
             try {
-                const decrypted = decryptXor(cipher, currentKey);
+                const decrypted = await decryptAES(cipher, password);
                 plainInput.value = decrypted;
-                setResult(resultDisplay, `🔓 ${decrypted}`);
-                setStatus(statusBadge, 'успешно');
+                setResult(formatResult(decrypted, 'Расшифровано'));
+                statusBadge.textContent = '✅ расшифровано';
             } catch (e) {
-                setResult(resultDisplay, 'Ошибка: ' + e.message, true);
-                setStatus(statusBadge, 'ошибка', '#f7a9a9');
-            }
-        }
-
-        function setKey() {
-            const newKey = keyInput.value.trim();
-            if (!newKey) { setResult(resultDisplay, 'Ключ не может быть пустым', true); return; }
-            currentKey = newKey;
-            updateDemoHint();
-            setResult(resultDisplay, `Ключ установлен: «${currentKey}»`);
-            setStatus(statusBadge, 'ключ готов');
-            setTimeout(() => {
-                if (resultDisplay.textContent === `Ключ установлен: «${currentKey}»`) {
-                    setEmptyResult(resultDisplay, statusBadge);
-                }
-            }, 2000);
-        }
-
-        function encryptTrue() {
-            plainInput.value = 'true';
-            handleEncrypt();
-        }
-
-        function decryptToTrue() {
-            if (cipherInput.value.trim() === '') {
-                plainInput.value = 'true';
-                handleEncrypt();
-                setTimeout(handleDecrypt, 50);
-            } else {
-                handleDecrypt();
+                setResult('❌ Ошибка: ' + e.message, true);
+                statusBadge.textContent = 'ошибка';
+                statusBadge.style.color = '#f7a9a9';
             }
         }
 
         function clearAll() {
             plainInput.value = '';
             cipherInput.value = '';
-            setEmptyResult(resultDisplay, statusBadge);
-            setStatus(statusBadge, 'очищено', '#8aa2ca');
-            setTimeout(() => setStatus(statusBadge, 'готов'), 800);
+            setEmptyResult();
+            statusBadge.textContent = 'очищено';
+            statusBadge.style.color = '#8aa2ca';
+            setTimeout(() => {
+                statusBadge.textContent = 'готов';
+                statusBadge.style.color = '#8aa2ca';
+            }, 800);
         }
 
+        // -------------------- Обработчики --------------------
         encryptBtn.addEventListener('click', handleEncrypt);
         decryptBtn.addEventListener('click', handleDecrypt);
-        setKeyBtn.addEventListener('click', setKey);
-        encryptTrueBtn.addEventListener('click', encryptTrue);
-        decryptToTrueBtn.addEventListener('click', decryptToTrue);
-        clearAllBtn.addEventListener('click', clearAll);
+        clearBtn.addEventListener('click', clearAll);
 
-        plainInput.addEventListener('keydown', e => { if (e.key === 'Enter') handleEncrypt(); });
-        cipherInput.addEventListener('keydown', e => { if (e.key === 'Enter') handleDecrypt(); });
-        keyInput.addEventListener('keydown', e => { if (e.key === 'Enter') setKey(); });
-
-        // -------------------- Картинка вкладка --------------------
-        function setImageResult(text, isError = false) {
-            imageResultDisplay.innerHTML = text;
-            imageResultDisplay.classList.remove('empty');
-            imageResultDisplay.style.color = isError ? '#f7a9a9' : '#d6e5ff';
-            imageStatusBadge.textContent = isError ? 'ошибка' : 'успешно';
-            imageStatusBadge.style.color = isError ? '#f7a9a9' : '#b7d0ff';
-        }
-
-        function setEmptyImageResult() {
-            imageResultDisplay.innerHTML = '—';
-            imageResultDisplay.classList.add('empty');
-            imageResultDisplay.style.color = '#3c5277';
-            imageStatusBadge.textContent = 'готов';
-            imageStatusBadge.style.color = '#8aa2ca';
-        }
-
-        // Загрузка картинки
-        imageInput.addEventListener('change', function(e) {
-            const file = this.files[0];
-            if (!file) return;
-            fileName.textContent = file.name;
-            currentImageType = file.type;
-
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                const arrayBuffer = ev.target.result;
-                currentImageData = arrayBuffer;
-                // Превью
-                const blob = new Blob([arrayBuffer], { type: file.type });
-                const url = URL.createObjectURL(blob);
-                imagePreview.src = url;
-                imagePreview.style.display = 'block';
-                setImageResult(`✅ Загружено: ${file.name} (${(arrayBuffer.byteLength / 1024).toFixed(1)} KB)`);
-            };
-            reader.readAsArrayBuffer(file);
+        plainInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.ctrlKey) handleEncrypt();
         });
-
-        // Установка ключа для картинки
-        setImageKeyBtn.addEventListener('click', function() {
-            const newKey = keyImageInput.value.trim();
-            if (!newKey) { setImageResult('Ключ не может быть пустым', true); return; }
-            currentImageKey = newKey;
-            setImageResult(`Ключ для картинки: «${currentImageKey}»`);
-            setTimeout(setEmptyImageResult, 1500);
+        cipherInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.ctrlKey) handleDecrypt();
         });
-
-        // Шифрование картинки
-        encryptImageBtn.addEventListener('click', function() {
-            if (!currentImageData) {
-                setImageResult('❌ Сначала загрузите картинку', true);
-                return;
-            }
-            try {
-                const data = new Uint8Array(currentImageData);
-                const encrypted = encryptXorBytes(data, currentImageKey);
-                const hex = bytesToHex(encrypted);
-                cipherImageInput.value = hex;
-                decryptImageInput.value = '';
-                setImageResult(`🔒 Картинка зашифрована (${(encrypted.length / 1024).toFixed(1)} KB)`);
-                // Показываем зашифрованную картинку (как шум)
-                // Нельзя показать как изображение, т.к. это уже не картинка
-                imagePreview.style.display = 'none';
-            } catch (e) {
-                setImageResult('Ошибка: ' + e.message, true);
-            }
-        });
-
-        // Расшифровка картинки из hex
-        decryptImageBtn.addEventListener('click', function() {
-            const hex = decryptImageInput.value.trim() || cipherImageInput.value.trim();
-            if (!hex) {
-                setImageResult('❌ Введите шифр картинки', true);
-                return;
-            }
-            try {
-                const decryptedBytes = decryptXorToBytes(hex, currentImageKey);
-                // Восстанавливаем картинку
-                const blob = new Blob([decryptedBytes], { type: currentImageType || 'image/png' });
-                const url = URL.createObjectURL(blob);
-                imagePreview.src = url;
-                imagePreview.style.display = 'block';
-                setImageResult(`🔓 Картинка расшифрована (${(decryptedBytes.length / 1024).toFixed(1)} KB)`);
-                // Сохраняем как загруженную
-                currentImageData = decryptedBytes.buffer;
-                // Обновляем fileName
-                fileName.textContent = 'расшифровано';
-            } catch (e) {
-                setImageResult('Ошибка: ' + e.message, true);
-            }
-        });
-
-        // Очистка картинок
-        clearImageBtn.addEventListener('click', function() {
-            currentImageData = null;
-            currentImageType = '';
-            imageInput.value = '';
-            fileName.textContent = 'Файл не выбран';
-            imagePreview.style.display = 'none';
-            cipherImageInput.value = '';
-            decryptImageInput.value = '';
-            setEmptyImageResult();
-            imageStatusBadge.textContent = 'очищено';
-            imageStatusBadge.style.color = '#8aa2ca';
-            setTimeout(() => {
-                imageStatusBadge.textContent = 'готов';
-                imageStatusBadge.style.color = '#8aa2ca';
-            }, 800);
-        });
-
-        // Enter на полях картинки
-        keyImageInput.addEventListener('keydown', e => { if (e.key === 'Enter') setImageKeyBtn.click(); });
-        cipherImageInput.addEventListener('keydown', e => { if (e.key === 'Enter') encryptImageBtn.click(); });
-        decryptImageInput.addEventListener('keydown', e => { if (e.key === 'Enter') decryptImageBtn.click(); });
 
         // -------------------- Инициализация --------------------
-        setEmptyResult(resultDisplay, statusBadge);
-        setEmptyImageResult();
-
-        // Демо-пример для текста
-        setTimeout(() => {
-            plainInput.value = 'true';
+        setEmptyResult();
+        
+        // Демо-пример
+        setTimeout(async () => {
             try {
-                const demoEnc = encryptXor('true', currentKey);
-                cipherInput.value = demoEnc;
-                setResult(resultDisplay, `🔒 ${demoEnc} (демо)`);
-                setStatus(statusBadge, 'демо', '#b7d0ff');
+                const demoText = 'Привет! Это демонстрация AES-256-GCM шифрования.';
+                const demoPass = passwordInput.value || 'мой_секретный_пароль_123';
+                const encrypted = await encryptAES(demoText, demoPass);
+                plainInput.value = demoText;
+                cipherInput.value = encrypted;
+                setResult('🔐 Демонстрация готова! Нажмите "Расшифровать"', false);
+                statusBadge.textContent = 'демо';
                 setTimeout(() => {
-                    setEmptyResult(resultDisplay, statusBadge);
-                    setStatus(statusBadge, 'готов');
-                }, 2500);
-            } catch (e) {}
-        }, 400);
+                    if (resultDisplay.textContent.includes('Демонстрация')) {
+                        setEmptyResult();
+                        statusBadge.textContent = 'готов';
+                    }
+                }, 3000);
+            } catch (e) {
+                // игнорируем
+            }
+        }, 500);
     })();
 </script>
 </body>
