@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Шифрование true ↔ ключ (русский работает!)</title>
+    <title>Шифрование текста и картинок</title>
     <style>
         * {
             box-sizing: border-box;
@@ -19,7 +19,7 @@
             padding: 20px;
         }
         .card {
-            max-width: 750px;
+            max-width: 850px;
             width: 100%;
             background: rgba(255, 255, 255, 0.07);
             backdrop-filter: blur(10px);
@@ -48,6 +48,43 @@
             margin-left: 10px;
             border: 1px solid #4a5c80;
         }
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            background: #0f1a2b;
+            padding: 6px;
+            border-radius: 60px;
+            border: 1px solid #1f3147;
+        }
+        .tabs button {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 40px;
+            color: #8aa2ca;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.2s;
+            letter-spacing: 0.3px;
+        }
+        .tabs button.active {
+            background: #2b3f62;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+        .tabs button:hover:not(.active) {
+            background: #1a2a45;
+            color: #c0d2f5;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
         .control-panel {
             background: #111c2b;
             border-radius: 32px;
@@ -59,7 +96,7 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
-            margin-bottom: 24px;
+            margin-bottom: 18px;
         }
         .input-group label {
             color: #a6bbdd;
@@ -143,7 +180,7 @@
             background: #0b1424;
             border-radius: 28px;
             padding: 16px 20px;
-            margin-top: 20px;
+            margin-top: 16px;
             border: 1px solid #263a57;
             box-shadow: inset 0 2px 6px rgba(0,0,0,0.6);
         }
@@ -159,7 +196,7 @@
         }
         .result-value {
             font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 500;
             color: #d6e5ff;
             word-break: break-all;
@@ -176,10 +213,16 @@
             font-style: italic;
             font-weight: 300;
         }
+        .result-value img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 12px;
+            object-fit: contain;
+        }
         .action-row {
             display: flex;
             gap: 12px;
-            margin-top: 22px;
+            margin-top: 18px;
             flex-wrap: wrap;
         }
         .action-row button {
@@ -240,75 +283,169 @@
             font-size: 0.7rem;
             border: 1px solid #37517a;
         }
-        .flex-icon {
-            font-size: 1.1rem;
-            opacity: 0.8;
+        .image-upload {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            background: #0a121f;
+            padding: 12px 16px;
+            border-radius: 60px;
+            border: 1px solid #2b3f5e;
+        }
+        .image-upload input[type="file"] {
+            display: none;
+        }
+        .image-upload label {
+            background: #2b3f62;
+            padding: 10px 20px;
+            border-radius: 40px;
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: 0.15s;
+            border: 1px solid #405a82;
+        }
+        .image-upload label:hover {
+            background: #3b5280;
+        }
+        .image-upload .file-name {
+            color: #a6bbdd;
+            font-size: 0.9rem;
+            flex: 1;
+        }
+        .image-preview {
+            margin-top: 12px;
+            text-align: center;
+        }
+        .image-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 16px;
+            border: 1px solid #2b3f5e;
         }
         @media (max-width: 480px) {
             .card { padding: 20px 16px; }
             .input-field button { padding: 10px 14px; font-size: 0.8rem; }
             .row-2col { flex-direction: column; }
+            .tabs button { font-size: 0.8rem; padding: 10px 12px; }
         }
     </style>
 </head>
 <body>
 <div class="card">
     <h1>
-        🔐 тест шифра
-        <span>true</span>
+        🖼️ Шифрование
+        <span>текст + картинки</span>
     </h1>
 
-    <div class="control-panel">
-        <!-- Ввод ключа -->
-        <div class="input-group">
-            <label>
-                <span>🔑 Ключевое слово</span>
-                <i>(пароль шифрования)</i>
-            </label>
-            <div class="input-field">
-                <input type="text" id="keyInput" placeholder="например: секрет" value="ключ">
-                <button id="setKeyBtn">Установить</button>
-            </div>
-        </div>
+    <!-- Вкладки -->
+    <div class="tabs">
+        <button class="active" data-tab="text">📝 Текст</button>
+        <button data-tab="image">🖼️ Картинка</button>
+    </div>
 
-        <!-- Две колонки: ввод true / false -->
-        <div class="row-2col">
-            <div class="input-group" style="margin-bottom: 0;">
-                <label>📥 <span style="color:#b7d0ff;">Исходное значение</span></label>
+    <!-- Вкладка: Текст -->
+    <div id="tab-text" class="tab-content active">
+        <div class="control-panel">
+            <div class="input-group">
+                <label>
+                    <span>🔑 Ключевое слово</span>
+                    <i>(пароль шифрования)</i>
+                </label>
                 <div class="input-field">
-                    <input type="text" id="plainInput" placeholder="true или false" value="true">
-                    <button id="encryptBtn">Шифровать</button>
+                    <input type="text" id="keyInput" placeholder="например: секрет" value="ключ">
+                    <button id="setKeyBtn">Установить</button>
                 </div>
             </div>
-            <div class="input-group" style="margin-bottom: 0;">
-                <label>📤 <span style="color:#b7d0ff;">Зашифрованный текст</span></label>
-                <div class="input-field">
-                    <input type="text" id="cipherInput" placeholder="вставьте шифр">
-                    <button id="decryptBtn">Расшифровать</button>
+            <div class="row-2col">
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label>📥 <span style="color:#b7d0ff;">Исходный текст</span></label>
+                    <div class="input-field">
+                        <input type="text" id="plainInput" placeholder="true или false" value="true">
+                        <button id="encryptBtn">Шифровать</button>
+                    </div>
+                </div>
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label>📤 <span style="color:#b7d0ff;">Зашифрованный текст</span></label>
+                    <div class="input-field">
+                        <input type="text" id="cipherInput" placeholder="вставьте шифр">
+                        <button id="decryptBtn">Расшифровать</button>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Результат -->
-        <div class="result-box">
-            <div class="result-label">
-                <span>📋 Результат</span>
-                <span class="badge" id="statusBadge">готов</span>
+            <div class="result-box">
+                <div class="result-label">
+                    <span>📋 Результат</span>
+                    <span class="badge" id="statusBadge">готов</span>
+                </div>
+                <div class="result-value" id="resultDisplay">—</div>
             </div>
-            <div class="result-value" id="resultDisplay">—</div>
+            <div class="action-row">
+                <button id="encryptTrueBtn" class="primary">🔒 Зашифровать "true"</button>
+                <button id="decryptToTrueBtn">🔓 Расшифровать → true</button>
+                <button id="clearAllBtn">🧹 Очистить</button>
+            </div>
         </div>
+    </div>
 
-        <!-- Действия -->
-        <div class="action-row">
-            <button id="encryptTrueBtn" class="primary">🔒 Зашифровать "true"</button>
-            <button id="decryptToTrueBtn">🔓 Расшифровать → true</button>
-            <button id="clearAllBtn">🧹 Очистить</button>
+    <!-- Вкладка: Картинка -->
+    <div id="tab-image" class="tab-content">
+        <div class="control-panel">
+            <div class="input-group">
+                <label>
+                    <span>🔑 Ключевое слово</span>
+                    <i>(для шифрования картинки)</i>
+                </label>
+                <div class="input-field">
+                    <input type="text" id="keyImageInput" placeholder="ключ для картинки" value="ключ">
+                    <button id="setImageKeyBtn">Установить</button>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>📤 <span style="color:#b7d0ff;">Загрузить картинку</span></label>
+                <div class="image-upload">
+                    <label for="imageInput">📁 Выбрать файл</label>
+                    <input type="file" id="imageInput" accept="image/*">
+                    <span class="file-name" id="fileName">Файл не выбран</span>
+                </div>
+            </div>
+            <div class="image-preview" id="imagePreviewContainer">
+                <img id="imagePreview" style="display:none;" alt="Предпросмотр">
+            </div>
+            <div class="row-2col">
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label>🔒 <span style="color:#b7d0ff;">Зашифрованная картинка</span></label>
+                    <div class="input-field">
+                        <input type="text" id="cipherImageInput" placeholder="шифр картинки (hex)">
+                        <button id="encryptImageBtn">Шифровать</button>
+                    </div>
+                </div>
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label>🔓 <span style="color:#b7d0ff;">Расшифровать картинку</span></label>
+                    <div class="input-field">
+                        <input type="text" id="decryptImageInput" placeholder="вставьте шифр">
+                        <button id="decryptImageBtn">Расшифровать</button>
+                    </div>
+                </div>
+            </div>
+            <div class="result-box">
+                <div class="result-label">
+                    <span>🖼️ Результат</span>
+                    <span class="badge" id="imageStatusBadge">готов</span>
+                </div>
+                <div class="result-value" id="imageResultDisplay">—</div>
+            </div>
+            <div class="action-row">
+                <button id="clearImageBtn">🧹 Очистить</button>
+            </div>
         </div>
+    </div>
 
-        <div class="hint">
-            <strong>Русский работает!</strong> Шифрование через UTF-8 байты + XOR.
-            Ключ «<span id="demoKeyDisplay">ключ</span>» шифрует "true" в <span id="demoEncDisplay">130f0415</span>
-        </div>
+    <div class="hint">
+        <strong>Русский и картинки работают!</strong> Шифрование через UTF-8 байты + XOR.
+        Ключ «<span id="demoKeyDisplay">ключ</span>» шифрует "true" в <span id="demoEncDisplay">130f0415</span>
     </div>
 </div>
 
@@ -316,7 +453,15 @@
     (function() {
         "use strict";
 
-        // -------------------- элементы DOM --------------------
+        // -------------------- Элементы DOM --------------------
+        // Вкладки
+        const tabs = document.querySelectorAll('.tabs button');
+        const tabContents = {
+            text: document.getElementById('tab-text'),
+            image: document.getElementById('tab-image')
+        };
+
+        // Текстовая вкладка
         const keyInput = document.getElementById('keyInput');
         const setKeyBtn = document.getElementById('setKeyBtn');
         const plainInput = document.getElementById('plainInput');
@@ -325,92 +470,125 @@
         const decryptBtn = document.getElementById('decryptBtn');
         const resultDisplay = document.getElementById('resultDisplay');
         const statusBadge = document.getElementById('statusBadge');
-        const demoKeyDisplay = document.getElementById('demoKeyDisplay');
-        const demoEncDisplay = document.getElementById('demoEncDisplay');
-
         const encryptTrueBtn = document.getElementById('encryptTrueBtn');
         const decryptToTrueBtn = document.getElementById('decryptToTrueBtn');
         const clearAllBtn = document.getElementById('clearAllBtn');
 
-        // -------------------- состояние --------------------
+        // Картинка вкладка
+        const keyImageInput = document.getElementById('keyImageInput');
+        const setImageKeyBtn = document.getElementById('setImageKeyBtn');
+        const imageInput = document.getElementById('imageInput');
+        const fileName = document.getElementById('fileName');
+        const imagePreview = document.getElementById('imagePreview');
+        const cipherImageInput = document.getElementById('cipherImageInput');
+        const decryptImageInput = document.getElementById('decryptImageInput');
+        const encryptImageBtn = document.getElementById('encryptImageBtn');
+        const decryptImageBtn = document.getElementById('decryptImageBtn');
+        const imageResultDisplay = document.getElementById('imageResultDisplay');
+        const imageStatusBadge = document.getElementById('imageStatusBadge');
+        const clearImageBtn = document.getElementById('clearImageBtn');
+
+        const demoKeyDisplay = document.getElementById('demoKeyDisplay');
+        const demoEncDisplay = document.getElementById('demoEncDisplay');
+
+        // -------------------- Состояние --------------------
         let currentKey = 'ключ';
+        let currentImageKey = 'ключ';
+        let currentImageData = null; // ArrayBuffer
+        let currentImageType = '';
+
         keyInput.value = currentKey;
+        keyImageInput.value = currentImageKey;
         demoKeyDisplay.textContent = currentKey;
 
-        // -------------------- вспомогательные функции --------------------
-        function setResult(text, isError = false, isPlaceholder = false) {
-            resultDisplay.textContent = text;
-            resultDisplay.classList.remove('empty');
+        // -------------------- Вкладки --------------------
+        tabs.forEach(btn => {
+            btn.addEventListener('click', function() {
+                tabs.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const tab = this.dataset.tab;
+                Object.keys(tabContents).forEach(key => {
+                    tabContents[key].classList.toggle('active', key === tab);
+                });
+            });
+        });
+
+        // -------------------- Вспомогательные функции --------------------
+        function setResult(display, text, isError = false, isPlaceholder = false) {
+            display.textContent = text;
+            display.classList.remove('empty');
             if (isError) {
-                resultDisplay.style.color = '#f7a9a9';
-                statusBadge.textContent = 'ошибка';
-                statusBadge.style.color = '#f7a9a9';
+                display.style.color = '#f7a9a9';
             } else if (isPlaceholder) {
-                resultDisplay.style.color = '#3c5277';
-                statusBadge.textContent = 'ожидание';
-                statusBadge.style.color = '#8aa2ca';
+                display.style.color = '#3c5277';
             } else {
-                resultDisplay.style.color = '#d6e5ff';
-                statusBadge.textContent = 'успешно';
-                statusBadge.style.color = '#b7d0ff';
+                display.style.color = '#d6e5ff';
             }
         }
 
-        function setEmptyResult() {
-            resultDisplay.textContent = '—';
-            resultDisplay.classList.add('empty');
-            resultDisplay.style.color = '#3c5277';
-            statusBadge.textContent = 'готов';
-            statusBadge.style.color = '#8aa2ca';
+        function setEmptyResult(display, badge, text = '—') {
+            display.textContent = text;
+            display.classList.add('empty');
+            display.style.color = '#3c5277';
+            if (badge) {
+                badge.textContent = 'готов';
+                badge.style.color = '#8aa2ca';
+            }
+        }
+
+        function setStatus(badge, text, color = '#b7d0ff') {
+            badge.textContent = text;
+            badge.style.color = color;
         }
 
         // -------------------- UTF-8 конвертеры --------------------
         function stringToBytes(str) {
-            const encoder = new TextEncoder();
-            return encoder.encode(str);
+            return new TextEncoder().encode(str);
         }
 
         function bytesToString(bytes) {
-            const decoder = new TextDecoder();
-            return decoder.decode(bytes);
+            return new TextDecoder().decode(bytes);
         }
 
-        // -------------------- ядро шифрования (байтовое) --------------------
-        function encryptXor(plainText, key) {
-            if (!key || key.length === 0) {
-                throw new Error('Ключ не может быть пустым');
-            }
-            const plainBytes = stringToBytes(plainText);
+        // -------------------- Ядро шифрования (байтовое) --------------------
+        function encryptXorBytes(data, key) {
+            if (!key || key.length === 0) throw new Error('Ключ не может быть пустым');
             const keyBytes = stringToBytes(key);
-            const result = new Uint8Array(plainBytes.length);
-            for (let i = 0; i < plainBytes.length; i++) {
-                result[i] = plainBytes[i] ^ keyBytes[i % keyBytes.length];
+            const result = new Uint8Array(data.length);
+            for (let i = 0; i < data.length; i++) {
+                result[i] = data[i] ^ keyBytes[i % keyBytes.length];
             }
-            // в hex
-            return Array.from(result)
-                .map(b => b.toString(16).padStart(2, '0'))
-                .join('');
+            return result;
+        }
+
+        function encryptXor(plainText, key) {
+            const bytes = stringToBytes(plainText);
+            const encrypted = encryptXorBytes(bytes, key);
+            return Array.from(encrypted).map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
         function decryptXor(hexString, key) {
-            if (!key || key.length === 0) {
-                throw new Error('Ключ не может быть пустым');
-            }
-            if (hexString.length % 2 !== 0) {
-                throw new Error('Некорректный зашифрованный формат (должен быть чётным)');
-            }
+            if (hexString.length % 2 !== 0) throw new Error('Некорректный формат');
             const bytes = new Uint8Array(
                 hexString.match(/.{1,2}/g).map(hex => parseInt(hex, 16))
             );
-            const keyBytes = stringToBytes(key);
-            const result = new Uint8Array(bytes.length);
-            for (let i = 0; i < bytes.length; i++) {
-                result[i] = bytes[i] ^ keyBytes[i % keyBytes.length];
-            }
-            return bytesToString(result);
+            const decrypted = encryptXorBytes(bytes, key);
+            return bytesToString(decrypted);
         }
 
-        // обновляем демо-подсказку
+        function decryptXorToBytes(hexString, key) {
+            if (hexString.length % 2 !== 0) throw new Error('Некорректный формат');
+            const bytes = new Uint8Array(
+                hexString.match(/.{1,2}/g).map(hex => parseInt(hex, 16))
+            );
+            return encryptXorBytes(bytes, key);
+        }
+
+        function bytesToHex(bytes) {
+            return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // Обновляем демо-подсказку
         function updateDemoHint() {
             try {
                 const demoEnc = encryptXor('true', currentKey);
@@ -422,59 +600,45 @@
         }
         updateDemoHint();
 
-        // -------------------- обработчики --------------------
+        // -------------------- Текстовая вкладка --------------------
         function handleEncrypt() {
             const plain = plainInput.value;
-            if (plain === '') {
-                setResult('Введите текст для шифрования', true);
-                return;
-            }
-            if (!currentKey || currentKey.length === 0) {
-                setResult('Установите ключевое слово', true);
-                return;
-            }
+            if (!plain) { setResult(resultDisplay, 'Введите текст', true); return; }
             try {
                 const encrypted = encryptXor(plain, currentKey);
                 cipherInput.value = encrypted;
-                setResult(`🔒 ${encrypted}`, false);
+                setResult(resultDisplay, `🔒 ${encrypted}`);
+                setStatus(statusBadge, 'успешно');
             } catch (e) {
-                setResult('Ошибка: ' + e.message, true);
+                setResult(resultDisplay, 'Ошибка: ' + e.message, true);
+                setStatus(statusBadge, 'ошибка', '#f7a9a9');
             }
         }
 
         function handleDecrypt() {
             const cipher = cipherInput.value.trim();
-            if (cipher === '') {
-                setResult('Введите зашифрованный текст', true);
-                return;
-            }
-            if (!currentKey || currentKey.length === 0) {
-                setResult('Установите ключевое слово', true);
-                return;
-            }
+            if (!cipher) { setResult(resultDisplay, 'Введите шифр', true); return; }
             try {
                 const decrypted = decryptXor(cipher, currentKey);
                 plainInput.value = decrypted;
-                setResult(`🔓 ${decrypted}`, false);
+                setResult(resultDisplay, `🔓 ${decrypted}`);
+                setStatus(statusBadge, 'успешно');
             } catch (e) {
-                setResult('Ошибка: ' + e.message, true);
+                setResult(resultDisplay, 'Ошибка: ' + e.message, true);
+                setStatus(statusBadge, 'ошибка', '#f7a9a9');
             }
         }
 
         function setKey() {
             const newKey = keyInput.value.trim();
-            if (newKey === '') {
-                setResult('Ключ не может быть пустым', true);
-                return;
-            }
+            if (!newKey) { setResult(resultDisplay, 'Ключ не может быть пустым', true); return; }
             currentKey = newKey;
             updateDemoHint();
-            setResult(`Ключ установлен: «${currentKey}»`, false);
-            statusBadge.textContent = 'ключ готов';
-            statusBadge.style.color = '#b7d0ff';
+            setResult(resultDisplay, `Ключ установлен: «${currentKey}»`);
+            setStatus(statusBadge, 'ключ готов');
             setTimeout(() => {
                 if (resultDisplay.textContent === `Ключ установлен: «${currentKey}»`) {
-                    setEmptyResult();
+                    setEmptyResult(resultDisplay, statusBadge);
                 }
             }, 2000);
         }
@@ -485,71 +649,166 @@
         }
 
         function decryptToTrue() {
-            // если поле cipher пустое — зашифруем true и расшифруем
             if (cipherInput.value.trim() === '') {
                 plainInput.value = 'true';
                 handleEncrypt();
-                setTimeout(() => {
-                    handleDecrypt();
-                }, 50);
+                setTimeout(handleDecrypt, 50);
             } else {
                 handleDecrypt();
-                // если после расшифровки не true — подскажем
-                setTimeout(() => {
-                    if (plainInput.value.trim() !== 'true') {
-                        setResult('Расшифровано, но не "true". Проверьте ключ или шифр.', true);
-                    }
-                }, 50);
             }
         }
 
         function clearAll() {
             plainInput.value = '';
             cipherInput.value = '';
-            setEmptyResult();
-            statusBadge.textContent = 'очищено';
-            statusBadge.style.color = '#8aa2ca';
-            setTimeout(() => {
-                statusBadge.textContent = 'готов';
-            }, 800);
+            setEmptyResult(resultDisplay, statusBadge);
+            setStatus(statusBadge, 'очищено', '#8aa2ca');
+            setTimeout(() => setStatus(statusBadge, 'готов'), 800);
         }
 
-        // -------------------- привязка событий --------------------
         encryptBtn.addEventListener('click', handleEncrypt);
         decryptBtn.addEventListener('click', handleDecrypt);
         setKeyBtn.addEventListener('click', setKey);
-
         encryptTrueBtn.addEventListener('click', encryptTrue);
         decryptToTrueBtn.addEventListener('click', decryptToTrue);
         clearAllBtn.addEventListener('click', clearAll);
 
-        plainInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') handleEncrypt();
-        });
-        cipherInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') handleDecrypt();
-        });
-        keyInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') setKey();
+        plainInput.addEventListener('keydown', e => { if (e.key === 'Enter') handleEncrypt(); });
+        cipherInput.addEventListener('keydown', e => { if (e.key === 'Enter') handleDecrypt(); });
+        keyInput.addEventListener('keydown', e => { if (e.key === 'Enter') setKey(); });
+
+        // -------------------- Картинка вкладка --------------------
+        function setImageResult(text, isError = false) {
+            imageResultDisplay.innerHTML = text;
+            imageResultDisplay.classList.remove('empty');
+            imageResultDisplay.style.color = isError ? '#f7a9a9' : '#d6e5ff';
+            imageStatusBadge.textContent = isError ? 'ошибка' : 'успешно';
+            imageStatusBadge.style.color = isError ? '#f7a9a9' : '#b7d0ff';
+        }
+
+        function setEmptyImageResult() {
+            imageResultDisplay.innerHTML = '—';
+            imageResultDisplay.classList.add('empty');
+            imageResultDisplay.style.color = '#3c5277';
+            imageStatusBadge.textContent = 'готов';
+            imageStatusBadge.style.color = '#8aa2ca';
+        }
+
+        // Загрузка картинки
+        imageInput.addEventListener('change', function(e) {
+            const file = this.files[0];
+            if (!file) return;
+            fileName.textContent = file.name;
+            currentImageType = file.type;
+
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                const arrayBuffer = ev.target.result;
+                currentImageData = arrayBuffer;
+                // Превью
+                const blob = new Blob([arrayBuffer], { type: file.type });
+                const url = URL.createObjectURL(blob);
+                imagePreview.src = url;
+                imagePreview.style.display = 'block';
+                setImageResult(`✅ Загружено: ${file.name} (${(arrayBuffer.byteLength / 1024).toFixed(1)} KB)`);
+            };
+            reader.readAsArrayBuffer(file);
         });
 
-        // -------------------- инициализация --------------------
-        setEmptyResult();
-        // показываем демо-пример через 0.5 сек
+        // Установка ключа для картинки
+        setImageKeyBtn.addEventListener('click', function() {
+            const newKey = keyImageInput.value.trim();
+            if (!newKey) { setImageResult('Ключ не может быть пустым', true); return; }
+            currentImageKey = newKey;
+            setImageResult(`Ключ для картинки: «${currentImageKey}»`);
+            setTimeout(setEmptyImageResult, 1500);
+        });
+
+        // Шифрование картинки
+        encryptImageBtn.addEventListener('click', function() {
+            if (!currentImageData) {
+                setImageResult('❌ Сначала загрузите картинку', true);
+                return;
+            }
+            try {
+                const data = new Uint8Array(currentImageData);
+                const encrypted = encryptXorBytes(data, currentImageKey);
+                const hex = bytesToHex(encrypted);
+                cipherImageInput.value = hex;
+                decryptImageInput.value = '';
+                setImageResult(`🔒 Картинка зашифрована (${(encrypted.length / 1024).toFixed(1)} KB)`);
+                // Показываем зашифрованную картинку (как шум)
+                // Нельзя показать как изображение, т.к. это уже не картинка
+                imagePreview.style.display = 'none';
+            } catch (e) {
+                setImageResult('Ошибка: ' + e.message, true);
+            }
+        });
+
+        // Расшифровка картинки из hex
+        decryptImageBtn.addEventListener('click', function() {
+            const hex = decryptImageInput.value.trim() || cipherImageInput.value.trim();
+            if (!hex) {
+                setImageResult('❌ Введите шифр картинки', true);
+                return;
+            }
+            try {
+                const decryptedBytes = decryptXorToBytes(hex, currentImageKey);
+                // Восстанавливаем картинку
+                const blob = new Blob([decryptedBytes], { type: currentImageType || 'image/png' });
+                const url = URL.createObjectURL(blob);
+                imagePreview.src = url;
+                imagePreview.style.display = 'block';
+                setImageResult(`🔓 Картинка расшифрована (${(decryptedBytes.length / 1024).toFixed(1)} KB)`);
+                // Сохраняем как загруженную
+                currentImageData = decryptedBytes.buffer;
+                // Обновляем fileName
+                fileName.textContent = 'расшифровано';
+            } catch (e) {
+                setImageResult('Ошибка: ' + e.message, true);
+            }
+        });
+
+        // Очистка картинок
+        clearImageBtn.addEventListener('click', function() {
+            currentImageData = null;
+            currentImageType = '';
+            imageInput.value = '';
+            fileName.textContent = 'Файл не выбран';
+            imagePreview.style.display = 'none';
+            cipherImageInput.value = '';
+            decryptImageInput.value = '';
+            setEmptyImageResult();
+            imageStatusBadge.textContent = 'очищено';
+            imageStatusBadge.style.color = '#8aa2ca';
+            setTimeout(() => {
+                imageStatusBadge.textContent = 'готов';
+                imageStatusBadge.style.color = '#8aa2ca';
+            }, 800);
+        });
+
+        // Enter на полях картинки
+        keyImageInput.addEventListener('keydown', e => { if (e.key === 'Enter') setImageKeyBtn.click(); });
+        cipherImageInput.addEventListener('keydown', e => { if (e.key === 'Enter') encryptImageBtn.click(); });
+        decryptImageInput.addEventListener('keydown', e => { if (e.key === 'Enter') decryptImageBtn.click(); });
+
+        // -------------------- Инициализация --------------------
+        setEmptyResult(resultDisplay, statusBadge);
+        setEmptyImageResult();
+
+        // Демо-пример для текста
         setTimeout(() => {
             plainInput.value = 'true';
             try {
                 const demoEnc = encryptXor('true', currentKey);
                 cipherInput.value = demoEnc;
-                setResult(`🔒 ${demoEnc} (демо)`, false);
-                statusBadge.textContent = 'демо';
+                setResult(resultDisplay, `🔒 ${demoEnc} (демо)`);
+                setStatus(statusBadge, 'демо', '#b7d0ff');
                 setTimeout(() => {
-                    setEmptyResult();
-                    statusBadge.textContent = 'готов';
+                    setEmptyResult(resultDisplay, statusBadge);
+                    setStatus(statusBadge, 'готов');
                 }, 2500);
-            } catch (e) {
-                // игнорируем
-            }
+            } catch (e) {}
         }, 400);
     })();
 </script>
