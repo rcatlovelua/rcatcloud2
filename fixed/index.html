@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JustRcat — Зашифрованный Мессенджер FIXED</title>
+    <meta name="description" content="E2EE Мессенджер JustRcat с шифрованием AES-256">
+
+    <!-- Предзагрузка и шрифты -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://dump.justrcat.lol">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+    <!-- Beer CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/beercss@3.5.1/dist/cdn/beer.min.css" rel="stylesheet">
+    <script type="module" src="https://cdn.jsdelivr.net/npm/beercss@3.5.1/dist/cdn/beer.min.js"></script>
+
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* ==========================================
+           1. ПЕРЕМЕННЫЕ И ШРИФТЫ JUSTRCAT
+           ========================================== */
+        :root {
+            --bg-main: #0b0d10;
+            --bg-card: #12151c;
+            --border-card: #1e2330;
+            --border-card-hover: #2a3245;
+            
+            /* Пастельная палитра для FIXED элементов */
+            --fixed-bg: #141724;
+            --fixed-border: #252b40;
+            --pastel-blue: #93b5ff;
+            --pastel-red: #ff9eaf;
+            --pastel-green: #9ae6b4;
+            --pastel-yellow: #ffe08a;
+
+            --color-primary: #1d6aff;
+            --color-primary-hover: #3b82f6;
+            --color-green: #10b981;
+            --color-disabled: #374151;
+
+            --text-main: #ffffff;
+            --text-body: #888d96;
+            --text-muted: #6a707c;
+            --text-sub: #a0a6b2;
+
+            --font-main: 'Geist Sans', 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-flauta: 'FFFlauta', monospace, sans-serif;
+            --font-mc: 'Minecraft', monospace;
+        }
+
+        @font-face {
+            font-family: 'FFFlauta';
+            src: url('https://dump.justrcat.lol/fonts/ffflauta/FFFlauta-Regular.woff2') format('woff2'),
+                 url('https://dump.justrcat.lol/fonts/ffflauta/FFFlauta-Regular.ttf') format('truetype');
+            font-weight: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'Minecraft';
+            src: url('https://dump.justrcat.lol/fonts/minecraft.ttf') format('truetype');
+            font-weight: normal;
+            font-display: swap;
+        }
+
+        * {
+            box-sizing: border-box;
+            border-radius: 0 !important;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-main);
+            color: var(--text-body);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Неоновое фоновое свечение */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            left: 15%;
+            width: clamp(250px, 40vw, 450px);
+            height: clamp(250px, 40vw, 450px);
+            background: rgba(29, 106, 255, 0.12);
+            filter: blur(140px);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            bottom: -100px;
+            right: 15%;
+            width: clamp(250px, 45vw, 500px);
+            height: clamp(250px, 45vw, 500px);
+            background: rgba(147, 181, 255, 0.08);
+            filter: blur(150px);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ==========================================
+           2. ПАСТЕЛЬНЫЕ СТИЛИ FIXED ПАНЕЛЕЙ
+           ========================================== */
+        header.fixed-custom {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background-color: var(--fixed-bg) !important;
+            border-bottom: 1px solid var(--fixed-border);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+        }
+
+        footer.fixed-custom {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--fixed-bg) !important;
+            border-top: 1px solid var(--fixed-border);
+            z-index: 100;
+            padding: 12px 16px;
+        }
+
+        .pastel-badge {
+            background: rgba(255, 158, 175, 0.15) !important;
+            color: var(--pastel-red) !important;
+            border: 1px solid rgba(255, 158, 175, 0.35) !important;
+            font-family: var(--font-mc);
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        /* Кнопки в пиксельном стиле */
+        .btn-sq {
+            width: 42px;
+            height: 42px;
+            background-color: var(--color-primary);
+            color: var(--text-main);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mc);
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .btn-sq:hover { background-color: var(--color-primary-hover); }
+        .btn-sq:active { transform: scale(0.95); }
+
+        .btn-sq-secondary {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-card);
+            color: var(--text-body);
+        }
+        .btn-sq-secondary:hover {
+            border-color: var(--border-card-hover);
+            color: var(--text-main);
+        }
+
+        /* Область чата */
+        #chat-main {
+            flex: 1;
+            overflow-y: auto;
+            margin-top: 64px;
+            margin-bottom: 74px;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .msg-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-card);
+            padding: 14px 16px;
+            position: relative;
+            word-break: break-word;
+        }
+        .msg-card .msg-header {
+            font-family: var(--font-mc);
+            font-size: 0.95rem;
+            color: var(--pastel-blue);
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .msg-card.own {
+            border-left: 3px solid var(--pastel-blue);
+        }
+
+        .warning-card {
+            background-color: #171316;
+            border: 1px solid rgba(255, 158, 175, 0.35);
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        /* Экран авторизации */
+        #auth-screen {
+            position: fixed;
+            inset: 0;
+            background-color: var(--bg-main);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .yandex-auth-btn {
+            background-color: #fc3f1d;
+            color: #ffffff;
+            font-family: var(--font-mc);
+            font-size: 1.1rem;
+            padding: 14px 24px;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .yandex-auth-btn:hover { opacity: 0.9; }
+        .yandex-auth-btn:active { transform: scale(0.98); }
+    </style>
+</head>
+<body>
+
+    <!-- ==========================================
+         ЭКРАН АВТОРИЗАЦИИ (ЯНДЕКС ID)
+         ========================================== -->
+    <div id="auth-screen">
+        <img src="https://dump.justrcat.lol/images/cute-sit-mc.webp" alt="JustRcat" style="max-width: 160px; margin-bottom: 24px;" loading="eager">
+        <h1 style="font-family: var(--font-flauta); font-size: clamp(2.2rem, 5vw, 3.5rem); color: var(--color-primary); margin-bottom: 8px;">JustRcat</h1>
+        <div style="font-family: var(--font-mc); color: var(--text-sub); margin-bottom: 28px;">Зашифрованный Мессенджер FIXED</div>
+        
+        <button class="yandex-auth-btn" onclick="loginWithYandex()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm3.395 18.23h-2.583V8.89h-1.52v9.34H8.705V6.76h4.86c2.09 0 3.39 1.14 3.39 2.97 0 1.51-.83 2.45-2.02 2.76 1.34.25 2.16 1.34 2.16 2.87 0 .17-.01.35-.04.53l-1.66 2.34z"/></svg>
+            <span>Войти через Яндекс ID</span>
+        </button>
+    </div>
+
+    <!-- ==========================================
+         FIXED HEADER
+         ========================================== -->
+    <header class="fixed-custom">
+        <div style="display: flex; align-items: center; gap: 12px; width: 100%; max-width: 900px; margin: 0 auto;">
+            <div style="font-family: var(--font-flauta); font-size: 1.5rem; color: var(--pastel-blue);">JustRcat FIXED</div>
+            <div class="max"></div>
+            
+            <button class="chip pastel-badge" onclick="ui('#modal-security')">
+                <i class="material-symbols-outlined" style="font-size: 16px;">warning</i>
+                <span>Медиа: Ссылочное шифрование</span>
+            </button>
+
+            <button class="btn-sq btn-sq-secondary" onclick="ui('#modal-key')" title="Сменить ключ">
+                <i class="material-symbols-outlined">key</i>
+            </button>
+
+            <button class="btn-sq btn-sq-secondary" onclick="logout()" title="Выйти">
+                <i class="material-symbols-outlined">logout</i>
+            </button>
+        </div>
+    </header>
+
+    <!-- ==========================================
+         ОБЛАСТЬ ЧАТА
+         ========================================== -->
+    <main id="chat-main">
+        <!-- Предупреждение о слабом шифровании картинок -->
+        <div class="warning-card">
+            <i class="material-symbols-outlined" style="color: var(--pastel-red);">shield_lock</i>
+            <div style="font-size: 0.85rem;">
+                <div style="color: var(--pastel-red); font-family: var(--font-mc); margin-bottom: 2px;">ПРЕДУПРЕЖДЕНИЕ БЕЗОПАСНОСТИ</div>
+                <div style="color: var(--text-body);">Текст сообщений защищён <b>AES-256</b>. Картинки заливаются на CDN — <b>шифруется только URL ссылки</b>. Прямой доступ к файлу на CDN остаётся открытым по ссылке.</div>
+            </div>
+        </div>
+
+        <div id="messages-list" style="display: flex; flex-direction: column; gap: 14px;"></div>
+    </main>
+
+    <!-- ==========================================
+         FIXED FOOTER
+         ========================================== -->
+    <footer class="fixed-custom">
+        <div style="display: flex; align-items: center; gap: 10px; width: 100%; max-width: 900px; margin: 0 auto;">
+            <input type="file" id="file-input" style="display: none;" accept="image/*,video/*">
+            <button class="btn-sq btn-sq-secondary" onclick="document.getElementById('file-input').click()" title="Прикрепить файл">
+                <i class="material-symbols-outlined">attach_file</i>
+            </button>
+
+            <div class="field fill no-margin max" style="background: var(--bg-card); border: 1px solid var(--border-card);">
+                <input type="text" id="msg-input" placeholder="Зашифрованное сообщение..." style="color: var(--text-main); font-family: var(--font-main);" onkeydown="if(event.key==='Enter') sendMessage()">
+            </div>
+
+            <button class="btn-sq" onclick="sendMessage()" title="Отправить">
+                <i class="material-symbols-outlined">send</i>
+            </button>
+        </div>
+    </footer>
+
+    <!-- Модальное окно Мастер-пароля -->
+    <dialog id="modal-key" style="background: var(--bg-card); border: 1px solid var(--border-card); color: var(--text-main); max-width: 450px;">
+        <h5 style="font-family: var(--font-mc); color: var(--pastel-blue);">Ключ шифрования (AES-256)</h5>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 8px 0 16px 0;">Пароль не передаётся на сервер. Он используется браузером для расшифровки локально.</p>
+        <div class="field label border fill extra" style="margin-bottom: 20px;">
+            <input type="password" id="pass-key" value="justrcat-secret-pass">
+            <label>Мастер-пароль</label>
+        </div>
+        <nav class="right-align" style="gap: 8px;">
+            <button class="btn-sq-secondary" style="padding: 0 16px; height: 42px;" onclick="ui('#modal-key')">Отмена</button>
+            <button class="btn-sq" style="padding: 0 16px; width: auto;" onclick="loadMessages(); ui('#modal-key');">Применить</button>
+        </nav>
+    </dialog>
+
+    <!-- Модальное окно статуса безопасности -->
+    <dialog id="modal-security" style="background: var(--bg-card); border: 1px solid var(--border-card); color: var(--text-main); max-width: 480px;">
+        <h5 style="font-family: var(--font-mc); color: var(--pastel-red);">Статус шифрования медиа</h5>
+        <div style="font-size: 0.9rem; line-height: 1.6; color: var(--text-body); margin: 14px 0;">
+            1. <b>Текст и ссылки:</b> Зашифрованы на клиенте через AES-GCM (PBKDF2 SHA-256).<br>
+            2. <b>Медиафайлы:</b> Отправляются через Go-прокси (`go.justrcat.lol`). В базу Supabase попадает зашифрованный URL, но сам файл доступен на CDN без авторизации, если ссылка будет скомпрометирована.
+        </div>
+        <nav class="right-align">
+            <button class="btn-sq" style="width: auto; padding: 0 16px;" onclick="ui('#modal-security')">Понятно</button>
+        </nav>
+    </dialog>
+
+    <!-- ==========================================
+         СКРИПТЫ E2EE И АВТОРИЗАЦИИ
+         ========================================== -->
+    <script>
+        // Вставь сюда свои публичные ключи из Supabase Dashboard -> Project Settings -> API
+        const SUPABASE_URL = 'https://ТВОЙ_ПРОЕКТ.supabase.co';
+        const SUPABASE_ANON_KEY = 'ТВОЙ_ANON_KEY';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let currentUser = null;
+
+        // Авторизация через Яндекс ID
+        function loginWithYandex() {
+            window.location.href = '/api/auth/yandex';
+        }
+
+        async function logout() {
+            await supabase.auth.signOut();
+            window.location.reload();
+        }
+
+        async function checkAuth() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                currentUser = session.user;
+                document.getElementById('auth-screen').style.display = 'none';
+                loadMessages();
+            } else {
+                document.getElementById('auth-screen').style.display = 'flex';
+            }
+        }
+
+        // --- КРИПТОГРАФИЯ AES-GCM 256 ---
+        async function deriveKey(password, salt) {
+            const enc = new TextEncoder();
+            const keyMaterial = await crypto.subtle.importKey(
+                'raw', enc.encode(password), { name: 'PBKDF2' }, false, ['deriveKey']
+            );
+            return crypto.subtle.deriveKey(
+                { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+                keyMaterial,
+                { name: 'AES-GCM', length: 256 },
+                false,
+                ['encrypt', 'decrypt']
+            );
+        }
+
+        async function encryptPayload(obj, password) {
+            const enc = new TextEncoder();
+            const salt = crypto.getRandomValues(new Uint8Array(16));
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+            const key = await deriveKey(password, salt);
+
+            const ciphertext = await crypto.subtle.encrypt(
+                { name: 'AES-GCM', iv },
+                key,
+                enc.encode(JSON.stringify(obj))
+            );
+
+            return {
+                ciphertext: btoa(String.fromCharCode(...new Uint8Array(ciphertext))),
+                iv: btoa(String.fromCharCode(...new Uint8Array(iv))),
+                salt: btoa(String.fromCharCode(...new Uint8Array(salt)))
+            };
+        }
+
+        async function decryptPayload(ciphertextB64, ivB64, saltB64, password) {
+            try {
+                const ciphertext = Uint8Array.from(atob(ciphertextB64), c => c.charCodeAt(0));
+                const iv = Uint8Array.from(atob(ivB64), c => c.charCodeAt(0));
+                const salt = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
+
+                const key = await deriveKey(password, salt);
+                const decrypted = await crypto.subtle.decrypt(
+                    { name: 'AES-GCM', iv },
+                    key,
+                    ciphertext
+                );
+
+                return JSON.parse(new TextDecoder().decode(decrypted));
+            } catch (e) {
+                return { text: '🔒 [Не удалось расшифровать: неверный пароль]', fileUrl: null };
+            }
+        }
+
+        // --- ВЗАИМОДЕЙСТВИЕ С API ---
+        async function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            const res = await fetch('https://go.justrcat.lol/api/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            return data.url;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('msg-input');
+            const fileInput = document.getElementById('file-input');
+            const password = document.getElementById('pass-key').value;
+            const text = input.value.trim();
+
+            let fileUrl = null;
+            if (fileInput.files.length > 0) {
+                fileUrl = await uploadFile(fileInput.files[0]);
+                fileInput.value = '';
+            }
+
+            if (!text && !fileUrl) return;
+
+            const payload = { text, fileUrl };
+            const encrypted = await encryptPayload(payload, password);
+            const senderName = currentUser?.user_metadata?.full_name || currentUser?.email?.split('@')[0] || 'Аноним';
+
+            await fetch('/api/messages', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sender: senderName,
+                    ...encrypted
+                })
+            });
+
+            input.value = '';
+            loadMessages();
+        }
+
+        async function loadMessages() {
+            const password = document.getElementById('pass-key').value;
+            const res = await fetch('/api/messages');
+            const list = await res.json();
+            const container = document.getElementById('messages-list');
+            
+            container.innerHTML = '';
+
+            for (const item of list) {
+                const payload = await decryptPayload(item.ciphertext, item.iv, item.salt, password);
+                
+                const card = document.createElement('div');
+                const isOwn = currentUser && (item.sender === (currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0]));
+                card.className = `msg-card ${isOwn ? 'own' : ''}`;
+                
+                let mediaHtml = '';
+                if (payload.fileUrl) {
+                    mediaHtml = `
+                        <div style="margin-top: 10px; border: 1px solid var(--border-card); background: #000; padding: 4px;">
+                            <img src="${payload.fileUrl}" style="max-width: 100%; max-height: 260px; object-fit: contain; display: block;" loading="lazy" />
+                            <div style="font-family: var(--font-mc); font-size: 0.7rem; color: var(--pastel-yellow); margin-top: 4px;">
+                                ⚠️ Ссылка была зашифрована
+                            </div>
+                        </div>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="msg-header">
+                        <span>${item.sender}</span>
+                        <span style="color: var(--text-muted); font-size: 0.75rem;">${new Date(item.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                    </div>
+                    <div style="color: var(--text-main); font-size: 0.95rem; line-height: 1.5;">${payload.text || ''}</div>
+                    ${mediaHtml}
+                `;
+                container.appendChild(card);
+            }
+
+            const chatMain = document.getElementById('chat-main');
+            chatMain.scrollTop = chatMain.scrollHeight;
+        }
+
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (session) {
+                currentUser = session.user;
+                document.getElementById('auth-screen').style.display = 'none';
+                loadMessages();
+            } else {
+                document.getElementById('auth-screen').style.display = 'flex';
+            }
+        });
+
+        checkAuth();
+    </script>
+</body>
+</html>
