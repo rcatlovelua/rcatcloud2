@@ -9,9 +9,10 @@ const supabase = createClient(
 export default async function handler(req, res) {
   const { code } = req.query;
   const appUrl = process.env.APP_URL || 'https://justrcat.lol';
+  const targetUrl = `${appUrl}/fixed`;
 
   if (!code) {
-    return res.redirect(`${appUrl}/?auth_error=no_code`);
+    return res.redirect(`${targetUrl}?auth_error=no_code`);
   }
 
   try {
@@ -29,7 +30,7 @@ export default async function handler(req, res) {
     const tokenData = await tokenRes.json();
     if (!tokenData.access_token) throw new Error('Failed to get Yandex token');
 
-    // 2. Получаем данные профиля Яндекса
+    // 2. Получаем профиль из Яндекса
     const userRes = await fetch('https://login.yandex.ru/info?format=json', {
       headers: { Authorization: `OAuth ${tokenData.access_token}` },
     });
@@ -39,7 +40,7 @@ export default async function handler(req, res) {
     const name = userData.display_name || userData.real_name || userData.login || 'Пользователь Яндекса';
     const secretPass = `yandex_auth_${userData.id}_${process.env.SUPABASE_SERVICE_ROLE.slice(0, 12)}`;
 
-    // 3. Создаем или находим пользователя в Supabase
+    // 3. Создаем или обновляем пользователя в Supabase
     const { data: listData } = await supabase.auth.admin.listUsers();
     const existing = listData?.users?.find(u => u.email === email);
 
@@ -57,7 +58,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // 4. Логинимся и генерируем сессию
+    // 4. Генерируем сессию
     const { data: sessionData, error: loginErr } = await supabase.auth.signInWithPassword({
       email,
       password: secretPass,
@@ -65,12 +66,12 @@ export default async function handler(req, res) {
 
     if (loginErr || !sessionData.session) throw (loginErr || new Error('Auth session error'));
 
-    // 5. Возвращаем токены в Hash (supabase-js на фронте автоматически их подхватит)
+    // 5. Перенаправляем на /fixed с хэш-токенами
     const { access_token, refresh_token } = sessionData.session;
-    return res.redirect(`${appUrl}/#access_token=${access_token}&refresh_token=${refresh_token}&token_type=bearer`);
+    return res.redirect(`${targetUrl}#access_token=${access_token}&refresh_token=${refresh_token}&token_type=bearer`);
 
   } catch (err) {
     console.error('OAuth Callback Error:', err);
-    return res.redirect(`${appUrl}/?auth_error=${encodeURIComponent(err.message)}`);
+    return res.redirect(`${targetUrl}?auth_error=${encodeURIComponent(err.message)}`);
   }
 }
