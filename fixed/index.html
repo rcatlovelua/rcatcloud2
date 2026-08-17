@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>justrcat — зашифрованный мессенджер fixed</title>
-    <meta name="description" content="e2ee мессенджер justrcat с шифрованием aes-256">
+    <title>justrcat — личный шифрованный мессенджер</title>
+    <meta name="description" content="e2ee мессенджер justrcat с личными чатами и шифрованием aes-256">
 
     <!-- предзагрузка и шрифты -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
@@ -20,32 +20,52 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        /* ==========================================
-           1. переменные и шрифты justrcat
-           ========================================== */
         :root {
-            --bg-main: #0b0d10;
-            --bg-card: #12151c;
-            --border-card: #1e2330;
-            --border-card-hover: #2a3245;
+            /* M3 пастельная палитра */
+            --md-sys-color-primary: #B4C5E4;
+            --md-sys-color-on-primary: #1A1C1E;
+            --md-sys-color-primary-container: #D6E3FF;
+            --md-sys-color-on-primary-container: #10141B;
             
-            /* пастельная палитра для fixed элементов */
-            --fixed-bg: #141724;
-            --fixed-border: #252b40;
-            --pastel-blue: #93b5ff;
-            --pastel-red: #ff9eaf;
-            --pastel-green: #9ae6b4;
-            --pastel-yellow: #ffe08a;
+            --md-sys-color-secondary: #E3D7C5;
+            --md-sys-color-on-secondary: #1A1C1E;
+            --md-sys-color-secondary-container: #F5E9D7;
+            --md-sys-color-on-secondary-container: #10141B;
+            
+            --md-sys-color-tertiary: #D5E3C5;
+            --md-sys-color-on-tertiary: #1A1C1E;
+            --md-sys-color-tertiary-container: #E9F5D7;
+            --md-sys-color-on-tertiary-container: #10141B;
+            
+            --md-sys-color-error: #F2B8B5;
+            --md-sys-color-on-error: #601410;
+            --md-sys-color-error-container: #F9DEDC;
+            --md-sys-color-on-error-container: #410E0B;
+            
+            --md-sys-color-background: #FDF8F6;
+            --md-sys-color-on-background: #1A1C1E;
+            --md-sys-color-surface: #FDF8F6;
+            --md-sys-color-on-surface: #1A1C1E;
+            --md-sys-color-surface-variant: #E7E0EB;
+            --md-sys-color-on-surface-variant: #49454F;
+            
+            --md-sys-color-outline: #79747E;
+            --md-sys-color-outline-variant: #CAC4D0;
+            
+            --bg-main: #FDF8F6;
+            --bg-card: #FFFFFF;
+            --border-card: #E7E0EB;
+            
+            --pastel-blue: #B4C5E4;
+            --pastel-red: #F2B8B5;
+            --pastel-green: #D5E3C5;
+            --pastel-yellow: #F5E9D7;
+            --pastel-purple: #E3D7E3;
 
-            --color-primary: #1d6aff;
-            --color-primary-hover: #3b82f6;
-            --color-green: #10b981;
-            --color-disabled: #374151;
-
-            --text-main: #ffffff;
-            --text-body: #888d96;
-            --text-muted: #6a707c;
-            --text-sub: #a0a6b2;
+            --text-main: #1A1C1E;
+            --text-body: #49454F;
+            --text-muted: #79747E;
+            --text-sub: #A0A0A0;
 
             --font-main: 'geist sans', 'geist', -apple-system, blinkmacsystemfont, sans-serif;
             --font-flauta: 'ffflauta', monospace, sans-serif;
@@ -69,7 +89,7 @@
 
         * {
             box-sizing: border-box;
-            border-radius: 0 !important;
+            border-radius: 12px !important;
         }
 
         body {
@@ -84,151 +104,194 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* неоновое фоновое свечение */
-        body::before {
-            content: '';
-            position: absolute;
-            top: -100px;
-            left: 15%;
-            width: clamp(250px, 40vw, 450px);
-            height: clamp(250px, 40vw, 450px);
-            background: rgba(29, 106, 255, 0.12);
-            filter: blur(140px);
-            z-index: 0;
-            pointer-events: none;
-        }
+        /* M3 elevation shadows */
+        .m3-elevation-1 { box-shadow: 0 1px 2px rgba(0,0,0,0.08), 0 1px 3px 1px rgba(0,0,0,0.04); }
+        .m3-elevation-2 { box-shadow: 0 1px 2px rgba(0,0,0,0.08), 0 2px 6px 2px rgba(0,0,0,0.04); }
+        .m3-elevation-3 { box-shadow: 0 4px 8px 3px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04); }
 
-        body::after {
-            content: '';
-            position: absolute;
-            bottom: -100px;
-            right: 15%;
-            width: clamp(250px, 45vw, 500px);
-            height: clamp(250px, 45vw, 500px);
-            background: rgba(147, 181, 255, 0.08);
-            filter: blur(150px);
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        /* ==========================================
-           2. пастельные стили fixed панелей
-           ========================================== */
+        /* Header */
         header.fixed-custom {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            height: 64px;
-            background-color: var(--fixed-bg) !important;
-            border-bottom: 1px solid var(--fixed-border);
+            height: 72px;
+            background-color: var(--md-sys-color-surface) !important;
+            border-bottom: 1px solid var(--md-sys-color-outline-variant);
             z-index: 100;
             display: flex;
             align-items: center;
             padding: 0 16px;
         }
 
+        /* Footer */
         footer.fixed-custom {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background-color: var(--fixed-bg) !important;
-            border-top: 1px solid var(--fixed-border);
+            background-color: var(--md-sys-color-surface) !important;
+            border-top: 1px solid var(--md-sys-color-outline-variant);
             z-index: 100;
             padding: 12px 16px;
         }
 
-        .pastel-badge {
-            background: rgba(255, 158, 175, 0.15) !important;
-            color: var(--pastel-red) !important;
-            border: 1px solid rgba(255, 158, 175, 0.35) !important;
-            font-family: var(--font-mc);
-            font-size: 0.8rem;
+        /* Chips */
+        .chip {
+            min-height: 32px;
+            padding: 0 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 8px !important;
+            font-size: 0.875rem;
             cursor: pointer;
+            transition: all 0.2s;
         }
 
-        /* кнопки в пиксельном стиле */
-        .btn-sq {
-            width: 42px;
-            height: 42px;
-            background-color: var(--color-primary);
-            color: var(--text-main);
+        .chip-primary {
+            background-color: var(--md-sys-color-primary-container);
+            color: var(--md-sys-color-on-primary-container);
+            border: 1px solid var(--md-sys-color-primary);
+        }
+
+        .chip-error {
+            background-color: var(--md-sys-color-error-container);
+            color: var(--md-sys-color-on-error-container);
+            border: 1px solid var(--md-sys-color-error);
+        }
+
+        /* Buttons */
+        .btn-m3 {
+            width: 48px;
+            height: 48px;
+            border-radius: 24px !important;
             border: none;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-family: var(--font-mc);
             cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
         }
-        .btn-sq:hover { background-color: var(--color-primary-hover); }
-        .btn-sq:active { transform: scale(0.95); }
-        .btn-sq:disabled {
-            background-color: var(--color-disabled);
+
+        .btn-m3-primary {
+            background-color: var(--md-sys-color-primary);
+            color: var(--md-sys-color-on-primary);
+        }
+
+        .btn-m3-secondary {
+            background-color: var(--md-sys-color-secondary-container);
+            color: var(--md-sys-color-on-secondary-container);
+        }
+
+        .btn-m3-tertiary {
+            background-color: var(--md-sys-color-tertiary-container);
+            color: var(--md-sys-color-on-tertiary-container);
+        }
+
+        .btn-m3:hover::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.08);
+        }
+
+        .btn-m3:active::after {
+            background: rgba(0,0,0,0.12);
+        }
+
+        .btn-m3:disabled {
+            opacity: 0.5;
             cursor: not-allowed;
-            transform: none;
         }
 
-        .btn-sq-secondary {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-card);
-            color: var(--text-body);
-        }
-        .btn-sq-secondary:hover {
-            border-color: var(--border-card-hover);
-            color: var(--text-main);
-        }
-
-        /* область чата */
+        /* Chat area */
         #chat-main {
             flex: 1;
             overflow-y: auto;
-            margin-top: 64px;
-            margin-bottom: 74px;
+            margin-top: 72px;
+            margin-bottom: 80px;
             padding: 20px;
             position: relative;
             z-index: 1;
-            max-width: 900px;
+            max-width: 800px;
             width: 100%;
             margin-left: auto;
             margin-right: auto;
         }
 
-        .msg-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-card);
-            padding: 14px 16px;
+        /* Message bubbles */
+        .msg-bubble {
+            max-width: 70%;
+            padding: 12px 16px;
             position: relative;
             word-break: break-word;
-        }
-        .msg-card .msg-header {
-            font-family: var(--font-mc);
-            font-size: 0.95rem;
-            color: var(--pastel-blue);
-            margin-bottom: 6px;
-            display: flex;
-            justify-content: space-between;
-        }
-        .msg-card.own {
-            border-left: 3px solid var(--pastel-blue);
+            animation: message-in 0.3s ease-out;
         }
 
+        .msg-bubble.own {
+            margin-left: auto;
+            background-color: var(--md-sys-color-primary-container);
+            color: var(--md-sys-color-on-primary-container);
+            border-bottom-right-radius: 4px !important;
+        }
+
+        .msg-bubble.other {
+            margin-right: auto;
+            background-color: var(--md-sys-color-surface-variant);
+            color: var(--md-sys-color-on-surface-variant);
+            border-bottom-left-radius: 4px !important;
+        }
+
+        .msg-bubble .msg-header {
+            font-family: var(--font-main);
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .msg-bubble.own .msg-header {
+            color: var(--md-sys-color-on-primary-container);
+        }
+
+        .msg-bubble.other .msg-header {
+            color: var(--md-sys-color-primary);
+        }
+
+        @keyframes message-in {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Warning card */
         .warning-card {
-            background-color: #171316;
-            border: 1px solid rgba(255, 158, 175, 0.35);
+            background-color: var(--md-sys-color-error-container);
+            border: 1px solid var(--md-sys-color-error);
+            color: var(--md-sys-color-on-error-container);
             padding: 12px 16px;
             margin-bottom: 20px;
             display: flex;
             gap: 12px;
             align-items: center;
+            border-radius: 12px !important;
         }
 
-        /* экран авторизации */
+        /* Auth screen */
         #auth-screen {
             position: fixed;
             inset: 0;
-            background-color: var(--bg-main);
+            background-color: var(--md-sys-color-background);
             z-index: 200;
             display: flex;
             flex-direction: column;
@@ -237,7 +300,7 @@
             padding: 20px;
             transition: opacity 0.3s, visibility 0.3s;
         }
-        
+
         #auth-screen.hidden {
             opacity: 0;
             visibility: hidden;
@@ -245,9 +308,10 @@
         }
 
         .yandex-auth-btn {
-            background-color: #fc3f1d;
+            background-color: #FC3F1D;
             color: #ffffff;
-            font-family: var(--font-mc);
+            font-family: var(--font-main);
+            font-weight: 500;
             font-size: 1.1rem;
             padding: 14px 24px;
             border: none;
@@ -255,119 +319,175 @@
             align-items: center;
             gap: 12px;
             cursor: pointer;
-            transition: opacity 0.2s, transform 0.1s;
+            transition: all 0.2s;
+            border-radius: 24px !important;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08), 0 2px 6px 2px rgba(0,0,0,0.04);
         }
-        .yandex-auth-btn:hover { opacity: 0.9; }
-        .yandex-auth-btn:active { transform: scale(0.98); }
+
+        .yandex-auth-btn:hover {
+            opacity: 0.9;
+            box-shadow: 0 4px 8px 3px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .yandex-auth-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Input */
+        .input-m3 {
+            flex: 1;
+            min-height: 48px;
+            padding: 0 16px;
+            border: 1px solid var(--md-sys-color-outline-variant);
+            border-radius: 24px !important;
+            background-color: var(--md-sys-color-surface);
+            color: var(--md-sys-color-on-surface);
+            font-family: var(--font-main);
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .input-m3:focus {
+            border-color: var(--md-sys-color-primary);
+            box-shadow: 0 0 0 2px var(--md-sys-color-primary-container);
+        }
+
+        .input-m3::placeholder {
+            color: var(--md-sys-color-on-surface-variant);
+        }
+
+        /* Dialog */
+        dialog {
+            border-radius: 16px !important;
+            border: none;
+            padding: 24px;
+            background: var(--md-sys-color-surface);
+            color: var(--md-sys-color-on-surface);
+            box-shadow: 0 4px 8px 3px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        dialog::backdrop {
+            background: rgba(0,0,0,0.32);
+        }
+
+        /* Media container */
+        .media-container {
+            margin-top: 8px;
+            border-radius: 8px !important;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .media-container img,
+        .media-container video {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .media-warning {
+            font-size: 0.7rem;
+            color: var(--md-sys-color-error);
+            padding: 4px 8px;
+            background: var(--md-sys-color-error-container);
+        }
     </style>
 </head>
 <body>
 
-    <!-- ==========================================
-         экран авторизации (яндекс id)
-         ========================================== -->
+    <!-- Экран авторизации -->
     <div id="auth-screen" class="hidden">
-        <img src="https://dump.justrcat.lol/images/cute-sit-mc.webp" alt="justrcat" style="max-width: 160px; margin-bottom: 24px;" loading="eager">
-        <h1 style="font-family: var(--font-flauta); font-size: clamp(2.2rem, 5vw, 3.5rem); color: var(--color-primary); margin-bottom: 8px;">justrcat</h1>
-        <div style="font-family: var(--font-mc); color: var(--text-sub); margin-bottom: 28px;">зашифрованный мессенджер fixed</div>
+        <img src="https://dump.justrcat.lol/images/cute-sit-mc.webp" alt="justrcat" style="max-width: 160px; margin-bottom: 24px; border-radius: 20px !important;" loading="eager">
+        <h1 style="font-family: var(--font-flauta); font-size: clamp(2.5rem, 5vw, 4rem); color: var(--md-sys-color-primary); margin-bottom: 8px;">justrcat</h1>
+        <div style="font-size: 1.1rem; color: var(--md-sys-color-on-surface-variant); margin-bottom: 32px;">личный шифрованный мессенджер</div>
         
-        <!-- используем тег <a> для гарантированного редиректа без блокировок -->
         <a href="https://justrcat.lol/api/yandex" target="_top" class="yandex-auth-btn" style="text-decoration: none;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-                <circle cx="12" cy="12" r="12" fill="#fc3f1d"/>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="12" cy="12" r="12" fill="white" opacity="0.2"/>
                 <text x="12" y="16" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Я</text>
             </svg>
-            <span>войти через яндекс id</span>
+            <span>Войти через Яндекс ID</span>
         </a>
     </div>
 
-    <!-- ==========================================
-         fixed header
-         ========================================== -->
-    <header class="fixed-custom">
-        <div style="display: flex; align-items: center; gap: 12px; width: 100%; max-width: 900px; margin: 0 auto;">
-            <div style="font-family: var(--font-flauta); font-size: 1.5rem; color: var(--pastel-blue);">justrcat fixed</div>
+    <!-- Header -->
+    <header class="fixed-custom m3-elevation-1">
+        <div style="display: flex; align-items: center; gap: 12px; width: 100%; max-width: 800px; margin: 0 auto;">
+            <div style="font-family: var(--font-flauta); font-size: 1.5rem; color: var(--md-sys-color-primary);">justrcat</div>
             <div class="max"></div>
             
-            <button class="chip pastel-badge" id="btn-security-modal">
+            <button class="chip chip-error" id="btn-security-modal">
                 <i class="material-symbols-outlined" style="font-size: 16px;">warning</i>
                 <span>медиа: ссылочное шифрование</span>
             </button>
 
-            <button class="btn-sq btn-sq-secondary" id="btn-key-modal" title="сменить ключ">
+            <button class="btn-m3 btn-m3-secondary" id="btn-key-modal" title="сменить ключ">
                 <i class="material-symbols-outlined">key</i>
             </button>
 
-            <button class="btn-sq btn-sq-secondary" id="btn-logout" title="выйти">
+            <button class="btn-m3 btn-m3-tertiary" id="btn-logout" title="выйти">
                 <i class="material-symbols-outlined">logout</i>
             </button>
         </div>
     </header>
 
-    <!-- ==========================================
-         область чата
-         ========================================== -->
+    <!-- Chat area -->
     <main id="chat-main">
-        <div class="warning-card">
-            <i class="material-symbols-outlined" style="color: var(--pastel-red);">shield_lock</i>
+        <div class="warning-card m3-elevation-1">
+            <i class="material-symbols-outlined" style="color: var(--md-sys-color-error);">shield_lock</i>
             <div style="font-size: 0.85rem;">
-                <div style="color: var(--pastel-red); font-family: var(--font-mc); margin-bottom: 2px;">предупреждение безопасности</div>
-                <div style="color: var(--text-body);">текст сообщений защищён <b>aes-256</b>. картинки заливаются на cdn — <b>шифруется только url ссылки</b>. прямой доступ к файлу на cdn остаётся открытым по ссылке.</div>
+                <div style="font-weight: 600; margin-bottom: 2px;">Предупреждение безопасности</div>
+                <div>Текст сообщений защищён <b>AES-256</b>. Картинки заливаются на CDN — <b>шифруется только URL ссылки</b>. Прямой доступ к файлу на CDN остаётся открытым по ссылке.</div>
             </div>
         </div>
 
-        <div id="messages-list" style="display: flex; flex-direction: column; gap: 14px;"></div>
+        <div id="messages-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
     </main>
 
-    <!-- ==========================================
-         fixed footer
-         ========================================== -->
-    <footer class="fixed-custom">
-        <div style="display: flex; align-items: center; gap: 10px; width: 100%; max-width: 900px; margin: 0 auto;">
+    <!-- Footer -->
+    <footer class="fixed-custom m3-elevation-2">
+        <div style="display: flex; align-items: center; gap: 8px; width: 100%; max-width: 800px; margin: 0 auto;">
             <input type="file" id="file-input" style="display: none;" accept="image/*,video/*">
-            <button class="btn-sq btn-sq-secondary" id="attach-btn" title="прикрепить файл">
+            <button class="btn-m3 btn-m3-secondary" id="attach-btn" title="прикрепить файл">
                 <i class="material-symbols-outlined">attach_file</i>
             </button>
 
-            <div class="field fill no-margin max" style="background: var(--bg-card); border: 1px solid var(--border-card);">
-                <input type="text" id="msg-input" placeholder="зашифрованное сообщение..." style="color: var(--text-main); font-family: var(--font-main);">
-            </div>
+            <input type="text" id="msg-input" class="input-m3" placeholder="Личное сообщение...">
 
-            <button class="btn-sq" id="send-btn" title="отправить">
+            <button class="btn-m3 btn-m3-primary" id="send-btn" title="отправить">
                 <i class="material-symbols-outlined">send</i>
             </button>
         </div>
     </footer>
 
-    <!-- модальное окно мастер-пароля -->
-    <dialog id="modal-key" style="background: var(--bg-card); border: 1px solid var(--border-card); color: var(--text-main); max-width: 450px;">
-        <h5 style="font-family: var(--font-mc); color: var(--pastel-blue);">ключ шифрования (aes-256)</h5>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 8px 0 16px 0;">пароль не передаётся на сервер. он используется браузером для расшифровки локально.</p>
-        <div class="field label border fill extra" style="margin-bottom: 20px;">
-            <input type="password" id="pass-key" value="justrcat-secret-pass">
-            <label>мастер-пароль</label>
-        </div>
-        <nav class="right-align" style="gap: 8px;">
-            <button class="btn-sq-secondary" style="padding: 0 16px; height: 42px;" id="btn-close-key-modal">отмена</button>
-            <button class="btn-sq" style="padding: 0 16px; width: auto;" id="btn-apply-key">применить</button>
+    <!-- Модальное окно мастер-пароля -->
+    <dialog id="modal-key">
+        <h5 style="font-size: 1.25rem; margin-bottom: 8px; color: var(--md-sys-color-primary); font-weight: 600;">Ключ шифрования (AES-256)</h5>
+        <p style="font-size: 0.9rem; color: var(--md-sys-color-on-surface-variant); margin: 8px 0 16px 0;">
+            Пароль не передаётся на сервер. Он используется браузером для расшифровки локально.
+        </p>
+        <input type="password" id="pass-key" class="input-m3" value="justrcat-secret-pass" style="width: 100%; margin-bottom: 20px;">
+        <nav class="right-align" style="gap: 8px; display: flex; justify-content: flex-end;">
+            <button class="btn-m3 btn-m3-secondary" style="width: auto; padding: 0 16px;" id="btn-close-key-modal">Отмена</button>
+            <button class="btn-m3 btn-m3-primary" style="width: auto; padding: 0 16px;" id="btn-apply-key">Применить</button>
         </nav>
     </dialog>
 
-    <!-- модальное окно статуса безопасности -->
-    <dialog id="modal-security" style="background: var(--bg-card); border: 1px solid var(--border-card); color: var(--text-main); max-width: 480px;">
-        <h5 style="font-family: var(--font-mc); color: var(--pastel-red);">статус шифрования медиа</h5>
-        <div style="font-size: 0.9rem; line-height: 1.6; color: var(--text-body); margin: 14px 0;">
-            1. <b>текст и ссылки:</b> зашифрованы на клиенте через aes-gcm (pbkdf2 sha-256).<br>
-            2. <b>медиафайлы:</b> отправляются через go-прокси (`go.justrcat.lol`). в базу supabase попадает зашифрованный url, но сам файл доступен на cdn без авторизации, если ссылка будет скомпрометирована.
+    <!-- Модальное окно статуса безопасности -->
+    <dialog id="modal-security">
+        <h5 style="font-size: 1.25rem; margin-bottom: 8px; color: var(--md-sys-color-error); font-weight: 600;">Статус шифрования медиа</h5>
+        <div style="font-size: 0.9rem; line-height: 1.6; color: var(--md-sys-color-on-surface-variant); margin: 14px 0;">
+            1. <b>Текст и ссылки:</b> зашифрованы на клиенте через AES-GCM (PBKDF2 SHA-256).<br>
+            2. <b>Медиафайлы:</b> отправляются через go-прокси (<code>go.justrcat.lol</code>). В базу Supabase попадает зашифрованный URL, но сам файл доступен на CDN без авторизации, если ссылка будет скомпрометирована.
         </div>
-        <nav class="right-align">
-            <button class="btn-sq" style="width: auto; padding: 0 16px;" id="btn-close-sec-modal">понятно</button>
+        <nav class="right-align" style="display: flex; justify-content: flex-end;">
+            <button class="btn-m3 btn-m3-primary" style="width: auto; padding: 0 16px;" id="btn-close-sec-modal">Понятно</button>
         </nav>
     </dialog>
 
-    <!-- ==========================================
-         скрипты e2ee и авторизации
-         ========================================== -->
+    <!-- Скрипты -->
     <script>
         const node_api = 'https://justrcat.lol/api';
         const go_api = 'https://go.justrcat.lol';
@@ -378,8 +498,9 @@
 
         let currentUser = null;
         let isSending = false;
+        let currentChatId = null; // ID текущего личного чата
 
-        // вспомогательные функции
+        // Вспомогательные функции
         function escapeHtml(str) {
             if (!str) return '';
             return String(str).replace(/[&<>'"]/g, tag => ({
@@ -417,31 +538,30 @@
             document.getElementById('auth-screen').classList.add('hidden');
         }
 
-        // =====================================
-        // инициализация событий (event listeners)
-        // =====================================
+        // Инициализация событий
         document.addEventListener('DOMContentLoaded', async () => {
-            // восстановление мастер-пароля из памяти
+            // Восстановление мастер-пароля
             const savedKey = localStorage.getItem('justrcat-master-key');
             if (savedKey) {
                 document.getElementById('pass-key').value = savedKey;
             }
 
-            // выход
+            // Выход
             document.getElementById('btn-logout').addEventListener('click', async () => {
                 await supabase.auth.signOut();
                 currentUser = null;
+                currentChatId = null;
                 showAuthScreen();
             });
 
-            // работа с модалками
+            // Модалки
             document.getElementById('btn-security-modal').addEventListener('click', () => ui('#modal-security'));
             document.getElementById('btn-close-sec-modal').addEventListener('click', () => ui('#modal-security'));
             
             document.getElementById('btn-key-modal').addEventListener('click', () => ui('#modal-key'));
             document.getElementById('btn-close-key-modal').addEventListener('click', () => ui('#modal-key'));
             
-            // сохранение ключа
+            // Сохранение ключа
             document.getElementById('btn-apply-key').addEventListener('click', () => {
                 const newKey = document.getElementById('pass-key').value;
                 localStorage.setItem('justrcat-master-key', newKey);
@@ -449,7 +569,7 @@
                 ui('#modal-key');
             });
 
-            // отправка и файлы
+            // Отправка и файлы
             document.getElementById('attach-btn').addEventListener('click', () => {
                 document.getElementById('file-input').click();
             });
@@ -460,12 +580,12 @@
                 if (e.key === 'Enter') sendMessage();
             });
 
-            // запускаем инициализацию авторизации
+            // Инициализация авторизации
             await initAuth();
         });
 
         async function initAuth() {
-            // 1. Подписываемся на изменения сессии
+            // Подписываемся на изменения сессии
             supabase.auth.onAuthStateChange((event, session) => {
                 console.log('Auth state changed:', event, session?.user?.email);
                 
@@ -478,20 +598,18 @@
                         window.history.replaceState(null, '', window.location.pathname);
                     }
                     
-                    loadMessages();
+                    initPersonalChat();
                 } else {
                     currentUser = null;
+                    currentChatId = null;
                     showAuthScreen();
                 }
             });
 
-            // 2. Пытаемся восстановить сессию
+            // Восстанавливаем сессию
             try {
-                // Проверяем наличие токенов в URL
                 const hash = window.location.hash;
                 if (hash && hash.includes('access_token=')) {
-                    console.log('Found tokens in URL, setting session...');
-                    
                     const hashParams = new URLSearchParams(hash.substring(1));
                     const accessToken = hashParams.get('access_token');
                     const refreshToken = hashParams.get('refresh_token');
@@ -506,29 +624,23 @@
                             console.error('Error setting session:', error);
                             showAuthScreen();
                         } else if (data.session) {
-                            console.log('Session set successfully:', data.session.user?.email);
                             currentUser = data.session.user;
                             hideAuthScreen();
-                            loadMessages();
-                            
-                            // Очищаем URL
+                            initPersonalChat();
                             window.history.replaceState(null, '', window.location.pathname);
                         }
                     }
                 } else {
-                    // Пробуем получить существующую сессию
                     const { data: { session }, error } = await supabase.auth.getSession();
                     
                     if (error) {
                         console.error('Error getting session:', error);
                         showAuthScreen();
                     } else if (session) {
-                        console.log('Existing session found:', session.user?.email);
                         currentUser = session.user;
                         hideAuthScreen();
-                        loadMessages();
+                        initPersonalChat();
                     } else {
-                        console.log('No session found, showing auth screen');
                         showAuthScreen();
                     }
                 }
@@ -538,6 +650,51 @@
             }
         }
 
+        // Создание личного чата для пользователя
+        async function initPersonalChat() {
+            if (!currentUser) return;
+            
+            const userId = currentUser.id;
+            const userEmail = currentUser.email;
+            
+            try {
+                // Проверяем, существует ли уже личный чат
+                const chatResponse = await fetch(`${node_api}/chats/${userId}`);
+                
+                if (chatResponse.ok) {
+                    const chatData = await chatResponse.json();
+                    currentChatId = chatData.id || chatData.chat_id;
+                } else if (chatResponse.status === 404) {
+                    // Создаем новый личный чат
+                    const createResponse = await fetch(`${node_api}/chats`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            user_id: userId,
+                            email: userEmail,
+                            type: 'personal',
+                            name: `Личный чат ${userEmail?.split('@')[0] || 'пользователя'}`
+                        })
+                    });
+                    
+                    if (createResponse.ok) {
+                        const newChat = await createResponse.json();
+                        currentChatId = newChat.id || newChat.chat_id;
+                    } else {
+                        console.error('Failed to create personal chat');
+                    }
+                }
+                
+                loadMessages();
+            } catch (error) {
+                console.error('Error initializing personal chat:', error);
+                // Fallback: используем user_id как chat_id
+                currentChatId = userId;
+                loadMessages();
+            }
+        }
+
+        // Криптографические функции
         async function deriveKey(password, salt) {
             const enc = new TextEncoder();
             const keyMaterial = await crypto.subtle.importKey(
@@ -590,6 +747,7 @@
             }
         }
 
+        // Загрузка файла
         async function uploadFile(file) {
             const formData = new FormData();
             formData.append('file', file);
@@ -609,8 +767,10 @@
             }
         }
 
+        // Отправка сообщения
         async function sendMessage() {
-            if (isSending) return;
+            if (isSending || !currentUser || !currentChatId) return;
+            
             const input = document.getElementById('msg-input');
             const fileInput = document.getElementById('file-input');
             const sendBtn = document.getElementById('send-btn');
@@ -633,17 +793,21 @@
 
                 const payload = { text, fileUrl };
                 const encrypted = await encryptPayload(payload, password);
-                const senderName = currentUser?.user_metadata?.full_name || currentUser?.email?.split('@')[0] || 'Аноним';
+                const senderName = currentUser?.user_metadata?.full_name || currentUser?.email?.split('@')[0] || 'Пользователь';
 
                 const res = await fetch(`${node_api}/messages`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
+                        chat_id: currentChatId,
+                        sender_id: currentUser.id,
                         sender: senderName,
                         ...encrypted
                     })
                 });
+                
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                
                 input.value = '';
                 await loadMessages();
             } catch (err) {
@@ -655,6 +819,7 @@
             }
         }
 
+        // Форматирование времени
         function formatMessageTime(rawDate) {
             if (!rawDate) return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             
@@ -668,11 +833,16 @@
                 : parsed.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         }
 
+        // Загрузка сообщений личного чата
         async function loadMessages() {
+            if (!currentChatId) return;
+            
             const password = document.getElementById('pass-key').value;
+            
             try {
-                const res = await fetch(`${node_api}/messages`);
+                const res = await fetch(`${node_api}/messages?chat_id=${currentChatId}`);
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                
                 const list = await res.json();
                 
                 if (!Array.isArray(list)) {
@@ -685,10 +855,10 @@
 
                 for (const item of list) {
                     const payload = await decryptPayload(item.ciphertext, item.iv, item.salt, password);
-                    const card = document.createElement('div');
-                    const myName = currentUser?.user_metadata?.full_name || currentUser?.email?.split('@')[0];
-                    const isOwn = myName && item.sender === myName;
-                    card.className = `msg-card ${isOwn ? 'own' : ''}`;
+                    const isOwn = item.sender_id === currentUser?.id;
+                    
+                    const bubble = document.createElement('div');
+                    bubble.className = `msg-bubble ${isOwn ? 'own' : 'other'} m3-elevation-1`;
                     
                     let mediaHtml = '';
                     if (payload.fileUrl && typeof payload.fileUrl === 'string' && /^https?:\/\//i.test(payload.fileUrl)) {
@@ -696,12 +866,12 @@
                         const isVideo = /\.(mp4|webm|ogg|mov)$/i.test(safeUrl);
                         
                         mediaHtml = `
-                            <div style="margin-top: 10px; border: 1px solid var(--border-card); background: #000; padding: 4px;">
+                            <div class="media-container">
                                 ${isVideo 
-                                    ? `<video src="${safeUrl}" controls style="max-width: 100%; max-height: 260px; display: block;"></video>`
-                                    : `<img src="${safeUrl}" style="max-width: 100%; max-height: 260px; object-fit: contain; display: block;" loading="lazy" />`
+                                    ? `<video src="${safeUrl}" controls></video>`
+                                    : `<img src="${safeUrl}" loading="lazy" />`
                                 }
-                                <div style="font-family: var(--font-mc); font-size: 0.7rem; color: var(--pastel-yellow); margin-top: 4px;">
+                                <div class="media-warning">
                                     ⚠️ ссылка была зашифрована
                                 </div>
                             </div>
@@ -709,18 +879,19 @@
                     }
 
                     const timeStr = formatMessageTime(item.created_at || item.createdAt || item.timestamp);
-                    const safeSender = escapeHtml(item.sender || 'Аноним');
+                    const safeSender = escapeHtml(item.sender || 'Пользователь');
                     const safeText = escapeHtml(payload.text || '');
 
-                    card.innerHTML = `
+                    bubble.innerHTML = `
                         <div class="msg-header">
                             <span>${safeSender}</span>
-                            <span style="color: var(--text-muted); font-size: 0.75rem;">${timeStr}</span>
+                            <span style="opacity: 0.7; font-size: 0.75rem;">${timeStr}</span>
                         </div>
-                        <div style="color: var(--text-main); font-size: 0.95rem; line-height: 1.5;">${safeText}</div>
+                        <div style="font-size: 0.95rem; line-height: 1.5;">${safeText}</div>
                         ${mediaHtml}
                     `;
-                    container.appendChild(card);
+                    
+                    container.appendChild(bubble);
                 }
 
                 requestAnimationFrame(() => {
