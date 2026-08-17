@@ -508,60 +508,83 @@
             }
         }
 
-        // --- Инициализация ---
-        async function initAuth() {
-            supabase.auth.onAuthStateChange((event, session) => {
-                if (session?.user) {
-                    currentUser = session.user;
-                    myUsername = currentUser.email.split('@')[0];
-                    const meta = currentUser.user_metadata || {};
-                    myAvatar = meta.avatar_url || meta.picture || generateAvatar(myUsername);
+        // Обработка успешной авторизации
+function handleSignedIn(user) {
+    currentUser = user;
+    myUsername = user.email.split('@')[0];
+    const meta = user.user_metadata || {};
+    myAvatar = meta.avatar_url || meta.picture || generateAvatar(myUsername);
 
-                    document.getElementById('my-avatar').src = myAvatar;
-                    document.getElementById('profile-avatar-large').src = myAvatar;
-                    document.getElementById('profile-name').textContent = '@' + myUsername;
+    document.getElementById('my-avatar').src = myAvatar;
+    document.getElementById('profile-avatar-large').src = myAvatar;
+    document.getElementById('profile-name').textContent = '@' + myUsername;
 
-                    document.getElementById('auth-screen').classList.add('hidden');
+    document.getElementById('auth-screen').classList.add('hidden');
 
-                    // Убираем токен из URL
-                    if (window.location.hash.includes('access_token')) {
-                        history.replaceState(null, '', location.pathname);
-                    }
+    // Убираем токен из URL
+    if (window.location.hash.includes('access_token')) {
+        history.replaceState(null, '', location.pathname);
+    }
 
-                    const savedTarget = sessionStorage.getItem('justrcat-target');
-                    const savedKey = sessionStorage.getItem('justrcat-key');
-                    if (savedTarget && savedKey) {
-                        currentTarget = savedTarget;
-                        document.getElementById('pass-key').value = savedKey;
-                        updateChatHeader();
-                        document.getElementById('msg-input').disabled = false;
-                        document.getElementById('send-btn').disabled = false;
-                        updateSendButtonState();
-                        startPolling();
-                    } else {
-                        updateChatHeader();
-                        ui('#modal-dm');
-                    }
-                } else {
-                    document.getElementById('auth-screen').classList.remove('hidden');
-                    stopPolling();
-                    document.getElementById('msg-input').disabled = true;
-                    document.getElementById('send-btn').disabled = true;
-                }
-            });
+    const savedTarget = sessionStorage.getItem('justrcat-target');
+    const savedKey = sessionStorage.getItem('justrcat-key');
+    if (savedTarget && savedKey) {
+        currentTarget = savedTarget;
+        document.getElementById('pass-key').value = savedKey;
+        updateChatHeader();
+        document.getElementById('msg-input').disabled = false;
+        document.getElementById('send-btn').disabled = false;
+        updateSendButtonState();
+        startPolling();
+    } else {
+        updateChatHeader();
+        ui('#modal-dm');
+    }
+}
 
-            // Проверка hash при входе через Яндекс
-            const hash = window.location.hash;
-            if (hash && hash.includes('access_token=')) {
-                const params = new URLSearchParams(hash.substring(1));
-                await supabase.auth.setSession({
-                    access_token: params.get('access_token'),
-                    refresh_token: params.get('refresh_token')
-                });
-            } else {
-                await supabase.auth.getSession();
-            }
+// Обработка выхода
+function handleSignedOut() {
+    currentUser = null;
+    document.getElementById('auth-screen').classList.remove('hidden');
+    stopPolling();
+    document.getElementById('msg-input').disabled = true;
+    document.getElementById('send-btn').disabled = true;
+    updateSendButtonState();
+}
+
+async function initAuth() {
+    // 1. Подписываемся на изменения (для будущих входов/выходов)
+    supabase.auth.onAuthStateChange((event, session) => {
+        if (session?.user) {
+            handleSignedIn(session.user);
+        } else {
+            handleSignedOut();
         }
+    });
+
+    // 2. Проверяем hash (если редирект после Яндекс OAuth)
+    const hash = window.location.hash;
+    if (hash && hash.includes('access_token=')) {
+        const params = new URLSearchParams(hash.substring(1));
+        const { data: { session }, error } = await supabase.auth.setSession({
+            access_token: params.get('access_token'),
+            refresh_token: params.get('refresh_token')
+        });
+        if (session) {
+            handleSignedIn(session.user);
+        } else {
+            handleSignedOut();
+        }
+    } else {
+        // 3. Получаем текущую сессию (если уже вошли ранее)
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+            handleSignedIn(session.user);
+        } else {
+            handleSignedOut();
+        }
+    }
+}
 
         // --- DOM events ---
         document.addEventListener('DOMContentLoaded', () => {
