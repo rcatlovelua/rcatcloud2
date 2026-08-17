@@ -364,7 +364,7 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser = null;
 
-// Безопасное преобразование Uint8Array <-> Base64 (без RangeError)
+// Безопасное преобразование Uint8Array <-> Base64
 function bufferToBase64(buf) {
     const bytes = new Uint8Array(buf);
     let binary = '';
@@ -390,10 +390,36 @@ function loginWithYandex() {
 
 async function logout() {
     await supabase.auth.signOut();
+    currentUser = null;
     document.getElementById('auth-screen').style.display = 'flex';
 }
 
-async function checkAuth() {
+// Инициализация авторизации (с поддержкой URL Hash)
+async function initAuth() {
+    // 1. Проверяем наличие токенов в хэше URL (#access_token=...&refresh_token=...)
+    if (window.location.hash && window.location.hash.includes('access_token=')) {
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const accessToken = hashParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token');
+
+        if (accessToken && refreshToken) {
+            const { data, error } = await supabase.auth.setSession({
+                access_token: accessToken,
+                refresh_token: refreshToken
+            });
+
+            if (!error && data?.session) {
+                currentUser = data.session.user;
+                // Очищаем хэш из адресной строки без перезагрузки
+                window.history.replaceState(null, '', window.location.pathname);
+                document.getElementById('auth-screen').style.display = 'none';
+                loadMessages();
+                return;
+            }
+        }
+    }
+
+    // 2. Если хэша нет — проверяем сохраненную сессию
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
         currentUser = session.user;
@@ -477,7 +503,7 @@ async function uploadFile(file) {
     }
 }
 
-// Отправка сообщений на Node API
+// Отправка сообщений
 async function sendMessage() {
     const input = document.getElementById('msg-input');
     const fileInput = document.getElementById('file-input');
@@ -514,13 +540,34 @@ async function sendMessage() {
     }
 }
 
-// Получение сообщений из Node API
+// Форматирование даты сообщения
+function formatMessageTime(rawDate) {
+    if (!rawDate) return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    // Если дата пришла числом в секундах (Unix timestamp)
+    if (typeof rawDate === 'number' && rawDate < 1e11) {
+        rawDate = rawDate * 1000;
+    }
+    
+    const parsed = new Date(rawDate);
+    return isNaN(parsed.getTime())
+        ? new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        : parsed.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+// Получение и рендеринг сообщений
 async function loadMessages() {
     const password = document.getElementById('pass-key').value;
     try {
         const res = await fetch(`${NODE_API}/messages`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const list = await res.json();
+        
+        if (!Array.isArray(list)) {
+            console.warn('API вернул не массив сообщений:', list);
+            return;
+        }
+
         const container = document.getElementById('messages-list');
         container.innerHTML = '';
 
@@ -542,12 +589,12 @@ async function loadMessages() {
                 `;
             }
 
+            const timeStr = formatMessageTime(item.created_at || item.createdAt || item.timestamp);
+
             card.innerHTML = `
                 <div class="msg-header">
-                    <span>${item.sender}</span>
-                    <span style="color: var(--text-muted); font-size: 0.75rem;">
-                        ${new Date(item.created_at || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                    </span>
+                    <span>${item.sender || 'Аноним'}</span>
+                    <span style="color: var(--text-muted); font-size: 0.75rem;">${timeStr}</span>
                 </div>
                 <div style="color: var(--text-main); font-size: 0.95rem; line-height: 1.5;">${payload.text || ''}</div>
                 ${mediaHtml}
@@ -566,13 +613,14 @@ supabase.auth.onAuthStateChange((event, session) => {
     if (session) {
         currentUser = session.user;
         document.getElementById('auth-screen').style.display = 'none';
-        loadMessages();
     } else {
+        currentUser = null;
         document.getElementById('auth-screen').style.display = 'flex';
     }
 });
 
-checkAuth();
+// Запуск при загрузке страницы
+initAuth();
 
     </script>
 </body>
