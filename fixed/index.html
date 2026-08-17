@@ -164,6 +164,11 @@
         }
         .btn-sq:hover { background-color: var(--color-primary-hover); }
         .btn-sq:active { transform: scale(0.95); }
+        .btn-sq:disabled {
+            background-color: var(--color-disabled);
+            cursor: not-allowed;
+            transform: none;
+        }
 
         .btn-sq-secondary {
             background-color: var(--bg-card);
@@ -259,10 +264,11 @@
         <h1 style="font-family: var(--font-flauta); font-size: clamp(2.2rem, 5vw, 3.5rem); color: var(--color-primary); margin-bottom: 8px;">JustRcat</h1>
         <div style="font-family: var(--font-mc); color: var(--text-sub); margin-bottom: 28px;">Зашифрованный Мессенджер FIXED</div>
         
-        <button class="yandex-auth-btn" onclick="loginWithYandex()">
+        <!-- Используем тег <a> для гарантированного редиректа без блокировок -->
+        <a href="https://justrcat.lol/api/yandex" target="_top" class="yandex-auth-btn" style="text-decoration: none;">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm3.395 18.23h-2.583V8.89h-1.52v9.34H8.705V6.76h4.86c2.09 0 3.39 1.14 3.39 2.97 0 1.51-.83 2.45-2.02 2.76 1.34.25 2.16 1.34 2.16 2.87 0 .17-.01.35-.04.53l-1.66 2.34z"/></svg>
             <span>Войти через Яндекс ID</span>
-        </button>
+        </a>
     </div>
 
     <!-- ==========================================
@@ -273,16 +279,16 @@
             <div style="font-family: var(--font-flauta); font-size: 1.5rem; color: var(--pastel-blue);">JustRcat FIXED</div>
             <div class="max"></div>
             
-            <button class="chip pastel-badge" onclick="ui('#modal-security')">
+            <button class="chip pastel-badge" id="btn-security-modal">
                 <i class="material-symbols-outlined" style="font-size: 16px;">warning</i>
                 <span>Медиа: Ссылочное шифрование</span>
             </button>
 
-            <button class="btn-sq btn-sq-secondary" onclick="ui('#modal-key')" title="Сменить ключ">
+            <button class="btn-sq btn-sq-secondary" id="btn-key-modal" title="Сменить ключ">
                 <i class="material-symbols-outlined">key</i>
             </button>
 
-            <button class="btn-sq btn-sq-secondary" onclick="logout()" title="Выйти">
+            <button class="btn-sq btn-sq-secondary" id="btn-logout" title="Выйти">
                 <i class="material-symbols-outlined">logout</i>
             </button>
         </div>
@@ -292,7 +298,6 @@
          ОБЛАСТЬ ЧАТА
          ========================================== -->
     <main id="chat-main">
-        <!-- Предупреждение о слабом шифровании картинок -->
         <div class="warning-card">
             <i class="material-symbols-outlined" style="color: var(--pastel-red);">shield_lock</i>
             <div style="font-size: 0.85rem;">
@@ -310,15 +315,15 @@
     <footer class="fixed-custom">
         <div style="display: flex; align-items: center; gap: 10px; width: 100%; max-width: 900px; margin: 0 auto;">
             <input type="file" id="file-input" style="display: none;" accept="image/*,video/*">
-            <button class="btn-sq btn-sq-secondary" onclick="document.getElementById('file-input').click()" title="Прикрепить файл">
+            <button class="btn-sq btn-sq-secondary" id="attach-btn" title="Прикрепить файл">
                 <i class="material-symbols-outlined">attach_file</i>
             </button>
 
             <div class="field fill no-margin max" style="background: var(--bg-card); border: 1px solid var(--border-card);">
-                <input type="text" id="msg-input" placeholder="Зашифрованное сообщение..." style="color: var(--text-main); font-family: var(--font-main);" onkeydown="if(event.key==='Enter') sendMessage()">
+                <input type="text" id="msg-input" placeholder="Зашифрованное сообщение..." style="color: var(--text-main); font-family: var(--font-main);">
             </div>
 
-            <button class="btn-sq" onclick="sendMessage()" title="Отправить">
+            <button class="btn-sq" id="send-btn" title="Отправить">
                 <i class="material-symbols-outlined">send</i>
             </button>
         </div>
@@ -333,8 +338,8 @@
             <label>Мастер-пароль</label>
         </div>
         <nav class="right-align" style="gap: 8px;">
-            <button class="btn-sq-secondary" style="padding: 0 16px; height: 42px;" onclick="ui('#modal-key')">Отмена</button>
-            <button class="btn-sq" style="padding: 0 16px; width: auto;" onclick="loadMessages(); ui('#modal-key');">Применить</button>
+            <button class="btn-sq-secondary" style="padding: 0 16px; height: 42px;" id="btn-close-key-modal">Отмена</button>
+            <button class="btn-sq" style="padding: 0 16px; width: auto;" id="btn-apply-key">Применить</button>
         </nav>
     </dialog>
 
@@ -346,7 +351,7 @@
             2. <b>Медиафайлы:</b> Отправляются через Go-прокси (`go.justrcat.lol`). В базу Supabase попадает зашифрованный URL, но сам файл доступен на CDN без авторизации, если ссылка будет скомпрометирована.
         </div>
         <nav class="right-align">
-            <button class="btn-sq" style="width: auto; padding: 0 16px;" onclick="ui('#modal-security')">Понятно</button>
+            <button class="btn-sq" style="width: auto; padding: 0 16px;" id="btn-close-sec-modal">Понятно</button>
         </nav>
     </dialog>
 
@@ -354,274 +359,322 @@
          СКРИПТЫ E2EE И АВТОРИЗАЦИИ
          ========================================== -->
     <script>
-        // Конфигурация API
-const NODE_API = 'https://justrcat.lol/api';
-const GO_API = 'https://go.justrcat.lol';
+        const NODE_API = 'https://justrcat.lol/api';
+        const GO_API = 'https://go.justrcat.lol';
 
-const SUPABASE_URL = 'https://xonlaprqfhtawlgvmvuk.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_6Q6ETBaxKDYr_2K1qojV2A_LB6dJkVG';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const SUPABASE_URL = 'https://xonlaprqfhtawlgvmvuk.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_6Q6ETBaxKDYr_2K1qojV2A_LB6dJkVG';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-let currentUser = null;
+        let currentUser = null;
+        let isSending = false;
 
-// Безопасное преобразование Uint8Array <-> Base64
-function bufferToBase64(buf) {
-    const bytes = new Uint8Array(buf);
-    let binary = '';
-    for (let i = 0; i < bytes.byteLength; i++) {
-        binary += String.fromCharCode(bytes[i]);
-    }
-    return btoa(binary);
-}
+        // Вспомогательные функции
+        function escapeHTML(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>'"]/g, tag => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                "'": '&#39;',
+                '"': '&quot;'
+            }[tag] || tag));
+        }
 
-function base64ToBuffer(b64) {
-    const binary = atob(b64);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) {
-        bytes[i] = binary.charCodeAt(i);
-    }
-    return bytes;
-}
+        function bufferToBase64(buf) {
+            const bytes = new Uint8Array(buf);
+            let binary = '';
+            for (let i = 0; i < bytes.byteLength; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return btoa(binary);
+        }
 
-// Авторизация
-function loginWithYandex() {
-    window.location.href = `${NODE_API}/auth/yandex`;
-}
+        function base64ToBuffer(b64) {
+            const binary = atob(b64);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) {
+                bytes[i] = binary.charCodeAt(i);
+            }
+            return bytes;
+        }
 
-async function logout() {
-    await supabase.auth.signOut();
-    currentUser = null;
-    document.getElementById('auth-screen').style.display = 'flex';
-}
+        // =====================================
+        // ИНИЦИАЛИЗАЦИЯ СОБЫТИЙ (EVENT LISTENERS)
+        // =====================================
+        document.addEventListener('DOMContentLoaded', () => {
 
-// Инициализация авторизации (с поддержкой URL Hash)
-async function initAuth() {
-    // 1. Проверяем наличие токенов в хэше URL (#access_token=...&refresh_token=...)
-    if (window.location.hash && window.location.hash.includes('access_token=')) {
-        const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        const accessToken = hashParams.get('access_token');
-        const refreshToken = hashParams.get('refresh_token');
-
-        if (accessToken && refreshToken) {
-            const { data, error } = await supabase.auth.setSession({
-                access_token: accessToken,
-                refresh_token: refreshToken
+            // Выход
+            document.getElementById('btn-logout').addEventListener('click', async () => {
+                await supabase.auth.signOut();
+                currentUser = null;
+                document.getElementById('auth-screen').style.display = 'flex';
             });
 
-            if (!error && data?.session) {
-                currentUser = data.session.user;
-                // Очищаем хэш из адресной строки без перезагрузки
-                window.history.replaceState(null, '', window.location.pathname);
+            // Работа с модалками (BeerCSS ui функция)
+            document.getElementById('btn-security-modal').addEventListener('click', () => ui('#modal-security'));
+            document.getElementById('btn-close-sec-modal').addEventListener('click', () => ui('#modal-security'));
+            
+            document.getElementById('btn-key-modal').addEventListener('click', () => ui('#modal-key'));
+            document.getElementById('btn-close-key-modal').addEventListener('click', () => ui('#modal-key'));
+            document.getElementById('btn-apply-key').addEventListener('click', () => {
+                loadMessages();
+                ui('#modal-key');
+            });
+
+            // Отправка и файлы
+            document.getElementById('attach-btn').addEventListener('click', () => {
+                document.getElementById('file-input').click();
+            });
+
+            document.getElementById('send-btn').addEventListener('click', sendMessage);
+            
+            document.getElementById('msg-input').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') sendMessage();
+            });
+
+            // Инициализация при загрузке
+            initAuth();
+        });
+
+
+        async function initAuth() {
+            if (window.location.hash && window.location.hash.includes('access_token=')) {
+                const hashParams = new URLSearchParams(window.location.hash.substring(1));
+                const accessToken = hashParams.get('access_token');
+                const refreshToken = hashParams.get('refresh_token');
+
+                if (accessToken && refreshToken) {
+                    const { data, error } = await supabase.auth.setSession({
+                        access_token: accessToken,
+                        refresh_token: refreshToken
+                    });
+
+                    if (!error && data?.session) {
+                        currentUser = data.session.user;
+                        window.history.replaceState(null, '', window.location.pathname);
+                        document.getElementById('auth-screen').style.display = 'none';
+                        loadMessages();
+                        return;
+                    }
+                }
+            }
+
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                currentUser = session.user;
                 document.getElementById('auth-screen').style.display = 'none';
                 loadMessages();
-                return;
+            } else {
+                document.getElementById('auth-screen').style.display = 'flex';
             }
         }
-    }
 
-    // 2. Если хэша нет — проверяем сохраненную сессию
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-        currentUser = session.user;
-        document.getElementById('auth-screen').style.display = 'none';
-        loadMessages();
-    } else {
-        document.getElementById('auth-screen').style.display = 'flex';
-    }
-}
-
-// Криптография AES-GCM 256
-async function deriveKey(password, salt) {
-    const enc = new TextEncoder();
-    const keyMaterial = await crypto.subtle.importKey(
-        'raw', enc.encode(password), { name: 'PBKDF2' }, false, ['deriveKey']
-    );
-    return crypto.subtle.deriveKey(
-        { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
-        keyMaterial,
-        { name: 'AES-GCM', length: 256 },
-        false,
-        ['encrypt', 'decrypt']
-    );
-}
-
-async function encryptPayload(obj, password) {
-    const enc = new TextEncoder();
-    const salt = crypto.getRandomValues(new Uint8Array(16));
-    const iv = crypto.getRandomValues(new Uint8Array(12));
-    const key = await deriveKey(password, salt);
-
-    const ciphertext = await crypto.subtle.encrypt(
-        { name: 'AES-GCM', iv },
-        key,
-        enc.encode(JSON.stringify(obj))
-    );
-
-    return {
-        ciphertext: bufferToBase64(ciphertext),
-        iv: bufferToBase64(iv),
-        salt: bufferToBase64(salt)
-    };
-}
-
-async function decryptPayload(ciphertextB64, ivB64, saltB64, password) {
-    try {
-        const ciphertext = base64ToBuffer(ciphertextB64);
-        const iv = base64ToBuffer(ivB64);
-        const salt = base64ToBuffer(saltB64);
-
-        const key = await deriveKey(password, salt);
-        const decrypted = await crypto.subtle.decrypt(
-            { name: 'AES-GCM', iv },
-            key,
-            ciphertext
-        );
-
-        return JSON.parse(new TextDecoder().decode(decrypted));
-    } catch (e) {
-        return { text: '🔒 [Не удалось расшифровать: неверный ключ]', fileUrl: null };
-    }
-}
-
-// Загрузка файлов на Go API
-async function uploadFile(file) {
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    try {
-        const res = await fetch(`${GO_API}/api/upload`, {
-            method: 'POST',
-            body: formData
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        return data.url;
-    } catch (err) {
-        console.error('Ошибка загрузки медиа:', err);
-        alert('Не удалось загрузить файл на Go API');
-        return null;
-    }
-}
-
-// Отправка сообщений
-async function sendMessage() {
-    const input = document.getElementById('msg-input');
-    const fileInput = document.getElementById('file-input');
-    const password = document.getElementById('pass-key').value;
-    const text = input.value.trim();
-
-    let fileUrl = null;
-    if (fileInput.files.length > 0) {
-        fileUrl = await uploadFile(fileInput.files[0]);
-        fileInput.value = '';
-    }
-
-    if (!text && !fileUrl) return;
-
-    const payload = { text, fileUrl };
-    const encrypted = await encryptPayload(payload, password);
-    const senderName = currentUser?.user_metadata?.full_name || currentUser?.email?.split('@')[0] || 'Аноним';
-
-    try {
-        const res = await fetch(`${NODE_API}/messages`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                sender: senderName,
-                ...encrypted
-            })
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        input.value = '';
-        loadMessages();
-    } catch (err) {
-        console.error('Ошибка отправки сообщения:', err);
-        alert('Не удалось отправить сообщение в Node API');
-    }
-}
-
-// Форматирование даты сообщения
-function formatMessageTime(rawDate) {
-    if (!rawDate) return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    
-    // Если дата пришла числом в секундах (Unix timestamp)
-    if (typeof rawDate === 'number' && rawDate < 1e11) {
-        rawDate = rawDate * 1000;
-    }
-    
-    const parsed = new Date(rawDate);
-    return isNaN(parsed.getTime())
-        ? new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        : parsed.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
-
-// Получение и рендеринг сообщений
-async function loadMessages() {
-    const password = document.getElementById('pass-key').value;
-    try {
-        const res = await fetch(`${NODE_API}/messages`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const list = await res.json();
-        
-        if (!Array.isArray(list)) {
-            console.warn('API вернул не массив сообщений:', list);
-            return;
+        async function deriveKey(password, salt) {
+            const enc = new TextEncoder();
+            const keyMaterial = await crypto.subtle.importKey(
+                'raw', enc.encode(password), { name: 'PBKDF2' }, false, ['deriveKey']
+            );
+            return crypto.subtle.deriveKey(
+                { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+                keyMaterial,
+                { name: 'AES-GCM', length: 256 },
+                false,
+                ['encrypt', 'decrypt']
+            );
         }
 
-        const container = document.getElementById('messages-list');
-        container.innerHTML = '';
+        async function encryptPayload(obj, password) {
+            const enc = new TextEncoder();
+            const salt = crypto.getRandomValues(new Uint8Array(16));
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+            const key = await deriveKey(password, salt);
 
-        for (const item of list) {
-            const payload = await decryptPayload(item.ciphertext, item.iv, item.salt, password);
-            const card = document.createElement('div');
-            const isOwn = currentUser && (item.sender === (currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0]));
-            card.className = `msg-card ${isOwn ? 'own' : ''}`;
+            const ciphertext = await crypto.subtle.encrypt(
+                { name: 'AES-GCM', iv },
+                key,
+                enc.encode(JSON.stringify(obj))
+            );
+
+            return {
+                ciphertext: bufferToBase64(ciphertext),
+                iv: bufferToBase64(iv),
+                salt: bufferToBase64(salt)
+            };
+        }
+
+        async function decryptPayload(ciphertextB64, ivB64, saltB64, password) {
+            try {
+                const ciphertext = base64ToBuffer(ciphertextB64);
+                const iv = base64ToBuffer(ivB64);
+                const salt = base64ToBuffer(saltB64);
+
+                const key = await deriveKey(password, salt);
+                const decrypted = await crypto.subtle.decrypt(
+                    { name: 'AES-GCM', iv },
+                    key,
+                    ciphertext
+                );
+
+                return JSON.parse(new TextDecoder().decode(decrypted));
+            } catch (e) {
+                return { text: '🔒 [Не удалось расшифровать: неверный ключ]', fileUrl: null };
+            }
+        }
+
+        async function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
             
-            let mediaHtml = '';
-            if (payload.fileUrl) {
-                mediaHtml = `
-                    <div style="margin-top: 10px; border: 1px solid var(--border-card); background: #000; padding: 4px;">
-                        <img src="${payload.fileUrl}" style="max-width: 100%; max-height: 260px; object-fit: contain; display: block;" loading="lazy" />
-                        <div style="font-family: var(--font-mc); font-size: 0.7rem; color: var(--pastel-yellow); margin-top: 4px;">
-                            ⚠️ Ссылка была зашифрована
-                        </div>
-                    </div>
-                `;
+            try {
+                const res = await fetch(`${GO_API}/api/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                return data.url;
+            } catch (err) {
+                console.error('Ошибка загрузки медиа:', err);
+                alert('Не удалось загрузить файл на Go API');
+                return null;
             }
-
-            const timeStr = formatMessageTime(item.created_at || item.createdAt || item.timestamp);
-
-            card.innerHTML = `
-                <div class="msg-header">
-                    <span>${item.sender || 'Аноним'}</span>
-                    <span style="color: var(--text-muted); font-size: 0.75rem;">${timeStr}</span>
-                </div>
-                <div style="color: var(--text-main); font-size: 0.95rem; line-height: 1.5;">${payload.text || ''}</div>
-                ${mediaHtml}
-            `;
-            container.appendChild(card);
         }
 
-        const chatMain = document.getElementById('chat-main');
-        chatMain.scrollTop = chatMain.scrollHeight;
-    } catch (err) {
-        console.error('Ошибка загрузки сообщений:', err);
-    }
-}
+        async function sendMessage() {
+            if (isSending) return;
+            const input = document.getElementById('msg-input');
+            const fileInput = document.getElementById('file-input');
+            const sendBtn = document.getElementById('send-btn');
+            const password = document.getElementById('pass-key').value;
+            const text = input.value.trim();
 
-supabase.auth.onAuthStateChange((event, session) => {
-    if (session) {
-        currentUser = session.user;
-        document.getElementById('auth-screen').style.display = 'none';
-    } else {
-        currentUser = null;
-        document.getElementById('auth-screen').style.display = 'flex';
-    }
-});
+            if (!text && fileInput.files.length === 0) return;
 
-// Запуск при загрузке страницы
-initAuth();
+            try {
+                isSending = true;
+                sendBtn.disabled = true;
 
+                let fileUrl = null;
+                if (fileInput.files.length > 0) {
+                    fileUrl = await uploadFile(fileInput.files[0]);
+                    fileInput.value = '';
+                }
+
+                if (!text && !fileUrl) return;
+
+                const payload = { text, fileUrl };
+                const encrypted = await encryptPayload(payload, password);
+                const senderName = currentUser?.user_metadata?.full_name || currentUser?.email?.split('@')[0] || 'Аноним';
+
+                const res = await fetch(`${NODE_API}/messages`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sender: senderName,
+                        ...encrypted
+                    })
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                input.value = '';
+                await loadMessages();
+            } catch (err) {
+                console.error('Ошибка отправки сообщения:', err);
+                alert('Не удалось отправить сообщение в Node API');
+            } finally {
+                isSending = false;
+                sendBtn.disabled = false;
+            }
+        }
+
+        function formatMessageTime(rawDate) {
+            if (!rawDate) return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            if (typeof rawDate === 'number' && rawDate < 1e11) {
+                rawDate = rawDate * 1000;
+            }
+            
+            const parsed = new Date(rawDate);
+            return isNaN(parsed.getTime())
+                ? new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                : parsed.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        async function loadMessages() {
+            const password = document.getElementById('pass-key').value;
+            try {
+                const res = await fetch(`${NODE_API}/messages`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const list = await res.json();
+                
+                if (!Array.isArray(list)) {
+                    console.warn('API вернул не массив сообщений:', list);
+                    return;
+                }
+
+                const container = document.getElementById('messages-list');
+                container.innerHTML = '';
+
+                for (const item of list) {
+                    const payload = await decryptPayload(item.ciphertext, item.iv, item.salt, password);
+                    const card = document.createElement('div');
+                    const myName = currentUser?.user_metadata?.full_name || currentUser?.email?.split('@')[0];
+                    const isOwn = myName && item.sender === myName;
+                    card.className = `msg-card ${isOwn ? 'own' : ''}`;
+                    
+                    let mediaHtml = '';
+                    if (payload.fileUrl && typeof payload.fileUrl === 'string' && /^https?:\/\//i.test(payload.fileUrl)) {
+                        const safeUrl = escapeHTML(payload.fileUrl);
+                        const isVideo = /\.(mp4|webm|ogg|mov)$/i.test(safeUrl);
+                        
+                        mediaHtml = `
+                            <div style="margin-top: 10px; border: 1px solid var(--border-card); background: #000; padding: 4px;">
+                                ${isVideo 
+                                    ? `<video src="${safeUrl}" controls style="max-width: 100%; max-height: 260px; display: block;"></video>`
+                                    : `<img src="${safeUrl}" style="max-width: 100%; max-height: 260px; object-fit: contain; display: block;" loading="lazy" />`
+                                }
+                                <div style="font-family: var(--font-mc); font-size: 0.7rem; color: var(--pastel-yellow); margin-top: 4px;">
+                                    ⚠️ Ссылка была зашифрована
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    const timeStr = formatMessageTime(item.created_at || item.createdAt || item.timestamp);
+                    const safeSender = escapeHTML(item.sender || 'Аноним');
+                    const safeText = escapeHTML(payload.text || '');
+
+                    card.innerHTML = `
+                        <div class="msg-header">
+                            <span>${safeSender}</span>
+                            <span style="color: var(--text-muted); font-size: 0.75rem;">${timeStr}</span>
+                        </div>
+                        <div style="color: var(--text-main); font-size: 0.95rem; line-height: 1.5;">${safeText}</div>
+                        ${mediaHtml}
+                    `;
+                    container.appendChild(card);
+                }
+
+                requestAnimationFrame(() => {
+                    const chatMain = document.getElementById('chat-main');
+                    chatMain.scrollTop = chatMain.scrollHeight;
+                });
+            } catch (err) {
+                console.error('Ошибка загрузки сообщений:', err);
+            }
+        }
+
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (session) {
+                currentUser = session.user;
+                document.getElementById('auth-screen').style.display = 'none';
+            } else {
+                currentUser = null;
+                document.getElementById('auth-screen').style.display = 'flex';
+            }
+        });
     </script>
 </body>
 </html>
+
+
