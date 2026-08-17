@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseServiceRole = process.env.SUPABASE_SERVICE_ROLE;
+const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+// Поддерживаем оба варианта названия ключа
+const supabaseServiceRole = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE;
 
 export default async function handler(req, res) {
   const { code } = req.query;
@@ -9,9 +10,12 @@ export default async function handler(req, res) {
   const targetUrl = `${appUrl}/fixed`;
 
   if (!supabaseUrl || !supabaseServiceRole) {
-    console.error('Missing Supabase environment variables');
-    return res.status(500).json({ error: 'Server configuration error' });
+    console.error('Missing Supabase keys:', { supabaseUrl: !!supabaseUrl, supabaseServiceRole: !!supabaseServiceRole });
+    return res.status(500).json({ error: 'Server configuration error: missing Supabase keys' });
   }
+
+  // дальше ваш код...
+
 
   if (!code) {
     return res.redirect(`${targetUrl}?auth_error=no_code`);
