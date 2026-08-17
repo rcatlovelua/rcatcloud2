@@ -509,6 +509,7 @@
         }
 
         // Обработка успешной авторизации
+// Обработка успешного входа
 function handleSignedIn(user) {
     currentUser = user;
     myUsername = user.email.split('@')[0];
@@ -553,16 +554,7 @@ function handleSignedOut() {
 }
 
 async function initAuth() {
-    // 1. Подписываемся на изменения (для будущих входов/выходов)
-    supabase.auth.onAuthStateChange((event, session) => {
-        if (session?.user) {
-            handleSignedIn(session.user);
-        } else {
-            handleSignedOut();
-        }
-    });
-
-    // 2. Проверяем hash (если редирект после Яндекс OAuth)
+    // 1. Сначала проверяем, есть ли токены в URL (после OAuth-редиректа)
     const hash = window.location.hash;
     if (hash && hash.includes('access_token=')) {
         const params = new URLSearchParams(hash.substring(1));
@@ -573,10 +565,11 @@ async function initAuth() {
         if (session) {
             handleSignedIn(session.user);
         } else {
+            console.error('Ошибка setSession:', error);
             handleSignedOut();
         }
     } else {
-        // 3. Получаем текущую сессию (если уже вошли ранее)
+        // 2. Если токенов в URL нет, просто получаем текущую сессию
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
             handleSignedIn(session.user);
@@ -584,7 +577,17 @@ async function initAuth() {
             handleSignedOut();
         }
     }
-}
+
+    // 3. Подписываемся на будущие изменения (вход/выход)
+    supabase.auth.onAuthStateChange((event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
+        if (session?.user) {
+            handleSignedIn(session.user);
+        } else {
+            handleSignedOut();
+        }
+    });
+                                }
 
         // --- DOM events ---
         document.addEventListener('DOMContentLoaded', () => {
