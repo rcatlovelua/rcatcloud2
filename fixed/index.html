@@ -404,6 +404,12 @@
         // =====================================
         document.addEventListener('DOMContentLoaded', () => {
 
+            // ВОССТАНОВЛЕНИЕ МАСТЕР-ПАРОЛЯ ИЗ ПАМЯТИ
+            const savedKey = localStorage.getItem('justrcat-master-key');
+            if (savedKey) {
+                document.getElementById('pass-key').value = savedKey;
+            }
+
             // Выход
             document.getElementById('btn-logout').addEventListener('click', async () => {
                 await supabase.auth.signOut();
@@ -411,13 +417,17 @@
                 document.getElementById('auth-screen').style.display = 'flex';
             });
 
-            // Работа с модалками (BeerCSS ui функция)
+            // Работа с модалками
             document.getElementById('btn-security-modal').addEventListener('click', () => ui('#modal-security'));
             document.getElementById('btn-close-sec-modal').addEventListener('click', () => ui('#modal-security'));
             
             document.getElementById('btn-key-modal').addEventListener('click', () => ui('#modal-key'));
             document.getElementById('btn-close-key-modal').addEventListener('click', () => ui('#modal-key'));
+            
+            // Сохранение ключа
             document.getElementById('btn-apply-key').addEventListener('click', () => {
+                const newKey = document.getElementById('pass-key').value;
+                localStorage.setItem('justrcat-master-key', newKey); // Сохраняем в куки (localStorage)
                 loadMessages();
                 ui('#modal-key');
             });
@@ -433,40 +443,53 @@
                 if (e.key === 'Enter') sendMessage();
             });
 
-            // Инициализация при загрузке
+            // Запускаем инициализацию авторизации
             initAuth();
         });
 
 
         async function initAuth() {
-            if (window.location.hash && window.location.hash.includes('access_token=')) {
-                const hashParams = new URLSearchParams(window.location.hash.substring(1));
-                const accessToken = hashParams.get('access_token');
-                const refreshToken = hashParams.get('refresh_token');
-
-                if (accessToken && refreshToken) {
-                    const { data, error } = await supabase.auth.setSession({
-                        access_token: accessToken,
-                        refresh_token: refreshToken
-                    });
-
-                    if (!error && data?.session) {
-                        currentUser = data.session.user;
+            // 1. ПОДПИСЫВАЕМСЯ НА ИЗМЕНЕНИЯ СЕССИИ (Главный фикс зависающего окна)
+            // Supabase автоматически парсит токен из URL и вызывает это событие
+            supabase.auth.onAuthStateChange((event, session) => {
+                if (session) {
+                    currentUser = session.user;
+                    document.getElementById('auth-screen').style.display = 'none';
+                    
+                    // Красиво стираем страшный хэш из адресной строки после входа
+                    if (window.location.hash && window.location.hash.includes('access_token=')) {
                         window.history.replaceState(null, '', window.location.pathname);
-                        document.getElementById('auth-screen').style.display = 'none';
-                        loadMessages();
-                        return;
                     }
+                    
+                    loadMessages();
+                } else {
+                    currentUser = null;
+                    document.getElementById('auth-screen').style.display = 'flex';
                 }
-            }
+            });
 
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                currentUser = session.user;
-                document.getElementById('auth-screen').style.display = 'none';
-                loadMessages();
+            // 2. ДОПОЛНИТЕЛЬНАЯ ПРОВЕРКА (В случае ручного возврата или обновления)
+            // Пытаемся принудительно съесть хэш, если авто-парсинг Supabase затупил
+            if (window.location.hash && window.location.hash.includes('access_token=')) {
+                try {
+                    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+                    const accessToken = hashParams.get('access_token');
+                    const refreshToken = hashParams.get('refresh_token');
+
+                    if (accessToken && refreshToken) {
+                        const { error } = await supabase.auth.setSession({
+                            access_token: accessToken,
+                            refresh_token: refreshToken
+                        });
+                        if (error) console.error("Ошибка при ручной установке сессии:", error);
+                    }
+                } catch (e) {
+                    console.error("Ошибка парсинга хэша URL:", e);
+                }
             } else {
-                document.getElementById('auth-screen').style.display = 'flex';
+                // Если хэша нет, пробуем восстановить сохраненную сессию (куки/localStorage)
+                const { error } = await supabase.auth.getSession();
+                if (error) console.error("Ошибка восстановления сессии:", error);
             }
         }
 
@@ -663,16 +686,6 @@
                 console.error('Ошибка загрузки сообщений:', err);
             }
         }
-
-        supabase.auth.onAuthStateChange((event, session) => {
-            if (session) {
-                currentUser = session.user;
-                document.getElementById('auth-screen').style.display = 'none';
-            } else {
-                currentUser = null;
-                document.getElementById('auth-screen').style.display = 'flex';
-            }
-        });
     </script>
 </body>
 </html>
