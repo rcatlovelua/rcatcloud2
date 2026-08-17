@@ -1,27 +1,27 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JustRcat — Зашифрованный Мессенджер FIXED</title>
-    <meta name="description" content="E2EE Мессенджер JustRcat с шифрованием AES-256">
+    <title>justrcat — зашифрованный мессенджер fixed</title>
+    <meta name="description" content="e2ee мессенджер justrcat с шифрованием aes-256">
 
-    <!-- Предзагрузка и шрифты -->
+    <!-- предзагрузка и шрифты -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link rel="preconnect" href="https://dump.justrcat.lol">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=material+symbols+outlined" rel="stylesheet">
 
-    <!-- Beer CSS -->
+    <!-- beer css -->
     <link href="https://cdn.jsdelivr.net/npm/beercss@3.5.1/dist/cdn/beer.min.css" rel="stylesheet">
     <script type="module" src="https://cdn.jsdelivr.net/npm/beercss@3.5.1/dist/cdn/beer.min.js"></script>
 
-    <!-- Supabase JS Client -->
+    <!-- supabase js client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         /* ==========================================
-           1. ПЕРЕМЕННЫЕ И ШРИФТЫ JUSTRCAT
+           1. переменные и шрифты justrcat
            ========================================== */
         :root {
             --bg-main: #0b0d10;
@@ -29,7 +29,7 @@
             --border-card: #1e2330;
             --border-card-hover: #2a3245;
             
-            /* Пастельная палитра для FIXED элементов */
+            /* пастельная палитра для fixed элементов */
             --fixed-bg: #141724;
             --fixed-border: #252b40;
             --pastel-blue: #93b5ff;
@@ -47,21 +47,21 @@
             --text-muted: #6a707c;
             --text-sub: #a0a6b2;
 
-            --font-main: 'Geist Sans', 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
-            --font-flauta: 'FFFlauta', monospace, sans-serif;
-            --font-mc: 'Minecraft', monospace;
+            --font-main: 'geist sans', 'geist', -apple-system, blinkmacsystemfont, sans-serif;
+            --font-flauta: 'ffflauta', monospace, sans-serif;
+            --font-mc: 'minecraft', monospace;
         }
 
         @font-face {
-            font-family: 'FFFlauta';
-            src: url('https://dump.justrcat.lol/fonts/ffflauta/FFFlauta-Regular.woff2') format('woff2'),
-                 url('https://dump.justrcat.lol/fonts/ffflauta/FFFlauta-Regular.ttf') format('truetype');
+            font-family: 'ffflauta';
+            src: url('https://dump.justrcat.lol/fonts/ffflauta/ffflauta-regular.woff2') format('woff2'),
+                 url('https://dump.justrcat.lol/fonts/ffflauta/ffflauta-regular.ttf') format('truetype');
             font-weight: normal;
             font-display: swap;
         }
 
         @font-face {
-            font-family: 'Minecraft';
+            font-family: 'minecraft';
             src: url('https://dump.justrcat.lol/fonts/minecraft.ttf') format('truetype');
             font-weight: normal;
             font-display: swap;
@@ -84,7 +84,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Неоновое фоновое свечение */
+        /* неоновое фоновое свечение */
         body::before {
             content: '';
             position: absolute;
@@ -112,7 +112,7 @@
         }
 
         /* ==========================================
-           2. ПАСТЕЛЬНЫЕ СТИЛИ FIXED ПАНЕЛЕЙ
+           2. пастельные стили fixed панелей
            ========================================== */
         header.fixed-custom {
             position: fixed;
@@ -148,7 +148,7 @@
             cursor: pointer;
         }
 
-        /* Кнопки в пиксельном стиле */
+        /* кнопки в пиксельном стиле */
         .btn-sq {
             width: 42px;
             height: 42px;
@@ -180,7 +180,7 @@
             color: var(--text-main);
         }
 
-        /* Область чата */
+        /* область чата */
         #chat-main {
             flex: 1;
             overflow-y: auto;
@@ -224,7 +224,7 @@
             align-items: center;
         }
 
-        /* Экран авторизации */
+        /* экран авторизации */
         #auth-screen {
             position: fixed;
             inset: 0;
@@ -235,6 +235,13 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        
+        #auth-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
         }
 
         .yandex-auth-btn {
@@ -257,52 +264,55 @@
 <body>
 
     <!-- ==========================================
-         ЭКРАН АВТОРИЗАЦИИ (ЯНДЕКС ID)
+         экран авторизации (яндекс id)
          ========================================== -->
-    <div id="auth-screen">
-        <img src="https://dump.justrcat.lol/images/cute-sit-mc.webp" alt="JustRcat" style="max-width: 160px; margin-bottom: 24px;" loading="eager">
-        <h1 style="font-family: var(--font-flauta); font-size: clamp(2.2rem, 5vw, 3.5rem); color: var(--color-primary); margin-bottom: 8px;">JustRcat</h1>
-        <div style="font-family: var(--font-mc); color: var(--text-sub); margin-bottom: 28px;">Зашифрованный Мессенджер FIXED</div>
+    <div id="auth-screen" class="hidden">
+        <img src="https://dump.justrcat.lol/images/cute-sit-mc.webp" alt="justrcat" style="max-width: 160px; margin-bottom: 24px;" loading="eager">
+        <h1 style="font-family: var(--font-flauta); font-size: clamp(2.2rem, 5vw, 3.5rem); color: var(--color-primary); margin-bottom: 8px;">justrcat</h1>
+        <div style="font-family: var(--font-mc); color: var(--text-sub); margin-bottom: 28px;">зашифрованный мессенджер fixed</div>
         
-        <!-- Используем тег <a> для гарантированного редиректа без блокировок -->
+        <!-- используем тег <a> для гарантированного редиректа без блокировок -->
         <a href="https://justrcat.lol/api/yandex" target="_top" class="yandex-auth-btn" style="text-decoration: none;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm3.395 18.23h-2.583V8.89h-1.52v9.34H8.705V6.76h4.86c2.09 0 3.39 1.14 3.39 2.97 0 1.51-.83 2.45-2.02 2.76 1.34.25 2.16 1.34 2.16 2.87 0 .17-.01.35-.04.53l-1.66 2.34z"/></svg>
-            <span>Войти через Яндекс ID</span>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="12" cy="12" r="12" fill="#fc3f1d"/>
+                <text x="12" y="16" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Я</text>
+            </svg>
+            <span>войти через яндекс id</span>
         </a>
     </div>
 
     <!-- ==========================================
-         FIXED HEADER
+         fixed header
          ========================================== -->
     <header class="fixed-custom">
         <div style="display: flex; align-items: center; gap: 12px; width: 100%; max-width: 900px; margin: 0 auto;">
-            <div style="font-family: var(--font-flauta); font-size: 1.5rem; color: var(--pastel-blue);">JustRcat FIXED</div>
+            <div style="font-family: var(--font-flauta); font-size: 1.5rem; color: var(--pastel-blue);">justrcat fixed</div>
             <div class="max"></div>
             
             <button class="chip pastel-badge" id="btn-security-modal">
                 <i class="material-symbols-outlined" style="font-size: 16px;">warning</i>
-                <span>Медиа: Ссылочное шифрование</span>
+                <span>медиа: ссылочное шифрование</span>
             </button>
 
-            <button class="btn-sq btn-sq-secondary" id="btn-key-modal" title="Сменить ключ">
+            <button class="btn-sq btn-sq-secondary" id="btn-key-modal" title="сменить ключ">
                 <i class="material-symbols-outlined">key</i>
             </button>
 
-            <button class="btn-sq btn-sq-secondary" id="btn-logout" title="Выйти">
+            <button class="btn-sq btn-sq-secondary" id="btn-logout" title="выйти">
                 <i class="material-symbols-outlined">logout</i>
             </button>
         </div>
     </header>
 
     <!-- ==========================================
-         ОБЛАСТЬ ЧАТА
+         область чата
          ========================================== -->
     <main id="chat-main">
         <div class="warning-card">
             <i class="material-symbols-outlined" style="color: var(--pastel-red);">shield_lock</i>
             <div style="font-size: 0.85rem;">
-                <div style="color: var(--pastel-red); font-family: var(--font-mc); margin-bottom: 2px;">ПРЕДУПРЕЖДЕНИЕ БЕЗОПАСНОСТИ</div>
-                <div style="color: var(--text-body);">Текст сообщений защищён <b>AES-256</b>. Картинки заливаются на CDN — <b>шифруется только URL ссылки</b>. Прямой доступ к файлу на CDN остаётся открытым по ссылке.</div>
+                <div style="color: var(--pastel-red); font-family: var(--font-mc); margin-bottom: 2px;">предупреждение безопасности</div>
+                <div style="color: var(--text-body);">текст сообщений защищён <b>aes-256</b>. картинки заливаются на cdn — <b>шифруется только url ссылки</b>. прямой доступ к файлу на cdn остаётся открытым по ссылке.</div>
             </div>
         </div>
 
@@ -310,67 +320,67 @@
     </main>
 
     <!-- ==========================================
-         FIXED FOOTER
+         fixed footer
          ========================================== -->
     <footer class="fixed-custom">
         <div style="display: flex; align-items: center; gap: 10px; width: 100%; max-width: 900px; margin: 0 auto;">
             <input type="file" id="file-input" style="display: none;" accept="image/*,video/*">
-            <button class="btn-sq btn-sq-secondary" id="attach-btn" title="Прикрепить файл">
+            <button class="btn-sq btn-sq-secondary" id="attach-btn" title="прикрепить файл">
                 <i class="material-symbols-outlined">attach_file</i>
             </button>
 
             <div class="field fill no-margin max" style="background: var(--bg-card); border: 1px solid var(--border-card);">
-                <input type="text" id="msg-input" placeholder="Зашифрованное сообщение..." style="color: var(--text-main); font-family: var(--font-main);">
+                <input type="text" id="msg-input" placeholder="зашифрованное сообщение..." style="color: var(--text-main); font-family: var(--font-main);">
             </div>
 
-            <button class="btn-sq" id="send-btn" title="Отправить">
+            <button class="btn-sq" id="send-btn" title="отправить">
                 <i class="material-symbols-outlined">send</i>
             </button>
         </div>
     </footer>
 
-    <!-- Модальное окно Мастер-пароля -->
+    <!-- модальное окно мастер-пароля -->
     <dialog id="modal-key" style="background: var(--bg-card); border: 1px solid var(--border-card); color: var(--text-main); max-width: 450px;">
-        <h5 style="font-family: var(--font-mc); color: var(--pastel-blue);">Ключ шифрования (AES-256)</h5>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 8px 0 16px 0;">Пароль не передаётся на сервер. Он используется браузером для расшифровки локально.</p>
+        <h5 style="font-family: var(--font-mc); color: var(--pastel-blue);">ключ шифрования (aes-256)</h5>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 8px 0 16px 0;">пароль не передаётся на сервер. он используется браузером для расшифровки локально.</p>
         <div class="field label border fill extra" style="margin-bottom: 20px;">
             <input type="password" id="pass-key" value="justrcat-secret-pass">
-            <label>Мастер-пароль</label>
+            <label>мастер-пароль</label>
         </div>
         <nav class="right-align" style="gap: 8px;">
-            <button class="btn-sq-secondary" style="padding: 0 16px; height: 42px;" id="btn-close-key-modal">Отмена</button>
-            <button class="btn-sq" style="padding: 0 16px; width: auto;" id="btn-apply-key">Применить</button>
+            <button class="btn-sq-secondary" style="padding: 0 16px; height: 42px;" id="btn-close-key-modal">отмена</button>
+            <button class="btn-sq" style="padding: 0 16px; width: auto;" id="btn-apply-key">применить</button>
         </nav>
     </dialog>
 
-    <!-- Модальное окно статуса безопасности -->
+    <!-- модальное окно статуса безопасности -->
     <dialog id="modal-security" style="background: var(--bg-card); border: 1px solid var(--border-card); color: var(--text-main); max-width: 480px;">
-        <h5 style="font-family: var(--font-mc); color: var(--pastel-red);">Статус шифрования медиа</h5>
+        <h5 style="font-family: var(--font-mc); color: var(--pastel-red);">статус шифрования медиа</h5>
         <div style="font-size: 0.9rem; line-height: 1.6; color: var(--text-body); margin: 14px 0;">
-            1. <b>Текст и ссылки:</b> Зашифрованы на клиенте через AES-GCM (PBKDF2 SHA-256).<br>
-            2. <b>Медиафайлы:</b> Отправляются через Go-прокси (`go.justrcat.lol`). В базу Supabase попадает зашифрованный URL, но сам файл доступен на CDN без авторизации, если ссылка будет скомпрометирована.
+            1. <b>текст и ссылки:</b> зашифрованы на клиенте через aes-gcm (pbkdf2 sha-256).<br>
+            2. <b>медиафайлы:</b> отправляются через go-прокси (`go.justrcat.lol`). в базу supabase попадает зашифрованный url, но сам файл доступен на cdn без авторизации, если ссылка будет скомпрометирована.
         </div>
         <nav class="right-align">
-            <button class="btn-sq" style="width: auto; padding: 0 16px;" id="btn-close-sec-modal">Понятно</button>
+            <button class="btn-sq" style="width: auto; padding: 0 16px;" id="btn-close-sec-modal">понятно</button>
         </nav>
     </dialog>
 
     <!-- ==========================================
-         СКРИПТЫ E2EE И АВТОРИЗАЦИИ
+         скрипты e2ee и авторизации
          ========================================== -->
     <script>
-        const NODE_API = 'https://justrcat.lol/api';
-        const GO_API = 'https://go.justrcat.lol';
+        const node_api = 'https://justrcat.lol/api';
+        const go_api = 'https://go.justrcat.lol';
 
-        const SUPABASE_URL = 'https://xonlaprqfhtawlgvmvuk.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_6Q6ETBaxKDYr_2K1qojV2A_LB6dJkVG';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabase_url = 'https://xonlaprqfhtawlgvmvuk.supabase.co';
+        const supabase_anon_key = 'sb_publishable_6q6etbaxkdyr_2k1qojv2a_lb6djkvg';
+        const supabase = window.supabase.createClient(supabase_url, supabase_anon_key);
 
         let currentUser = null;
         let isSending = false;
 
-        // Вспомогательные функции
-        function escapeHTML(str) {
+        // вспомогательные функции
+        function escapeHtml(str) {
             if (!str) return '';
             return String(str).replace(/[&<>'"]/g, tag => ({
                 '&': '&amp;',
@@ -399,40 +409,47 @@
             return bytes;
         }
 
-        // =====================================
-        // ИНИЦИАЛИЗАЦИЯ СОБЫТИЙ (EVENT LISTENERS)
-        // =====================================
-        document.addEventListener('DOMContentLoaded', () => {
+        function showAuthScreen() {
+            document.getElementById('auth-screen').classList.remove('hidden');
+        }
 
-            // ВОССТАНОВЛЕНИЕ МАСТЕР-ПАРОЛЯ ИЗ ПАМЯТИ
+        function hideAuthScreen() {
+            document.getElementById('auth-screen').classList.add('hidden');
+        }
+
+        // =====================================
+        // инициализация событий (event listeners)
+        // =====================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            // восстановление мастер-пароля из памяти
             const savedKey = localStorage.getItem('justrcat-master-key');
             if (savedKey) {
                 document.getElementById('pass-key').value = savedKey;
             }
 
-            // Выход
+            // выход
             document.getElementById('btn-logout').addEventListener('click', async () => {
                 await supabase.auth.signOut();
                 currentUser = null;
-                document.getElementById('auth-screen').style.display = 'flex';
+                showAuthScreen();
             });
 
-            // Работа с модалками
+            // работа с модалками
             document.getElementById('btn-security-modal').addEventListener('click', () => ui('#modal-security'));
             document.getElementById('btn-close-sec-modal').addEventListener('click', () => ui('#modal-security'));
             
             document.getElementById('btn-key-modal').addEventListener('click', () => ui('#modal-key'));
             document.getElementById('btn-close-key-modal').addEventListener('click', () => ui('#modal-key'));
             
-            // Сохранение ключа
+            // сохранение ключа
             document.getElementById('btn-apply-key').addEventListener('click', () => {
                 const newKey = document.getElementById('pass-key').value;
-                localStorage.setItem('justrcat-master-key', newKey); // Сохраняем в куки (localStorage)
+                localStorage.setItem('justrcat-master-key', newKey);
                 loadMessages();
                 ui('#modal-key');
             });
 
-            // Отправка и файлы
+            // отправка и файлы
             document.getElementById('attach-btn').addEventListener('click', () => {
                 document.getElementById('file-input').click();
             });
@@ -443,20 +460,20 @@
                 if (e.key === 'Enter') sendMessage();
             });
 
-            // Запускаем инициализацию авторизации
-            initAuth();
+            // запускаем инициализацию авторизации
+            await initAuth();
         });
 
-
         async function initAuth() {
-            // 1. ПОДПИСЫВАЕМСЯ НА ИЗМЕНЕНИЯ СЕССИИ (Главный фикс зависающего окна)
-            // Supabase автоматически парсит токен из URL и вызывает это событие
+            // 1. Подписываемся на изменения сессии
             supabase.auth.onAuthStateChange((event, session) => {
-                if (session) {
+                console.log('Auth state changed:', event, session?.user?.email);
+                
+                if (session?.user) {
                     currentUser = session.user;
-                    document.getElementById('auth-screen').style.display = 'none';
+                    hideAuthScreen();
                     
-                    // Красиво стираем страшный хэш из адресной строки после входа
+                    // Очищаем URL от токенов
                     if (window.location.hash && window.location.hash.includes('access_token=')) {
                         window.history.replaceState(null, '', window.location.pathname);
                     }
@@ -464,32 +481,60 @@
                     loadMessages();
                 } else {
                     currentUser = null;
-                    document.getElementById('auth-screen').style.display = 'flex';
+                    showAuthScreen();
                 }
             });
 
-            // 2. ДОПОЛНИТЕЛЬНАЯ ПРОВЕРКА (В случае ручного возврата или обновления)
-            // Пытаемся принудительно съесть хэш, если авто-парсинг Supabase затупил
-            if (window.location.hash && window.location.hash.includes('access_token=')) {
-                try {
-                    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            // 2. Пытаемся восстановить сессию
+            try {
+                // Проверяем наличие токенов в URL
+                const hash = window.location.hash;
+                if (hash && hash.includes('access_token=')) {
+                    console.log('Found tokens in URL, setting session...');
+                    
+                    const hashParams = new URLSearchParams(hash.substring(1));
                     const accessToken = hashParams.get('access_token');
                     const refreshToken = hashParams.get('refresh_token');
 
                     if (accessToken && refreshToken) {
-                        const { error } = await supabase.auth.setSession({
+                        const { data, error } = await supabase.auth.setSession({
                             access_token: accessToken,
                             refresh_token: refreshToken
                         });
-                        if (error) console.error("Ошибка при ручной установке сессии:", error);
+                        
+                        if (error) {
+                            console.error('Error setting session:', error);
+                            showAuthScreen();
+                        } else if (data.session) {
+                            console.log('Session set successfully:', data.session.user?.email);
+                            currentUser = data.session.user;
+                            hideAuthScreen();
+                            loadMessages();
+                            
+                            // Очищаем URL
+                            window.history.replaceState(null, '', window.location.pathname);
+                        }
                     }
-                } catch (e) {
-                    console.error("Ошибка парсинга хэша URL:", e);
+                } else {
+                    // Пробуем получить существующую сессию
+                    const { data: { session }, error } = await supabase.auth.getSession();
+                    
+                    if (error) {
+                        console.error('Error getting session:', error);
+                        showAuthScreen();
+                    } else if (session) {
+                        console.log('Existing session found:', session.user?.email);
+                        currentUser = session.user;
+                        hideAuthScreen();
+                        loadMessages();
+                    } else {
+                        console.log('No session found, showing auth screen');
+                        showAuthScreen();
+                    }
                 }
-            } else {
-                // Если хэша нет, пробуем восстановить сохраненную сессию (куки/localStorage)
-                const { error } = await supabase.auth.getSession();
-                if (error) console.error("Ошибка восстановления сессии:", error);
+            } catch (error) {
+                console.error('Error in initAuth:', error);
+                showAuthScreen();
             }
         }
 
@@ -541,7 +586,7 @@
 
                 return JSON.parse(new TextDecoder().decode(decrypted));
             } catch (e) {
-                return { text: '🔒 [Не удалось расшифровать: неверный ключ]', fileUrl: null };
+                return { text: '🔒 [не удалось расшифровать: неверный ключ]', fileUrl: null };
             }
         }
 
@@ -550,7 +595,7 @@
             formData.append('file', file);
             
             try {
-                const res = await fetch(`${GO_API}/api/upload`, {
+                const res = await fetch(`${go_api}/api/upload`, {
                     method: 'POST',
                     body: formData
                 });
@@ -590,7 +635,7 @@
                 const encrypted = await encryptPayload(payload, password);
                 const senderName = currentUser?.user_metadata?.full_name || currentUser?.email?.split('@')[0] || 'Аноним';
 
-                const res = await fetch(`${NODE_API}/messages`, {
+                const res = await fetch(`${node_api}/messages`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -626,7 +671,7 @@
         async function loadMessages() {
             const password = document.getElementById('pass-key').value;
             try {
-                const res = await fetch(`${NODE_API}/messages`);
+                const res = await fetch(`${node_api}/messages`);
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const list = await res.json();
                 
@@ -647,7 +692,7 @@
                     
                     let mediaHtml = '';
                     if (payload.fileUrl && typeof payload.fileUrl === 'string' && /^https?:\/\//i.test(payload.fileUrl)) {
-                        const safeUrl = escapeHTML(payload.fileUrl);
+                        const safeUrl = escapeHtml(payload.fileUrl);
                         const isVideo = /\.(mp4|webm|ogg|mov)$/i.test(safeUrl);
                         
                         mediaHtml = `
@@ -657,15 +702,15 @@
                                     : `<img src="${safeUrl}" style="max-width: 100%; max-height: 260px; object-fit: contain; display: block;" loading="lazy" />`
                                 }
                                 <div style="font-family: var(--font-mc); font-size: 0.7rem; color: var(--pastel-yellow); margin-top: 4px;">
-                                    ⚠️ Ссылка была зашифрована
+                                    ⚠️ ссылка была зашифрована
                                 </div>
                             </div>
                         `;
                     }
 
                     const timeStr = formatMessageTime(item.created_at || item.createdAt || item.timestamp);
-                    const safeSender = escapeHTML(item.sender || 'Аноним');
-                    const safeText = escapeHTML(payload.text || '');
+                    const safeSender = escapeHtml(item.sender || 'Аноним');
+                    const safeText = escapeHtml(payload.text || '');
 
                     card.innerHTML = `
                         <div class="msg-header">
@@ -689,5 +734,3 @@
     </script>
 </body>
 </html>
-
-
