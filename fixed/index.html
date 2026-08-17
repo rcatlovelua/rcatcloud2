@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>justrcat — личные сообщения</title>
-    <meta name="description" content="e2ee мессенджер justrcat">
+    <meta name="description" content="E2EE мессенджер justrcat">
 
     <!-- Предзагрузка и шрифты -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
@@ -112,24 +112,39 @@
         .input-m3:focus { border-color: var(--md-sys-color-primary); box-shadow: 0 0 0 2px var(--md-sys-color-primary-container); }
         .input-prefix { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--md-sys-color-outline-variant); font-weight: bold; }
         
-        #auth-screen { position: fixed; inset: 0; background: var(--md-sys-color-background); z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.3s; }
+        #auth-screen {
+            position: fixed; inset: 0; background: var(--md-sys-color-background); z-index: 200;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.3s;
+        }
         #auth-screen.hidden { opacity: 0; pointer-events: none; }
-        .yandex-auth-btn { background: #FC3F1D; color: white; font-weight: 500; font-size: 1.1rem; padding: 14px 24px; border: none; display: inline-flex; align-items: center; gap: 12px; cursor: pointer; border-radius: 24px !important; text-decoration: none; }
+        .yandex-auth-btn {
+            background: #FC3F1D; color: white; font-weight: 500; font-size: 1.1rem;
+            padding: 14px 24px; border: none; display: inline-flex; align-items: center; gap: 12px;
+            cursor: pointer; border-radius: 24px !important; text-decoration: none;
+        }
+        .yandex-auth-btn:active { transform: scale(0.96); }
 
         .media-container { margin-top: 8px; border-radius: 8px !important; overflow: hidden; background: #000; position: relative; }
         .media-container img, .media-container video { width: 100%; max-height: 250px; object-fit: contain; display: block; }
 
-        dialog { border: none; padding: 24px; background: var(--md-sys-color-surface); border-radius: 16px !important; max-width: 400px; width: 90%; }
+        dialog {
+            border: none; padding: 24px; background: var(--md-sys-color-surface);
+            border-radius: 16px !important; max-width: 400px; width: 90%;
+        }
         dialog::backdrop { background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); }
         .dialog-title { font-size: 1.25rem; font-weight: 600; color: var(--md-sys-color-primary); margin: 0 0 8px 0; }
-        .chip-btn { padding: 8px 16px; border-radius: 20px !important; border: none; font-weight: 500; cursor: pointer; background: transparent; }
+        .chip-btn {
+            padding: 8px 16px; border-radius: 20px !important; border: none;
+            font-weight: 500; cursor: pointer; background: transparent;
+        }
         .chip-primary { background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); }
+        .chip-danger { background: var(--md-sys-color-error-container); color: var(--md-sys-color-on-error-container); }
     </style>
 </head>
 <body>
 
-    <!-- Экран авторизации -->
-    <div id="auth-screen" class="hidden">
+    <!-- Экран авторизации (изначально виден, скрывается после входа) -->
+    <div id="auth-screen">
         <h1 style="font-family: var(--font-flauta); font-size: 3.5rem; color: var(--md-sys-color-primary); margin: 0 0 8px 0;">justrcat</h1>
         <div style="margin-bottom: 40px; text-align: center; font-size: 1.1rem;">Личные сообщения (E2EE)</div>
         
@@ -142,7 +157,7 @@
     <!-- Шапка -->
     <header class="fixed-custom m3-elevation-1">
         <div class="header-profile" id="my-profile" title="Настройки">
-            <img src="" id="my-avatar" class="avatar-img">
+            <img src="" id="my-avatar" class="avatar-img" alt="avatar">
         </div>
         
         <div class="chat-title-area" id="btn-dm-modal">
@@ -186,7 +201,7 @@
         </div>
         
         <label style="font-size: 0.8rem; opacity: 0.7; margin-left: 16px; color: var(--md-sys-color-primary);">Пароль шифрования для этого чата</label>
-        <input type="password" id="pass-key" class="input-m3" placeholder="Секретный ключ..." style="width: 100%; margin-bottom: 24px; height: 44px; margin-top: 4px;">
+        <input type="password" id="pass-key" class="input-m3" placeholder="Минимум 6 символов..." style="width: 100%; margin-bottom: 24px; height: 44px; margin-top: 4px;">
         
         <div style="display: flex; justify-content: flex-end; gap: 8px;">
             <button class="chip-btn" onclick="ui('#modal-dm')">Отмена</button>
@@ -197,149 +212,88 @@
     <!-- Модалка: Профиль -->
     <dialog id="modal-profile">
         <div style="text-align: center; margin-bottom: 20px;">
-            <img src="" id="profile-avatar-large" style="width: 80px; height: 80px; border-radius: 50% !important; margin-bottom: 12px; object-fit: cover;">
+            <img src="" id="profile-avatar-large" style="width: 80px; height: 80px; border-radius: 50% !important; margin-bottom: 12px; object-fit: cover;" alt="avatar">
             <h5 class="dialog-title" id="profile-name">@loading</h5>
             <p style="font-size: 0.85rem; opacity: 0.7;">Это ваш юзернейм для друзей</p>
         </div>
         
-        <button class="chip-btn" id="btn-logout-actual" style="width: 100%; background: var(--md-sys-color-error-container); color: var(--md-sys-color-on-error-container);">
+        <button class="chip-btn chip-danger" id="btn-logout-actual" style="width: 100%;">
             Выйти из аккаунта
         </button>
     </dialog>
 
     <script>
         // === ПУТИ API ===
-        const node_api = '/api/fixed'; // Сообщения идут в твой новый Vercel-скрипт
-        const go_api = 'https://go.justrcat.lol'; // Загрузка файлов идет на твой Go-сервер
+        const NODE_API = '/api/fixed'; // Сообщения
+        const GO_API = 'https://go.justrcat.lol'; // Загрузка файлов
 
         const supabase = window.supabase.createClient(
-            'https://xonlaprqfhtawlgvmvuk.supabase.co', 
+            'https://xonlaprqfhtawlgvmvuk.supabase.co',
             'sb_publishable_6q6etbaxkdyr_2k1qojv2a_lb6djkvg'
         );
 
-        let currentUser = null, myUsername = '', myAvatar = '', currentTarget = '';
-        let isSending = false, pollInterval = null, lastMessageCount = 0;
+        // --- Глобальные переменные ---
+        let currentUser = null;
+        let myUsername = '';
+        let myAvatar = '';
+        let currentTarget = '';
+        let isSending = false;
+        let pollInterval = null;
+        let lastMessageCount = 0;
 
-        const escapeHtml = (str) => String(str).replace(/[&<>'"]/g, t => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[t]));
-        const bufferToBase64 = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf)));
-        const base64ToBuffer = (b64) => Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+        // --- Вспомогательные функции ---
+        function escapeHtml(str) {
+            if (!str) return '';
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+            return String(str).replace(/[&<>'"]/g, m => map[m]);
+        }
 
-        // Вычисляем скрытый ID чата по алфавиту (чтобы и у тебя, и у друга он совпал)
+        function bufferToBase64(buf) {
+            return btoa(String.fromCharCode(...new Uint8Array(buf)));
+        }
+
+        function base64ToBuffer(b64) {
+            return Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+        }
+
         function getInternalChatId(u1, u2) {
             return [u1.toLowerCase(), u2.toLowerCase()].sort().join('_');
         }
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            document.getElementById('btn-dm-modal').onclick = () => ui('#modal-dm');
-            document.getElementById('btn-new-chat').onclick = () => {
-                document.getElementById('target-username').value = '';
-                ui('#modal-dm');
-            };
-            
-            document.getElementById('my-profile').onclick = () => ui('#modal-profile');
-            document.getElementById('btn-logout-actual').onclick = async () => { 
-                await supabase.auth.signOut(); localStorage.clear(); location.reload(); 
-            };
-            
-            document.getElementById('btn-apply-dm').onclick = () => {
-                const target = document.getElementById('target-username').value.trim().replace('@', '').toLowerCase();
-                const key = document.getElementById('pass-key').value;
-                if (!target || !key) { alert("Укажите юзернейм и пароль для шифрования"); return; }
-                if (target === myUsername.toLowerCase()) { alert("Нельзя переписываться с самим собой!"); return; }
-
-                currentTarget = target;
-                localStorage.setItem('justrcat-target', target);
-                localStorage.setItem('justrcat-key', key);
-                
-                updateChatHeader();
-                ui('#modal-dm');
-                document.getElementById('messages-list').innerHTML = '';
-                lastMessageCount = 0;
-                
-                document.getElementById('msg-input').disabled = false;
-                document.getElementById('send-btn').disabled = false;
-                
-                startPolling();
-            };
-
-            document.getElementById('attach-btn').onclick = () => document.getElementById('file-input').click();
-            document.getElementById('send-btn').onclick = sendMessage;
-            document.getElementById('msg-input').onkeydown = (e) => e.key === 'Enter' && sendMessage();
-
-            await initAuth();
-        });
-
-        function updateChatHeader() {
-            if (currentTarget) {
-                document.getElementById('current-target').textContent = '@' + currentTarget;
-                document.getElementById('chat-subtitle').textContent = 'E2EE Защищено';
-                document.getElementById('chat-status').textContent = `Секретный чат с @${currentTarget} открыт`;
-                document.getElementById('target-username').value = currentTarget;
-            } else {
-                document.getElementById('current-target').textContent = 'justrcat';
-                document.getElementById('chat-subtitle').textContent = 'Нажмите, чтобы выбрать чат';
-                document.getElementById('chat-status').textContent = 'Выберите собеседника для начала общения 👆';
-            }
+        // Локальная генерация аватара (инициалы на цветном фоне)
+        function generateAvatar(username, size = 32) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size; canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#E3D7C5';
+            ctx.fillRect(0, 0, size, size);
+            ctx.fillStyle = '#1A1C1E';
+            ctx.font = `bold ${size / 2}px sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            const initial = (username && username.trim() !== '') ? username.trim().charAt(0).toUpperCase() : '?';
+            ctx.fillText(initial, size / 2, size / 2);
+            return canvas.toDataURL();
         }
 
-        async function initAuth() {
-            supabase.auth.onAuthStateChange((event, session) => {
-                if (session?.user) {
-                    currentUser = session.user;
-                    
-                    myUsername = currentUser.email.split('@')[0];
-                    const meta = currentUser.user_metadata || {};
-                    myAvatar = meta.avatar_url || meta.picture || `https://ui-avatars.com/api/?name=${myUsername}&background=B4C5E4&color=1A1C1E&rounded=true`;
-                    
-                    document.getElementById('my-avatar').src = myAvatar;
-                    document.getElementById('profile-avatar-large').src = myAvatar;
-                    document.getElementById('profile-name').textContent = '@' + myUsername;
+        // --- UI модалок (глобальная функция для onclick) ---
+        window.ui = function(selector) {
+            const el = document.querySelector(selector);
+            if (!el) return;
+            if (el.open) el.close();
+            else el.showModal();
+        };
 
-                    document.getElementById('auth-screen').classList.add('hidden');
-                    if (window.location.hash.includes('access_token')) history.replaceState(null, '', location.pathname);
-                    
-                    const savedTarget = localStorage.getItem('justrcat-target');
-                    const savedKey = localStorage.getItem('justrcat-key');
-                    
-                    if (savedTarget && savedKey) {
-                        currentTarget = savedTarget;
-                        document.getElementById('pass-key').value = savedKey;
-                        updateChatHeader();
-                        document.getElementById('msg-input').disabled = false;
-                        document.getElementById('send-btn').disabled = false;
-                        startPolling();
-                    } else {
-                        updateChatHeader();
-                        ui('#modal-dm');
-                    }
-                } else {
-                    document.getElementById('auth-screen').classList.remove('hidden');
-                    stopPolling();
-                }
-            });
-
-            const hash = window.location.hash;
-            if (hash && hash.includes('access_token=')) {
-                const params = new URLSearchParams(hash.substring(1));
-                await supabase.auth.setSession({ access_token: params.get('access_token'), refresh_token: params.get('refresh_token') });
-            } else {
-                await supabase.auth.getSession();
-            }
-        }
-
-        function startPolling() {
-            stopPolling();
-            loadMessages(true);
-            pollInterval = setInterval(() => loadMessages(false), 3000); 
-        }
-        function stopPolling() { if (pollInterval) clearInterval(pollInterval); }
-
+        // --- Криптография ---
         async function deriveKey(password, salt) {
             const enc = new TextEncoder();
-            const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), {name: 'PBKDF2'}, false, ['deriveKey']);
+            const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), { name: 'PBKDF2' }, false, ['deriveKey']);
             return crypto.subtle.deriveKey(
-                {name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256'},
-                keyMaterial, {name: 'AES-GCM', length: 256}, false, ['encrypt', 'decrypt']
+                { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+                keyMaterial,
+                { name: 'AES-GCM', length: 256 },
+                false,
+                ['encrypt', 'decrypt']
             );
         }
 
@@ -347,112 +301,101 @@
             const salt = crypto.getRandomValues(new Uint8Array(16));
             const iv = crypto.getRandomValues(new Uint8Array(12));
             const key = await deriveKey(password, salt);
-            const ciphertext = await crypto.subtle.encrypt({name: 'AES-GCM', iv}, key, new TextEncoder().encode(JSON.stringify(obj)));
-            return { ciphertext: bufferToBase64(ciphertext), iv: bufferToBase64(iv), salt: bufferToBase64(salt) };
+            const ciphertext = await crypto.subtle.encrypt(
+                { name: 'AES-GCM', iv },
+                key,
+                new TextEncoder().encode(JSON.stringify(obj))
+            );
+            return {
+                ciphertext: bufferToBase64(ciphertext),
+                iv: bufferToBase64(iv),
+                salt: bufferToBase64(salt)
+            };
         }
 
         async function decryptPayload(ciphertextB64, ivB64, saltB64, password) {
             try {
                 const key = await deriveKey(password, base64ToBuffer(saltB64));
-                const decrypted = await crypto.subtle.decrypt({name: 'AES-GCM', iv: base64ToBuffer(ivB64)}, key, base64ToBuffer(ciphertextB64));
+                const decrypted = await crypto.subtle.decrypt(
+                    { name: 'AES-GCM', iv: base64ToBuffer(ivB64) },
+                    key,
+                    base64ToBuffer(ciphertextB64)
+                );
                 return JSON.parse(new TextDecoder().decode(decrypted));
-            } catch (e) {
+            } catch (_) {
                 return { text: '🔒 [Ошибка расшифровки]' };
             }
         }
 
-        async function sendMessage() {
-            const password = localStorage.getItem('justrcat-key');
-            if (!currentTarget || !password) { ui('#modal-dm'); return; }
-
-            const input = document.getElementById('msg-input');
-            const fileInput = document.getElementById('file-input');
-            const text = input.value.trim();
-
-            if (!text && fileInput.files.length === 0) return;
-            if (isSending) return;
-
-            try {
-                isSending = true;
-                document.getElementById('send-btn').disabled = true;
-
-                let fileUrl = null;
-                if (fileInput.files.length > 0) {
-                    const fd = new FormData();
-                    fd.append('file', fileInput.files[0]);
-                    const res = await fetch(`${go_api}/api/upload`, { method: 'POST', body: fd });
-                    fileUrl = (await res.json()).url;
-                    fileInput.value = '';
-                }
-
-                const payload = { text, fileUrl };
-                const encrypted = await encryptPayload(payload, password);
-                const hiddenRoomId = getInternalChatId(myUsername, currentTarget);
-
-                await fetch(`${node_api}/messages`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: hiddenRoomId, 
-                        sender_id: currentUser.id,
-                        sender: myUsername,
-                        ...encrypted
-                    })
-                });
-                
-                input.value = '';
-                loadMessages(true);
-            } catch (err) {
-                console.error(err);
-            } finally {
-                isSending = false;
-                document.getElementById('send-btn').disabled = false;
+        // --- Обновление заголовка ---
+        function updateChatHeader() {
+            const targetEl = document.getElementById('current-target');
+            const subtitleEl = document.getElementById('chat-subtitle');
+            const statusEl = document.getElementById('chat-status');
+            if (currentTarget) {
+                targetEl.textContent = '@' + currentTarget;
+                subtitleEl.textContent = 'E2EE Защищено';
+                statusEl.textContent = `Секретный чат с @${currentTarget} открыт`;
+                document.getElementById('target-username').value = currentTarget;
+            } else {
+                targetEl.textContent = 'justrcat';
+                subtitleEl.textContent = 'Нажмите, чтобы выбрать чат';
+                statusEl.textContent = 'Выберите собеседника для начала общения 👆';
             }
         }
 
+        // --- Загрузка сообщений ---
         async function loadMessages(forceScroll = false) {
-            const password = localStorage.getItem('justrcat-key');
-            if (!currentTarget || !currentUser) return;
+            const password = sessionStorage.getItem('justrcat-key');
+            if (!currentTarget || !currentUser || !password) return;
 
             const hiddenRoomId = getInternalChatId(myUsername, currentTarget);
+            const container = document.getElementById('messages-list');
+            const statusEl = document.getElementById('chat-status');
 
             try {
-                const res = await fetch(`${node_api}/messages?chat_id=${hiddenRoomId}`);
-                if (!res.ok) return;
-                
+                const res = await fetch(`${NODE_API}/messages?chat_id=${encodeURIComponent(hiddenRoomId)}`);
+                if (!res.ok) throw new Error('Ошибка загрузки сообщений');
                 const list = await res.json();
-                if (!Array.isArray(list)) return;
+                if (!Array.isArray(list)) throw new Error('Неверный формат данных');
 
                 if (list.length === lastMessageCount && !forceScroll) return;
                 lastMessageCount = list.length;
 
-                const container = document.getElementById('messages-list');
-                container.innerHTML = ''; 
+                container.innerHTML = '';
+
+                if (list.length === 0) {
+                    statusEl.textContent = 'Нет сообщений. Напишите первым!';
+                    return;
+                }
 
                 for (const item of list) {
                     const payload = await decryptPayload(item.ciphertext, item.iv, item.salt, password);
                     const isOwn = item.sender_id === currentUser.id;
-                    const time = new Date(item.created_at || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                    
-                    let senderAvatar = isOwn 
-                        ? myAvatar 
-                        : `https://ui-avatars.com/api/?name=${encodeURIComponent(item.sender)}&background=E3D7C5&color=1A1C1E&rounded=true&bold=true`;
-                    
+                    const time = new Date(item.created_at || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                    const sender = item.sender || 'unknown';
+                    const senderName = isOwn ? 'Вы' : '@' + escapeHtml(sender);
+                    const senderAvatar = isOwn
+                        ? (myAvatar || generateAvatar(myUsername))
+                        : generateAvatar(sender);
+
                     let mediaHtml = '';
                     if (payload.fileUrl) {
-                        const safeUrl = escapeHtml(payload.fileUrl);
-                        const isVideo = /\.(mp4|webm|mov)$/i.test(safeUrl);
+                        const rawUrl = payload.fileUrl;
+                        const isVideo = /\.(mp4|webm|mov)$/i.test(rawUrl);
+                        const safeUrl = escapeHtml(rawUrl);
                         mediaHtml = `<div class="media-container">
-                            ${isVideo ? `<video src="${safeUrl}" controls></video>` : `<img src="${safeUrl}" loading="lazy"/>`}
+                            ${isVideo ? `<video src="${safeUrl}" controls></video>` : `<img src="${safeUrl}" loading="lazy" alt="media"/>`}
                         </div>`;
                     }
 
                     container.insertAdjacentHTML('beforeend', `
                         <div class="msg-wrapper ${isOwn ? 'own' : 'other'}">
-                            <img src="${escapeHtml(senderAvatar)}" class="msg-avatar">
+                            <img src="${escapeHtml(senderAvatar)}" class="msg-avatar" alt="avatar">
                             <div class="msg-bubble m3-elevation-1">
                                 <div class="msg-header">
-                                    <span>${isOwn ? 'Вы' : '@' + escapeHtml(item.sender)}</span>
+                                    <span>${senderName}</span>
                                     <span>${time}</span>
                                 </div>
                                 <div style="font-size: 0.95rem;">${escapeHtml(payload.text || '')}</div>
@@ -466,10 +409,225 @@
                 if (forceScroll || (chatMain.scrollHeight - chatMain.scrollTop - chatMain.clientHeight < 150)) {
                     chatMain.scrollTop = chatMain.scrollHeight;
                 }
+                statusEl.textContent = `Сообщений: ${list.length}`;
             } catch (err) {
-                console.error("Ошибка загрузки:", err);
+                console.error('loadMessages error:', err);
+                statusEl.textContent = '⚠️ Ошибка загрузки. Повторная попытка...';
             }
         }
+
+        // --- Обновление состояния кнопки отправки ---
+        function updateSendButtonState() {
+            const text = document.getElementById('msg-input').value.trim();
+            const files = document.getElementById('file-input').files.length;
+            document.getElementById('send-btn').disabled = !(text || files);
+        }
+
+        // --- Отправка сообщения ---
+        async function sendMessage() {
+            const password = sessionStorage.getItem('justrcat-key');
+            if (!currentTarget || !password) {
+                ui('#modal-dm');
+                return;
+            }
+
+            const input = document.getElementById('msg-input');
+            const fileInput = document.getElementById('file-input');
+            const text = input.value.trim();
+
+            if (!text && fileInput.files.length === 0) return;
+            if (isSending) return;
+
+            try {
+                isSending = true;
+                document.getElementById('send-btn').disabled = true;
+                document.getElementById('send-btn').innerHTML = '<span class="loader"></span>';
+
+                let fileUrl = null;
+                if (fileInput.files.length > 0) {
+                    const token = (await supabase.auth.getSession()).data.session?.access_token;
+                    if (!token) throw new Error('Нет токена авторизации');
+
+                    const fd = new FormData();
+                    fd.append('file', fileInput.files[0]);
+                    const res = await fetch(`${GO_API}/api/upload`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: fd
+                    });
+                    if (!res.ok) throw new Error('Ошибка загрузки файла');
+                    const data = await res.json();
+                    fileUrl = data.url;
+                }
+
+                const payload = { text, fileUrl };
+                const encrypted = await encryptPayload(payload, password);
+                const hiddenRoomId = getInternalChatId(myUsername, currentTarget);
+
+                const res = await fetch(`${NODE_API}/messages`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: hiddenRoomId,
+                        sender_id: currentUser.id,
+                        sender: myUsername,
+                        ...encrypted
+                    })
+                });
+                if (!res.ok) throw new Error('Ошибка отправки');
+
+                input.value = '';
+                updateSendButtonState();
+                await loadMessages(true);
+            } catch (err) {
+                console.error('sendMessage error:', err);
+                alert('Не удалось отправить сообщение. Попробуйте позже.');
+            } finally {
+                isSending = false;
+                const btn = document.getElementById('send-btn');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="material-symbols-outlined">send</i>';
+                updateSendButtonState();
+                fileInput.value = ''; // Очищаем file input в любом случае
+            }
+        }
+
+        // --- Polling ---
+        function startPolling() {
+            stopPolling();
+            loadMessages(true);
+            pollInterval = setInterval(() => loadMessages(false), 3000);
+        }
+
+        function stopPolling() {
+            if (pollInterval) {
+                clearInterval(pollInterval);
+                pollInterval = null;
+            }
+        }
+
+        // --- Инициализация ---
+        async function initAuth() {
+            supabase.auth.onAuthStateChange((event, session) => {
+                if (session?.user) {
+                    currentUser = session.user;
+                    myUsername = currentUser.email.split('@')[0];
+                    const meta = currentUser.user_metadata || {};
+                    myAvatar = meta.avatar_url || meta.picture || generateAvatar(myUsername);
+
+                    document.getElementById('my-avatar').src = myAvatar;
+                    document.getElementById('profile-avatar-large').src = myAvatar;
+                    document.getElementById('profile-name').textContent = '@' + myUsername;
+
+                    document.getElementById('auth-screen').classList.add('hidden');
+
+                    // Убираем токен из URL
+                    if (window.location.hash.includes('access_token')) {
+                        history.replaceState(null, '', location.pathname);
+                    }
+
+                    const savedTarget = sessionStorage.getItem('justrcat-target');
+                    const savedKey = sessionStorage.getItem('justrcat-key');
+                    if (savedTarget && savedKey) {
+                        currentTarget = savedTarget;
+                        document.getElementById('pass-key').value = savedKey;
+                        updateChatHeader();
+                        document.getElementById('msg-input').disabled = false;
+                        document.getElementById('send-btn').disabled = false;
+                        updateSendButtonState();
+                        startPolling();
+                    } else {
+                        updateChatHeader();
+                        ui('#modal-dm');
+                    }
+                } else {
+                    document.getElementById('auth-screen').classList.remove('hidden');
+                    stopPolling();
+                    document.getElementById('msg-input').disabled = true;
+                    document.getElementById('send-btn').disabled = true;
+                }
+            });
+
+            // Проверка hash при входе через Яндекс
+            const hash = window.location.hash;
+            if (hash && hash.includes('access_token=')) {
+                const params = new URLSearchParams(hash.substring(1));
+                await supabase.auth.setSession({
+                    access_token: params.get('access_token'),
+                    refresh_token: params.get('refresh_token')
+                });
+            } else {
+                await supabase.auth.getSession();
+            }
+        }
+
+        // --- DOM events ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Модалка чата
+            document.getElementById('btn-dm-modal').addEventListener('click', () => ui('#modal-dm'));
+            document.getElementById('btn-new-chat').addEventListener('click', () => {
+                document.getElementById('target-username').value = '';
+                ui('#modal-dm');
+            });
+
+            // Профиль
+            document.getElementById('my-profile').addEventListener('click', () => ui('#modal-profile'));
+            document.getElementById('btn-logout-actual').addEventListener('click', async () => {
+                await supabase.auth.signOut();
+                sessionStorage.removeItem('justrcat-target');
+                sessionStorage.removeItem('justrcat-key');
+                location.reload();
+            });
+
+            // Применить чат
+            document.getElementById('btn-apply-dm').addEventListener('click', () => {
+                const target = document.getElementById('target-username').value.trim().replace('@', '').toLowerCase();
+                const key = document.getElementById('pass-key').value;
+                if (!target || !key) {
+                    alert('Укажите юзернейм и пароль для шифрования');
+                    return;
+                }
+                if (key.length < 6) {
+                    alert('Пароль должен быть не короче 6 символов');
+                    return;
+                }
+                if (target === myUsername.toLowerCase()) {
+                    alert('Нельзя переписываться с самим собой!');
+                    return;
+                }
+
+                currentTarget = target;
+                sessionStorage.setItem('justrcat-target', target);
+                sessionStorage.setItem('justrcat-key', key);
+
+                updateChatHeader();
+                ui('#modal-dm');
+                document.getElementById('messages-list').innerHTML = '';
+                lastMessageCount = 0;
+                document.getElementById('msg-input').disabled = false;
+                document.getElementById('send-btn').disabled = false;
+                updateSendButtonState();
+                startPolling();
+            });
+
+            // Отправка
+            document.getElementById('send-btn').addEventListener('click', sendMessage);
+            document.getElementById('msg-input').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') sendMessage();
+            });
+            document.getElementById('msg-input').addEventListener('input', updateSendButtonState);
+            document.getElementById('file-input').addEventListener('change', updateSendButtonState);
+
+            // Прикрепление файла
+            document.getElementById('attach-btn').addEventListener('click', () => {
+                document.getElementById('file-input').click();
+            });
+
+            // Инициализация авторизации
+            initAuth();
+        });
     </script>
 </body>
 </html>
