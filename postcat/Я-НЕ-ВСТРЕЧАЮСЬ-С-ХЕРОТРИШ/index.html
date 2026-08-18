@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Пост</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/beercss@5.0.3/dist/cdn/beer.min.css">
+    <style>
+        body {
+            background: var(--surface);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .post-card {
+            max-width: 600px;
+            width: 100%;
+        }
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .post-image {
+            width: 100%;
+            border-radius: 12px;
+            margin: 12px 0;
+            min-height: 200px;
+            object-fit: cover;
+            background: var(--surface-variant);
+        }
+        @media (max-width: 640px) {
+            body { padding: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="post-card">
+        <div class="card padding">
+
+            <!-- Шапка -->
+            <div class="row gap middle">
+<div class="shape sided-cookie12 medium">
+  <img class="responsive" style="background:#ff9500;" src="https://dump.justrcat.lol/images/iconbutwithbg.jpg">
+</div>
+              
+                <div>
+                    <div class="medium">PostCat - RCAT_legend</div>
+                    <div class="small opacity">сегодня, 14:23</div>
+                </div>
+            </div>
+
+            <!-- Заголовок -->
+            <h1 class="large bold margin-top">МЫ НЕ ВСТРЕЧАЕМСЯ И НЕ БУДЕМ С ХЕРОТРИШ!</h1>
+
+            <!-- Картинка -->
+            <img class="post-image" src="https://dump.justrcat.lol/images/Home-_-X.webp" alt="kotiki">
+
+            <!-- Текст -->
+            <p class="medium opacity">
+                С первого чего я начну, херотриш
+            </p>
+            <h1 class="large bold margin-top">АЕРОЭЙС</h1>
+<p class="medium opacity">
+                а так же мы имеем право досих пор про друг друга послать нахуй, не играть и общаться пока нам плохоW.I.P
+            </p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/beercss@5.0.3/dist/cdn/beer.min.js"></script>
+</body>
+</html>
