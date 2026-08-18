@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>justrcat.lol - Posts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #000;
+            color: #e7e9ea;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            min-height: 100vh;
+            border-left: 1px solid #2f3336;
+            border-right: 1px solid #2f3336;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #2f3336;
+            position: sticky;
+            top: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(12px);
+            z-index: 100;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            color: #e7e9ea;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            margin-right: 16px;
+            text-decoration: none;
+        }
+
+        .back-button:hover {
+            background: #181818;
+        }
+
+        .back-button svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* Create Post Form */
+        .create-post {
+            padding: 16px;
+            border-bottom: 1px solid #2f3336;
+            display: none;
+        }
+
+        .create-post.visible {
+            display: block;
+        }
+
+        .create-post-form {
+            display: flex;
+            gap: 12px;
+        }
+
+        .create-post-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #1d9bf0;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .create-post-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .create-post-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #e7e9ea;
+            font-size: 18px;
+            padding: 12px 0;
+            outline: none;
+            resize: none;
+            min-height: 60px;
+        }
+
+        .create-post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #2f3336;
+        }
+
+        .create-post-button {
+            background: #1d9bf0;
+            border: none;
+            color: white;
+            padding: 8px 24px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .create-post-button:hover {
+            background: #1a8cd8;
+        }
+
+        .image-url-input {
+            flex: 1;
+            background: transparent;
+            border: 1px solid #2f3336;
+            color: #e7e9ea;
+            font-size: 14px;
+            padding: 8px 12px;
+            outline: none;
+            border-radius: 20px;
+            margin-right: 12px;
+        }
+
+        .image-url-input:focus {
+            border-color: #1d9bf0;
+        }
+
+        /* Posts Feed */
+        .posts-feed {
+            padding: 0;
+        }
+
+        .post-item {
+            padding: 16px;
+            border-bottom: 1px solid #2f3336;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .post-item:hover {
+            background: #080808;
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #1d9bf0;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .post-info {
+            flex: 1;
+        }
+
+        .post-author {
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .post-meta {
+            color: #71767b;
+            font-size: 14px;
+        }
+
+        .post-content {
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 12px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .post-image {
+            width: 100%;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            border: 1px solid #2f3336;
+        }
+
+        .post-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+            max-height: 400px;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-around;
+            color: #71767b;
+            font-size: 14px;
+        }
+
+        .post-action {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .post-action svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Single Post View */
+        .single-post {
+            padding: 16px;
+            border-bottom: 1px solid #2f3336;
+        }
+
+        .post-timestamp {
+            color: #71767b;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        /* Actions */
+        .actions {
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            border-top: 1px solid #2f3336;
+            border-bottom: 1px solid #2f3336;
+        }
+
+        .action-button {
+            background: none;
+            border: none;
+            color: #71767b;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .action-button:hover {
+            background: #181818;
+        }
+
+        .action-button.active {
+            color: #f91880;
+        }
+
+        .action-button svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Reactions */
+        .reactions {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            flex-wrap: wrap;
+        }
+
+        .reaction-button {
+            background: #181818;
+            border: 1px solid #2f3336;
+            color: #e7e9ea;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .reaction-button:hover {
+            background: #2f3336;
+        }
+
+        .reaction-button.active {
+            background: #1d9bf0;
+            border-color: #1d9bf0;
+        }
+
+        /* Comments */
+        .comments {
+            padding: 16px;
+        }
+
+        .comment-form {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .comment-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #e7e9ea;
+            font-size: 16px;
+            padding: 12px 0;
+            outline: none;
+            border-bottom: 1px solid #2f3336;
+        }
+
+        .comment-input:focus {
+            border-bottom-color: #1d9bf0;
+        }
+
+        .comment-submit {
+            background: #1d9bf0;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .comment-submit:hover {
+            background: #1a8cd8;
+        }
+
+        .comment-list {
+            list-style: none;
+        }
+
+        .comment-item {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #1d9bf0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .comment-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .comment-body {
+            flex: 1;
+        }
+
+        .comment-author {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .comment-text {
+            color: #e7e9ea;
+            line-height: 1.4;
+        }
+
+        .loading {
+            text-align: center;
+            color: #71767b;
+            padding: 20px;
+        }
+
+        /* View Toggle */
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        /* Admin Badge */
+        .admin-badge {
+            background: #1d9bf0;
+            color: white;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Main Feed View -->
+        <div class="view active" id="feedView">
+            <div class="header">
+                <div class="header-title">justrcat.lol</div>
+            </div>
+            
+            <!-- Create Post (only visible for admin) -->
+            <div class="create-post" id="createPost">
+                <div class="create-post-form">
+                    <div class="create-post-avatar">
+                        <img src="https://i.pravatar.cc/100?img=12" alt="Avatar">
+                    </div>
+                    <div style="flex: 1;">
+                        <textarea class="create-post-input" id="postText" placeholder="What's happening?"></textarea>
+                        <input type="text" class="image-url-input" id="postImageUrl" placeholder="Image URL (optional)">
+                        <div class="create-post-actions">
+                            <span style="color: #71767b; font-size: 14px;">Only you can post</span>
+                            <button class="create-post-button" onclick="createPost()">Post</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="posts-feed" id="postsFeed">
+                <div class="loading">Loading posts...</div>
+            </div>
+        </div>
+
+        <!-- Single Post View -->
+        <div class="view" id="postView">
+            <div class="header">
+                <a href="#" class="back-button" onclick="showFeed(event)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                </a>
+                <div class="header-title">Post</div>
+            </div>
+
+            <div class="single-post" id="singlePostContent"></div>
+
+            <div class="actions">
+                <button class="action-button" id="likeButton" onclick="toggleLike()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                    <span id="likeCount">0</span>
+                </button>
+                <button class="action-button" onclick="focusComment()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                    </svg>
+                    <span id="commentCount">0</span>
+                </button>
+            </div>
+
+            <div class="reactions" id="reactionsContainer">
+                <button class="reaction-button" onclick="toggleReaction('👍')">👍 <span id="reaction-👍">0</span></button>
+                <button class="reaction-button" onclick="toggleReaction('❤️')">❤️ <span id="reaction-❤️">0</span></button>
+                <button class="reaction-button" onclick="toggleReaction('😊')">😊 <span id="reaction-😊">0</span></button>
+                <button class="reaction-button" onclick="toggleReaction('🎉')">🎉 <span id="reaction-🎉">0</span></button>
+                <button class="reaction-button" onclick="toggleReaction('💯')">💯 <span id="reaction-💯">0</span></button>
+            </div>
+
+            <div class="comments">
+                <div class="comment-form">
+                    <input type="text" class="comment-input" id="commentInput" placeholder="Add a comment...">
+                    <button class="comment-submit" onclick="addComment()">Post</button>
+                </div>
+                <ul class="comment-list" id="commentList"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE_URL = '/api';
+        const ADMIN_KEY = 'justrcat-admin-key'; // Секретный ключ администратора
+
+        // State
+        let currentPostId = null;
+        let isLiked = false;
+        let activeReactions = new Set();
+
+        // Check if user is admin
+        function isAdmin() {
+            // Здесь можно добавить проверку через localStorage или API
+            return localStorage.getItem('isAdmin') === 'true';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            if (isAdmin()) {
+                document.getElementById('createPost').classList.add('visible');
+            }
+            loadPosts();
+        });
+
+        // Load all posts
+        async function loadPosts() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/posts`);
+                const posts = await response.json();
+                
+                const postsFeed = document.getElementById('postsFeed');
+                
+                if (posts.length === 0) {
+                    postsFeed.innerHTML = '<div class="loading">No posts yet</div>';
+                    return;
+                }
+                
+                postsFeed.innerHTML = '';
+                posts.forEach(post => {
+                    postsFeed.appendChild(createPostElement(post));
+                });
+            } catch (error) {
+                console.error('Error loading posts:', error);
+                document.getElementById('postsFeed').innerHTML = 
+                    '<div class="loading">Error loading posts</div>';
+            }
+        }
+
+        // Create post element for feed
+        function createPostElement(post) {
+            const div = document.createElement('div');
+            div.className = 'post-item';
+            div.onclick = () => openPost(post.id);
+            
+            const imageHtml = post.image_url 
+                ? `<div class="post-image"><img src="${post.image_url}" alt="Post image"></div>` 
+                : '';
+            
+            div.innerHTML = `
+                <div class="post-header">
+                    <div class="avatar">
+                        <img src="https://i.pravatar.cc/100?img=12" alt="Avatar">
+                    </div>
+                    <div class="post-info">
+                        <div class="post-author">
+                            justrcat
+                            <span class="admin-badge">Admin</span>
+                        </div>
+                        <div class="post-meta">@justrcat</div>
+                    </div>
+                </div>
+                <div class="post-content">${post.content}</div>
+                ${imageHtml}
+                <div class="post-actions">
+                    <div class="post-action">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                        </svg>
+                        ${post.likes || 0}
+                    </div>
+                    <div class="post-action">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                        </svg>
+                        ${post.comments_count || 0}
+                    </div>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        // Create new post (admin only)
+        async function createPost() {
+            if (!isAdmin()) {
+                alert('Only admin can create posts');
+                return;
+            }
+            
+            const content = document.getElementById('postText').value.trim();
+            const imageUrl = document.getElementById('postImageUrl').value.trim();
+            
+            if (!content) {
+                alert('Please enter post content');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/posts`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-Admin-Key': ADMIN_KEY
+                    },
+                    body: JSON.stringify({ 
+                        content,
+                        image_url: imageUrl || null,
+                        author: 'justrcat',
+                        author_avatar: 'https://i.pravatar.cc/100?img=12'
+                    })
+                });
+                
+                if (response.ok) {
+                    document.getElementById('postText').value = '';
+                    document.getElementById('postImageUrl').value = '';
+                    loadPosts();
+                } else {
+                    throw new Error('Failed to create post');
+                }
+            } catch (error) {
+                console.error('Error creating post:', error);
+                alert('Error creating post');
+            }
+        }
+
+        // Open single post
+        async function openPost(postId) {
+            currentPostId = postId;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/posts/${postId}`);
+                const post = await response.json();
+                
+                const singlePostContent = document.getElementById('singlePostContent');
+                const imageHtml = post.image_url 
+                    ? `<div class="post-image"><img src="${post.image_url}" alt="Post image"></div>` 
+                    : '';
+                
+                singlePostContent.innerHTML = `
+                    <div class="post-header">
+                        <div class="avatar">
+                            <img src="${post.author_avatar || 'https://i.pravatar.cc/100?img=12'}" alt="Avatar">
+                        </div>
+                        <div class="post-info">
+                            <div class="post-author">
+                                ${post.author || 'justrcat'}
+                                <span class="admin-badge">Admin</span>
+                            </div>
+                            <div class="post-meta">@${post.author || 'justrcat'}</div>
+                        </div>
+                    </div>
+                    <div class="post-content">${post.content}</div>
+                    ${imageHtml}
+                    <div class="post-timestamp">${new Date(post.created_at).toLocaleString('ru-RU', { 
+                        hour: '2-digit', 
+                        minute: '2-digit', 
+                        day: 'numeric', 
+                        month: 'long', 
+                        year: 'numeric' 
+                    })}</div>
+                `;
+                
+                // Load post data
+                document.getElementById('likeCount').textContent = post.likes || 0;
+                document.getElementById('commentCount').textContent = post.comments_count || 0;
+                
+                // Load reactions
+                if (post.reactions) {
+                    Object.entries(post.reactions).forEach(([reaction, count]) => {
+                        const element = document.getElementById(`reaction-${reaction}`);
+                        if (element) element.textContent = count;
+                    });
+                }
+                
+                // Load comments
+                loadComments();
+                
+                // Show post view
+                document.getElementById('feedView').classList.remove('active');
+                document.getElementById('postView').classList.add('active');
+                
+            } catch (error) {
+                console.error('Error opening post:', error);
+            }
+        }
+
+        // Show feed
+        function showFeed(event) {
+            if (event) event.preventDefault();
+            document.getElementById('postView').classList.remove('active');
+            document.getElementById('feedView').classList.add('active');
+            loadPosts();
+        }
+
+        // Toggle like
+        async function toggleLike() {
+            if (!currentPostId) return;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/posts/${currentPostId}/like`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: isLiked ? 'unlike' : 'like' })
+                });
+                
+                const data = await response.json();
+                isLiked = !isLiked;
+                
+                document.getElementById('likeCount').textContent = data.likes;
+                
+                const likeButton = document.getElementById('likeButton');
+                if (isLiked) {
+                    likeButton.classList.add('active');
+                    likeButton.querySelector('svg').style.fill = '#f91880';
+                } else {
+                    likeButton.classList.remove('active');
+                    likeButton.querySelector('svg').style.fill = 'none';
+                }
+            } catch (error) {
+                console.error('Error toggling like:', error);
+            }
+        }
+
+        // Toggle reaction
+        async function toggleReaction(reaction) {
+            if (!currentPostId) return;
+            
+            const button = event.target.closest('.reaction-button');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/posts/${currentPostId}/reactions`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reaction })
+                });
+                
+                const data = await response.json();
+                
+                const reactionCount = document.getElementById(`reaction-${reaction}`);
+                reactionCount.textContent = data.count;
+                
+                if (activeReactions.has(reaction)) {
+                    activeReactions.delete(reaction);
+                    button.classList.remove('active');
+                } else {
+                    activeReactions.add(reaction);
+                    button.classList.add('active');
+                }
+            } catch (error) {
+                console.error('Error toggling reaction:', error);
+            }
+        }
+
+        // Focus comment input
+        function focusComment() {
+            document.getElementById('commentInput').focus();
+        }
+
+        // Add comment
+        async function addComment() {
+            if (!currentPostId) return;
+            
+            const input = document.getElementById('commentInput');
+            const text = input.value.trim();
+            
+            if (!text) return;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/posts/${currentPostId}/comments`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        text,
+                        author: 'anonymous',
+                        author_avatar: null
+                    })
+                });
+                
+                const comment = await response.json();
+                addCommentToUI(comment);
+                
+                const currentCount = parseInt(document.getElementById('commentCount').textContent);
+                document.getElementById('commentCount').textContent = currentCount + 1;
+                
+                input.value = '';
+            } catch (error) {
+                console.error('Error adding comment:', error);
+            }
+        }
+
+        // Load comments
+        async function loadComments() {
+            if (!currentPostId) return;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/posts/${currentPostId}/comments`);
+                const comments = await response.json();
+                
+                const commentList = document.getElementById('commentList');
+                commentList.innerHTML = '';
+                
+                comments.forEach(comment => addCommentToUI(comment));
+            } catch (error) {
+                console.error('Error loading comments:', error);
+                document.getElementById('commentList').innerHTML = 
+                    '<div class="loading">No comments yet</div>';
+            }
+        }
+
+        // Add comment to UI
+        function addCommentToUI(comment) {
+            const commentList = document.getElementById('commentList');
+            const li = document.createElement('li');
+            li.className = 'comment-item';
+            
+            const avatarHtml = comment.author_avatar 
+                ? `<img src="${comment.author_avatar}" alt="Avatar">` 
+                : comment.author.charAt(0).toUpperCase();
+            
+            li.innerHTML = `
+                <div class="comment-avatar">${avatarHtml}</div>
+                <div class="comment-body">
+                    <div class="comment-author">${comment.author || 'anonymous'}</div>
+                    <div class="comment-text">${comment.text}</div>
+                </div>
+            `;
+            
+            commentList.appendChild(li);
+        }
+    </script>
+</body>
+</html>
