@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JR-GLL-1.0 — JustRcat-GoodLuck-License</title>
+    <style>
+        /* Общие стили */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0d0d0d;
+            color: #e0e0e0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        /* Шапка */
+        .header {
+            text-align: center;
+            padding: 40px 0 30px;
+            border-bottom: 1px solid #2a2a2a;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f5af19, #f12711);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .header .subtitle {
+            font-size: 1.1rem;
+            color: #888;
+            margin-top: 8px;
+            font-weight: 300;
+        }
+
+        .header .badge {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 4px 16px;
+            background: #1e1e1e;
+            border: 1px solid #ff6b35;
+            border-radius: 20px;
+            color: #ff6b35;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .badge .not-open {
+            color: #ff4444;
+        }
+
+        /* Статус загрузки */
+        .status {
+            text-align: center;
+            padding: 20px;
+            color: #888;
+            font-size: 0.95rem;
+        }
+
+        .status .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #333;
+            border-top: 2px solid #f5af19;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .status.error {
+            color: #ff6b6b;
+        }
+
+        .status.success {
+            color: #51cf66;
+        }
+
+        /* Блок с лицензией */
+        .license-box {
+            background: #181818;
+            border: 1px solid #2a2a2a;
+            border-radius: 12px;
+            padding: 40px 45px;
+            margin-top: 10px;
+            line-height: 1.7;
+            font-size: 0.95rem;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            color: #d4d4d4;
+            display: none;
+        }
+
+        .license-box.visible {
+            display: block;
+        }
+
+        .license-box .line-numbers {
+            color: #555;
+            user-select: none;
+        }
+
+        /* Кнопки */
+        .actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .actions button {
+            padding: 10px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #2a2a2a;
+            color: #ccc;
+        }
+
+        .actions button:hover {
+            background: #3a3a3a;
+            transform: translateY(-2px);
+        }
+
+        .actions .btn-primary {
+            background: linear-gradient(135deg, #f5af19, #f12711);
+            color: #fff;
+        }
+
+        .actions .btn-primary:hover {
+            opacity: 0.85;
+            transform: translateY(-2px);
+        }
+
+        .actions .btn-secondary {
+            background: #1e1e1e;
+            border: 1px solid #3a3a3a;
+        }
+
+        .actions .btn-secondary:hover {
+            background: #2a2a2a;
+        }
+
+        /* Футер */
+        .footer {
+            text-align: center;
+            padding: 30px 0 10px;
+            color: #555;
+            font-size: 0.8rem;
+            border-top: 1px solid #1a1a1a;
+            margin-top: 30px;
+        }
+
+        .footer a {
+            color: #777;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            color: #f5af19;
+        }
+
+        /* Адаптив */
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            .license-box {
+                padding: 20px 18px;
+                font-size: 0.85rem;
+            }
+            .actions button {
+                padding: 8px 18px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- Шапка -->
+        <div class="header">
+            <h1>JR-GLL-1.0</h1>
+            <div class="subtitle">JustRcat — Good Luck License</div>
+            <div class="badge">
+                <span class="not-open">✕</span> NOT OPEN SOURCE
+            </div>
+        </div>
+
+        <!-- Статус -->
+        <div id="status" class="status">
+            <span class="spinner"></span>
+            Загрузка лицензии...
+        </div>
+
+        <!-- Блок с текстом лицензии -->
+        <div id="licenseContent" class="license-box"></div>
+
+        <!-- Кнопки -->
+        <div class="actions" id="actions" style="display:none;">
+            <button class="btn-primary" onclick="copyLicense()">📋 Скопировать</button>
+            <button class="btn-secondary" onclick="downloadLicense()">⬇️ Скачать .txt</button>
+            <button class="btn-secondary" onclick="window.location.reload();">🔄 Обновить</button>
+        </div>
+
+        <!-- Футер -->
+        <div class="footer">
+            <a href="/JR-GLL/last.txt">JR-GLL</a> &bull; © 2026 JustRcat &bull; Good Luck
+        </div>
+
+    </div>
+
+    <script>
+        // Путь к файлу с лицензией
+        const LICENSE_URL = '/JR-GLL/last.txt';
+
+        // Элементы
+        const statusEl = document.getElementById('status');
+        const licenseBox = document.getElementById('licenseContent');
+        const actionsEl = document.getElementById('actions');
+
+        // Загрузка лицензии
+        async function loadLicense() {
+            try {
+                const response = await fetch(LICENSE_URL);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status} — файл не найден`);
+                }
+
+                const text = await response.text();
+
+                if (!text.trim()) {
+                    throw new Error('Файл пустой');
+                }
+
+                // Показываем текст
+                licenseBox.textContent = text;
+                licenseBox.classList.add('visible');
+
+                // Обновляем статус
+                statusEl.innerHTML = '<span class="success">✅ Лицензия загружена</span>';
+                statusEl.className = 'status success';
+
+                // Показываем кнопки
+                actionsEl.style.display = 'flex';
+
+            } catch (error) {
+                statusEl.innerHTML = `
+                    <span class="error">❌ Ошибка: ${error.message}</span><br>
+                    <span style="font-size:0.85rem; color:#666; margin-top:8px; display:inline-block;">
+                        Убедитесь, что файл доступен по пути <strong>/JR-GLL/last.txt</strong>
+                    </span>
+                `;
+                statusEl.className = 'status error';
+                console.error('Ошибка загрузки лицензии:', error);
+            }
+        }
+
+        // Копирование
+        function copyLicense() {
+            const text = licenseBox.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('.btn-primary');
+                const original = btn.textContent;
+                btn.textContent = '✅ Скопировано!';
+                setTimeout(() => btn.textContent = original, 2000);
+            }).catch(() => {
+                alert('Не удалось скопировать. Выделите текст вручную.');
+            });
+        }
+
+        // Скачивание
+        function downloadLicense() {
+            const text = licenseBox.textContent;
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'JR-GLL-1.0.txt';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+        }
+
+        // Запускаем загрузку
+        document.addEventListener('DOMContentLoaded', loadLicense);
+    </script>
+
+</body>
+</html>
