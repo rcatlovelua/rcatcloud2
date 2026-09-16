@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оферта — JustRcat</title>
+    <meta name="description" content="Пользовательское соглашение и условия оплаты через Platega. Информация о возврате и ответственности. Поставщик — Wonday's Pay.">
+    
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://dump.justrcat.lol">
+
+    <!-- Geist Font через CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css">
+
+    <style>
+        /* ==========================================
+           1. ПЕРЕМЕННЫЕ И СБРОС СТИЛЕЙ
+           ========================================== */
+        :root {
+            --bg-main: #0b0d10;
+            --bg-card: #12151c;
+            --border-card: #1e2330;
+            --border-card-hover: #2a3245;
+            
+            --color-primary: #1d6aff;
+            --color-primary-hover: #3b82f6;
+            --color-green: #10b981;
+            --color-disabled: #374151;
+            
+            --text-main: #ffffff;
+            --text-body: #888d96;
+            --text-muted: #6a707c;
+            --text-sub: #a0a6b2;
+            --text-footer: #525866;
+
+            --font-main: 'Geist Sans', 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-flauta: 'FFFlauta', monospace, sans-serif;
+            --font-mc: 'Minecraft', monospace;
+        }
+
+        /* ==========================================
+           2. ПОДКЛЮЧЕНИЕ ШРИФТОВ
+           ========================================== */
+        @font-face {
+            font-family: 'FFFlauta';
+            src: url('https://dump.justrcat.lol/fonts/ffflauta/FFFlauta-Regular.woff2') format('woff2'),
+                 url('https://dump.justrcat.lol/fonts/ffflauta/FFFlauta-Regular.ttf') format('truetype'),
+                 local('FFFlauta');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'Minecraft';
+            src: url('https://dump.justrcat.lol/fonts/minecraft.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        /* ==========================================
+           3. Базовые стили
+           ========================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            border-radius: 0 !important;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-main);
+            color: var(--text-body);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            width: clamp(250px, 40vw, 450px);
+            height: clamp(250px, 40vw, 450px);
+            background: rgba(29, 106, 255, 0.15);
+            filter: blur(140px);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            bottom: -100px;
+            width: clamp(250px, 45vw, 500px);
+            height: clamp(250px, 45vw, 500px);
+            background: rgba(29, 106, 255, 0.12);
+            filter: blur(150px);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        main.container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            max-width: 800px;
+            width: 100%;
+            margin: auto 0;
+        }
+
+        /* ==========================================
+           4. HERO / ЗАГОЛОВОК
+           ========================================== */
+        .hero-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .content {
+            text-align: left;
+            max-width: 600px;
+        }
+
+        h1 {
+            font-family: var(--font-flauta);
+            font-size: clamp(2rem, 4.5vw, 3rem);
+            color: var(--color-primary);
+            margin-bottom: 8px;
+            line-height: 1.1;
+            image-rendering: pixelated;
+        }
+
+        .subtitle {
+            font-size: clamp(0.95rem, 2vw, 1.15rem);
+            color: var(--text-sub);
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s ease;
+            margin-top: 4px;
+        }
+
+        .back-link:hover {
+            color: var(--color-primary);
+        }
+
+        /* ==========================================
+           5. КАРТОЧКИ ОФЕРТЫ
+           ========================================== */
+        .offer-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            width: 100%;
+        }
+
+        .offer-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-card);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: border-color 0.2s ease;
+            font-family: var(--font-mc);
+            image-rendering: pixelated;
+        }
+
+        .offer-card:hover {
+            border-color: var(--border-card-hover);
+        }
+
+        .card-stripe {
+            height: 4px;
+            width: 100%;
+            background-color: var(--color-primary);
+        }
+
+        .card-stripe.green { 
+            background-color: var(--color-green); 
+        }
+
+        .card-stripe.white { 
+            background-color: #ffffff; 
+        }
+
+        .card-body {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            color: var(--text-main);
+            line-height: 1.3;
+            margin-bottom: 2px;
+        }
+
+        .card-text {
+            font-size: 0.9rem;
+            color: var(--text-body);
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        .card-text strong {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .card-text a {
+            color: var(--color-primary);
+            text-decoration: none;
+            border-bottom: 1px dotted var(--color-primary);
+        }
+
+        .card-text a:hover {
+            color: var(--color-primary-hover);
+            border-bottom-color: var(--color-primary-hover);
+        }
+
+        .card-text ul {
+            list-style: none;
+            padding: 0;
+            margin: 8px 0 0;
+        }
+
+        .card-text ul li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-body);
+        }
+
+        .card-text ul li::before {
+            content: '>';
+            position: absolute;
+            left: 0;
+            color: var(--color-primary);
+            font-family: var(--font-mc);
+            font-size: 1rem;
+        }
+
+        .highlight-block {
+            background-color: rgba(29, 106, 255, 0.08);
+            border-left: 3px solid var(--color-primary);
+            padding: 16px 20px;
+            margin: 8px 0;
+        }
+
+        .highlight-block p {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-sub);
+            margin: 0;
+        }
+
+        .warning-block {
+            background-color: rgba(239, 68, 68, 0.06);
+            border-left: 3px solid #ef4444;
+            padding: 16px 20px;
+            margin: 8px 0;
+        }
+
+        .warning-block p {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #fca5a5;
+            margin: 0;
+        }
+
+        .warning-block strong {
+            color: #ef4444;
+        }
+
+        .badge {
+            display: inline-block;
+            background-color: var(--color-primary);
+            color: #fff;
+            font-family: var(--font-mc);
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            width: fit-content;
+        }
+
+        .badge.green {
+            background-color: var(--color-green);
+        }
+
+        /* ==========================================
+           6. ФУТЕР И АДАПТИВ
+           ========================================== */
+        footer {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            padding-top: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            font-size: 0.85rem;
+            color: var(--text-footer);
+            flex-wrap: wrap;
+        }
+
+        .github-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-body);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .github-link:hover {
+            color: var(--color-primary);
+        }
+
+        .github-icon {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+        }
+
+        a:focus-visible,
+        button:focus-visible {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+
+        @media (max-width: 768px) {
+            .hero-section {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .content {
+                text-align: center;
+            }
+
+            footer {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .card-body {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <main class="container">
+        <!-- Заголовок страницы оферты -->
+        <section class="hero-section">
+            <div class="content">
+                <h1>Оферта</h1>
+                <div class="subtitle">Условия использования и оплаты</div>
+                <a href="/" class="back-link">← Вернуться на главную</a>
+            </div>
+        </section>
+
+        <!-- Блоки оферты -->
+        <section class="offer-grid" aria-label="Условия оферты">
+
+            <!-- Блок 1: Общие положения -->
+            <article class="offer-card">
+                <div class="card-stripe"></div>
+                <div class="card-body">
+                    <span class="badge">Общие положения</span>
+                    <h2 class="card-title">1. Предмет соглашения</h2>
+                    <p class="card-text">
+                        Настоящая оферта (далее — «Соглашение») регулирует отношения между <strong>Wonday's Pay</strong> (далее — «Поставщик», «Продавец») и любым лицом, использующим сайт <strong>justrcat.lol</strong> и приобретающим товары или услуги (далее — «Покупатель»).
+                    </p>
+                    <p class="card-text">
+                        Поставщиком товаров и услуг выступает <strong>Wonday's Pay</strong>. 
+                        Техническое проведение платежей осуществляется через платёжный сервис <strong>Platega</strong>.
+                    </p>
+                    <p class="card-text">
+                        Оплата любого товара или услуги означает полное и безоговорочное согласие Покупателя с условиями настоящей оферты.
+                    </p>
+                </div>
+            </article>
+
+            <!-- Блок 2: Оплата через Platega -->
+            <article class="offer-card">
+                <div class="card-stripe green"></div>
+                <div class="card-body">
+                    <span class="badge green">Оплата</span>
+                    <h2 class="card-title">2. Порядок оплаты</h2>
+                    <p class="card-text">
+                        Поставщиком товаров является <strong>Wonday's Pay</strong>. 
+                        Приём платежей технически обеспечивается сервисом <strong>Platega</strong>.
+                    </p>
+                    <ul>
+                        <li>Оплата производится в валюте, указанной в платёжном интерфейсе.</li>
+                        <li>Поставщик (Wonday's Pay) не хранит и не обрабатывает данные банковских карт Покупателя — это делает платёжный сервис Platega.</li>
+                        <li>Комиссии платёжной системы Platega, если таковые имеются, оплачиваются Покупателем.</li>
+                        <li>Зачисление средств происходит в течение 1–24 часов с момента подтверждения платежа.</li>
+                    </ul>
+                </div>
+            </article>
+
+            <!-- Блок 3: Ответственность и возврат -->
+            <article class="offer-card">
+                <div class="card-stripe" style="background-color: #ef4444;"></div>
+                <div class="card-body">
+                    <span class="badge" style="background-color: #ef4444;">Важно</span>
+                    <h2 class="card-title">3. Ответственность и возврат средств</h2>
+                    
+                    <div class="warning-block">
+                        <p>
+                            <strong>Внимание!</strong> После оплаты товара возврат средств не производится. 
+                            Если товар не понравился, не подошёл или не оправдал ожиданий — 
+                            <strong>никто не несёт за это ответственности</strong>, кроме самого Покупателя.
+                        </p>
+                    </div>
+
+                    <div class="highlight-block">
+                        <p>
+                            <strong>Перед оплатой</strong> внимательно подумайте: 
+                            точно ли вам нужен этот товар? Убедитесь, что вы ознакомились с описанием, 
+                            скриншотами и характеристиками. Задайте вопросы до покупки, если что-то неясно.
+                        </p>
+                    </div>
+
+                    <ul>
+                        <li>Возврат средств возможен <strong>только</strong> в случае, если товар не был предоставлен по вине Поставщика (Wonday's Pay).</li>
+                        <li>Субъективное мнение Покупателя («не понравилось», «ожидал другого», «передумал») не является основанием для возврата.</li>
+                        <li>Решение о возврате в спорных ситуациях принимается Поставщиком индивидуально.</li>
+                    </ul>
+                </div>
+            </article>
+
+            <!-- Блок 4: Права и обязанности -->
+            <article class="offer-card">
+                <div class="card-stripe white"></div>
+                <div class="card-body">
+                    <span class="badge" style="background-color: #ffffff; color: #0b0d10;">Права</span>
+                    <h2 class="card-title">4. Права и обязанности сторон</h2>
+                    
+                    <p class="card-text"><strong>Поставщик (Wonday's Pay) обязуется:</strong></p>
+                    <ul>
+                        <li>Предоставить товар или услугу после подтверждения оплаты.</li>
+                        <li>Обеспечить работоспособность цифровых товаров на момент передачи.</li>
+                        <li>Отвечать на обращения Покупателя в разумные сроки.</li>
+                    </ul>
+
+                    <p class="card-text" style="margin-top: 12px;"><strong>Покупатель обязуется:</strong></p>
+                    <ul>
+                        <li>Ознакомиться с описанием товара до момента оплаты.</li>
+                        <li>Не распространять цифровые товары без разрешения Поставщика.</li>
+                        <li>Не использовать товары в незаконных целях.</li>
+                    </ul>
+                </div>
+            </article>
+
+            <!-- Блок 5: Заключительные положения -->
+            <article class="offer-card">
+                <div class="card-stripe"></div>
+                <div class="card-body">
+                    <span class="badge">Финал</span>
+                    <h2 class="card-title">5. Заключительные положения</h2>
+                    <p class="card-text">
+                        Поставщик (Wonday's Pay) оставляет за собой право изменять условия настоящей оферты без предварительного уведомления. 
+                        Актуальная версия всегда доступна на этой странице.
+                    </p>
+                    <p class="card-text">
+                        Все вопросы, не урегулированные настоящей офертой, решаются в соответствии с действующим законодательством. 
+                        Совершая оплату, вы подтверждаете, что прочитали, поняли и согласны с условиями.
+                    </p>
+                </div>
+            </article>
+
+        </section>
+    </main>
+
+    <!-- Футер -->
+    <footer>
+        <span>jr (MIT-Лицензия)</span>
+        <span>•</span>
+        <a 
+            href="https://github.com/rcatlovelua/rcatcloud2" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            class="github-link"
+        >
+            <span>Justrcat на GitHub</span>
+            <img src="https://dump.justrcat.lol/images/github-big.svg" alt="" class="github-icon" aria-hidden="true">
+        </a>
+    </footer>
+
+    <!-- Пасхалка в консоли -->
+    <script>
+        console.log(
+            "%c Оферта %c\n\nПоставщик — Wonday's Pay. Оплата через Platega. Возврат — только по вине поставщика.",
+            "color: #1d6aff; font-size: 28px; font-weight: bold; -webkit-text-stroke: 1px black;",
+            "color: #a0a6b2; font-size: 14px; font-weight: 500;"
+        );
+    </script>
+
+</body>
+</html>
