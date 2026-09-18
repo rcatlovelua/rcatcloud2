@@ -3,31 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JustRcat — Просто ркат. Простые идеи.</title>
-    <meta name="description" content="Личный сайт JustRcat. Проекты, моды и идеи.">
-    
-    <!-- Preconnect для ускорения загрузки ресурсов -->
+    <title>wondays — Чудеса каждый день.</title>
+    <meta name="description" content="Личный сайт wondays. Проекты, моды и идеи.">
+
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link rel="preconnect" href="https://dump.justrcat.lol">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <!-- Geist Font через CDN -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css">
 
     <style>
-        /* ==========================================
-           1. ПЕРЕМЕННЫЕ И СБРОС СТИЛЕЙ
-           ========================================== */
         :root {
             --bg-main: #0b0d10;
             --bg-card: #12151c;
             --border-card: #1e2330;
             --border-card-hover: #2a3245;
-            
+
             --color-primary: #1d6aff;
             --color-primary-hover: #3b82f6;
             --color-green: #10b981;
             --color-disabled: #374151;
-            
+
             --text-main: #ffffff;
             --text-body: #888d96;
             --text-muted: #6a707c;
@@ -39,9 +36,6 @@
             --font-mc: 'Minecraft', monospace;
         }
 
-        /* ==========================================
-           2. ПОДКЛЮЧЕНИЕ ШРИФТОВ
-           ========================================== */
         @font-face {
             font-family: 'FFFlauta';
             src: url('https://dump.justrcat.lol/fonts/ffflauta/FFFlauta-Regular.woff2') format('woff2'),
@@ -60,14 +54,11 @@
             font-display: swap;
         }
 
-        /* ==========================================
-           3. Базовые стили
-           ========================================== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            border-radius: 0 !important; /* Строгий пиксельный стиль без скруглений */
+            border-radius: 0 !important;
         }
 
         body {
@@ -85,7 +76,6 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Адаптивный фоновый свечение */
         body::before {
             content: '';
             position: absolute;
@@ -123,9 +113,6 @@
             margin: auto 0;
         }
 
-        /* ==========================================
-           4. HERO СЕКЦИЯ
-           ========================================== */
         .hero-section {
             display: flex;
             align-items: center;
@@ -173,9 +160,6 @@
             line-height: 1.6;
         }
 
-        /* ==========================================
-           5. СЕТКА КАРТОЧЕК (MINECRAFT СТИЛЬ)
-           ========================================== */
         .cards-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -206,12 +190,8 @@
             background-color: var(--color-primary);
         }
 
-        .card-stripe.green { 
-            background-color: var(--color-green); 
-        }
-        .card-stripe.white{ 
-            background-color: var(--color-white); 
-        }
+        .card-stripe.green { background-color: var(--color-green); }
+        .card-stripe.white { background-color: #ffffff; }
 
         .card-image {
             width: 100%;
@@ -249,7 +229,6 @@
             align-items: center;
         }
 
-        /* Квадратная кнопка / ссылка */
         .card-button-sq {
             width: 42px;
             height: 42px;
@@ -266,13 +245,8 @@
             user-select: none;
         }
 
-        .card-button-sq:hover {
-            background-color: var(--color-primary-hover);
-        }
-
-        .card-button-sq:active {
-            transform: scale(0.95);
-        }
+        .card-button-sq:hover { background-color: var(--color-primary-hover); }
+        .card-button-sq:active { transform: scale(0.95); }
 
         .card-button-sq.disabled {
             background-color: var(--color-disabled);
@@ -280,9 +254,6 @@
             color: var(--text-muted);
         }
 
-        /* ==========================================
-           6. ФУТЕР И АДОПТИВ
-           ========================================== */
         footer {
             position: relative;
             z-index: 1;
@@ -306,9 +277,7 @@
             transition: color 0.2s ease;
         }
 
-        .github-link:hover {
-            color: var(--color-primary);
-        }
+        .github-link:hover { color: var(--color-primary); }
 
         .github-icon {
             width: 20px;
@@ -316,12 +285,121 @@
             object-fit: contain;
         }
 
-        /* Управление фокусом с клавиатуры */
         a:focus-visible,
         button:focus-visible {
             outline: 2px solid var(--color-primary);
             outline-offset: 2px;
         }
+
+        /* ==========================================
+           ПРЕЛОАДЕР (волна букв)
+           ========================================== */
+        #preloader {
+            position: fixed;
+            inset: 0;
+            background: #030303;
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.6s ease;
+        }
+
+        #preloader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .preloader-letters {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            height: 200px;
+        }
+
+        .pl-letter {
+            display: inline-block;
+            font-family: 'Geist Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 52px;
+            line-height: 1;
+            color: #ffffff;
+            user-select: none;
+            will-change: transform;
+        }
+
+        /* ==========================================
+           ЭКРАН "САЙТ УШЁЛ В СОН"
+           ========================================== */
+        #sleep-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-main);
+            z-index: 100000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            text-align: center;
+        }
+
+        #sleep-screen[hidden] { display: none; }
+
+        .sleep-inner {
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .sleep-icon {
+            font-size: 56px;
+            line-height: 1;
+            filter: drop-shadow(0 8px 16px rgba(0,0,0,0.6));
+        }
+
+        .sleep-title {
+            font-family: var(--font-flauta);
+            font-size: clamp(1.6rem, 4vw, 2.4rem);
+            color: var(--color-primary);
+            margin: 0;
+        }
+
+        .sleep-text {
+            font-size: 0.95rem;
+            color: var(--text-body);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .sleep-return {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            padding: 10px 16px;
+            margin: 0;
+            font-family: var(--font-mc);
+        }
+
+        .sleep-return:empty { display: none; }
+
+        .sleep-retry {
+            margin-top: 6px;
+            padding: 10px 22px;
+            background: var(--color-primary);
+            color: #fff;
+            border: none;
+            font-family: var(--font-mc);
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .sleep-retry:hover { background: var(--color-primary-hover); }
+        .sleep-retry:active { transform: scale(0.96); }
+        .sleep-retry:disabled { background: var(--color-disabled); cursor: wait; }
 
         @media (max-width: 768px) {
             .hero-section {
@@ -329,13 +407,9 @@
                 text-align: center;
             }
 
-            .content {
-                text-align: center;
-            }
+            .content { text-align: center; }
 
-            .side-image {
-                max-width: 170px;
-            }
+            .side-image { max-width: 170px; }
 
             footer {
                 flex-direction: column;
@@ -346,33 +420,56 @@
 </head>
 <body>
 
+    <!-- ===== ПРЕЛОАДЕР ===== -->
+    <div id="preloader" aria-hidden="true">
+        <div class="preloader-letters">
+            <span class="pl-letter">w</span>
+            <span class="pl-letter">o</span>
+            <span class="pl-letter">n</span>
+            <span class="pl-letter">d</span>
+            <span class="pl-letter">a</span>
+            <span class="pl-letter">y</span>
+            <span class="pl-letter">s</span>
+        </div>
+    </div>
+
+    <!-- ===== ЭКРАН "САЙТ УШЁЛ В СОН" ===== -->
+    <div id="sleep-screen" hidden>
+        <div class="sleep-inner">
+            <div class="sleep-icon">💤</div>
+            <h2 class="sleep-title">Сайт ушёл в сон</h2>
+            <p class="sleep-text">
+                У страницы файлов <strong>dump.justrcat.lol</strong> сейчас перерыв в работе.
+            </p>
+            <p class="sleep-return" id="sleep-return"></p>
+            <button class="sleep-retry" id="sleep-retry" type="button">Проверить снова</button>
+        </div>
+    </div>
+
     <main class="container">
-        <!-- Главный промо-блок -->
         <section class="hero-section">
-            <img 
-                src="https://dump.justrcat.lol/images/cute-sit-mc.webp" 
-                alt="Иллюстрация персонажа JustRcat" 
+            <img
+                src="https://dump.justrcat.lol/images/cute-sit-mc.webp"
+                alt="Иллюстрация персонажа wondays"
                 class="side-image"
-                width="640" 
+                width="640"
                 height="889"
                 loading="eager"
             >
 
             <div class="content">
-                <h1>JustRcat</h1>
-                <div class="subtitle">Просто ркат. Простые идеи.</div>
+                <h1>wondays</h1>
+                <div class="subtitle">Чудеса каждый день.</div>
             </div>
         </section>
 
-        <!-- Сетка с карточками проектов -->
         <section class="cards-grid" aria-label="Проекты">
-            
-            <!-- Карточка 1 (Yahooste) -->
+
             <article class="card">
                 <div class="card-stripe"></div>
-                <img 
-                    src="https://github.com/rcatlovelua/Yahooste/blob/main/.not-for-mod-srcc/yahoostee.jpg?raw=true" 
-                    alt="Превью мода Yahooste" 
+                <img
+                    src="https://github.com/rcatlovelua/Yahooste/blob/main/.not-for-mod-srcc/yahoostee.jpg?raw=true"
+                    alt="Превью мода Yahooste"
                     class="card-image"
                     loading="lazy"
                 >
@@ -380,24 +477,23 @@
                     <h2 class="card-title">Мод "Yahooste"</h2>
                     <p class="card-text">Yahooste (Yahoo + Paste) — простой мод для сохранения и быстрой вставки фрагментов текста в чат, которые утомительно набирать вручную.</p>
                     <div class="card-footer">
-                        <a 
-                            href="https://modrinth.com/mod/yahooste" 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            class="card-button-sq" 
+                        <a
+                            href="https://modrinth.com/mod/yahooste"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="card-button-sq"
                             title="Открыть мод на Modrinth"
                             aria-label="Перейти на страницу мода Yahooste"
-                        >></a>
+                        >&gt;</a>
                     </div>
                 </div>
             </article>
 
-            <!-- Карточка 2 (Broken Dream) -->
             <article class="card">
                 <div class="card-stripe green"></div>
-                <img 
-                    src="https://dump.justrcat.lol/images/future_preview.webp" 
-                    alt="Превью проекта Broken Dream в Minecraft" 
+                <img
+                    src="https://dump.justrcat.lol/images/future_preview.webp"
+                    alt="Превью проекта Broken Dream в Minecraft"
                     class="card-image"
                     loading="lazy"
                 >
@@ -405,62 +501,208 @@
                     <h2 class="card-title">Прошлое будущее из Broken Dream в Minecraft</h2>
                     <p class="card-text">Прошлое будущее — вторая мечта в главе 2 игры Broken Dream. Этот город соответствует популярной эстетике Frutiger Aero. Скоро вы сможете оценить его на сервере Flowerense!</p>
                     <div class="card-footer">
-                        <span 
-                            class="card-button-sq disabled" 
-                            title="Достройка в процессе" 
+                        <span
+                            class="card-button-sq disabled"
+                            title="Достройка в процессе"
                             aria-disabled="true"
                         >?</span>
                     </div>
                 </div>
             </article>
-<article class="card">
-                <div class="card-stripe.white"></div>
-                <img 
-                    src="https://dump.justrcat.lol/images/yawork.webp" 
-                    alt="Превью мода Yahooste" 
+
+            <article class="card">
+                <div class="card-stripe white"></div>
+                <img
+                    src="https://dump.justrcat.lol/images/yawork.webp"
+                    alt="Превью работы"
                     class="card-image"
                     loading="lazy"
                 >
                 <div class="card-body">
                     <h2 class="card-title">Работай на джр</h2>
-                    <p class="card-text">Зарпалта: Стоны в гс</p>
+                    <p class="card-text">Зарплата: Стоны в гс</p>
                     <div class="card-footer">
-                        <a 
-                            href="yawork" 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            class="card-button-sq" 
+                        <a
+                            href="yawork"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="card-button-sq"
                             title="Хочу"
                             aria-label="Погнали чо"
-                        >></a>
+                        >&gt;</a>
                     </div>
                 </div>
             </article>
         </section>
     </main>
-    
-    <!-- Футер -->
+
     <footer>
-        <span>jr (MIT-Лицензия)</span>
+        <span>wondays (MIT-Лицензия)</span>
         <span>•</span>
-        <a 
-            href="https://github.com/rcatlovelua/rcatcloud2" 
-            target="_blank" 
-            rel="noopener noreferrer" 
+        <a
+            href="https://github.com/rcatlovelua/rcatcloud2"
+            target="_blank"
+            rel="noopener noreferrer"
             class="github-link"
         >
-            <span>Justrcat на GitHub</span>
+            <span>wondays на GitHub</span>
             <img src="https://dump.justrcat.lol/images/github-big.svg" alt="" class="github-icon" aria-hidden="true">
         </a>
     </footer>
 
-    <!-- Пасхалка в консоли -->
     <script>
+    (function () {
+        "use strict";
+
+        /* ============================================================
+           1. ПРЕЛОАДЕР: волна букв + смена шрифта
+           ============================================================ */
+        var WAVE_HEIGHT = 22;
+        var WAVE_TIME   = 250;
+        var STAGGER     = (WAVE_TIME * 2) / 14;
+        var TOTAL_TIME  = 6000;
+
+        var FONTS = [
+            "Luckiest Guy", "Bangers", "Creepster", "Fredoka One",
+            "Permanent Marker", "Titan One", "Patrick Hand", "Indie Flower",
+            "Grenze Gotisch", "Denk One", "Special Elite"
+        ];
+
+        var fontLink = document.createElement("link");
+        fontLink.rel = "stylesheet";
+        fontLink.href = "https://fonts.googleapis.com/css2?" +
+            FONTS.map(function (f) { return "family=" + encodeURIComponent(f); }).join("&") +
+            "&display=swap";
+        document.head.appendChild(fontLink);
+
+        var preloader = document.getElementById("preloader");
+        var letters   = Array.prototype.slice.call(document.querySelectorAll(".pl-letter"));
+
+        var running = true;
+
+        function animateLetter(letter, index) {
+            setTimeout(function () {
+                function loop() {
+                    if (!running) return;
+
+                    letter.style.transition = "transform " + WAVE_TIME + "ms cubic-bezier(0.37, 0, 0.63, 1)";
+                    letter.style.transform  = "translateY(-" + WAVE_HEIGHT + "px)";
+
+                    setTimeout(function () {
+                        if (!running) return;
+                        letter.style.fontFamily = '"' + FONTS[Math.floor(Math.random() * FONTS.length)] + '", sans-serif';
+
+                        letter.style.transform = "translateY(0)";
+
+                        setTimeout(function () {
+                            if (!running) return;
+                            letter.style.fontFamily = '"' + FONTS[Math.floor(Math.random() * FONTS.length)] + '", sans-serif';
+                            loop();
+                        }, WAVE_TIME);
+                    }, WAVE_TIME);
+                }
+                loop();
+            }, index * STAGGER);
+        }
+
+        letters.forEach(function (l, i) { animateLetter(l, i); });
+
+        function hidePreloader() {
+            running = false;
+            preloader.classList.add("hidden");
+            setTimeout(function () {
+                preloader.style.display = "none";
+            }, 700);
+        }
+
+        /* ============================================================
+           2. ПРОВЕРКА dump.justrcat.lol ВО ВРЕМЯ АНИМАЦИИ
+           ============================================================ */
+        var DUMP_URL = "https://dump.justrcat.lol/?_=" + Date.now();
+        var SLEEP_MARKER  = "Перерыв в работе сайта";
+        var RETURN_MARKER = "возвращайтесь через";
+
+        var dumpAsleep = false;
+        var returnText = "";
+
+        function checkDump() {
+            return fetch(DUMP_URL, {
+                method: "GET",
+                cache: "no-store",
+                mode: "cors",
+                credentials: "omit"
+            })
+            .then(function (res) { return res.text(); })
+            .then(function (text) {
+                if (text.indexOf(SLEEP_MARKER) !== -1) {
+                    dumpAsleep = true;
+
+                    var lower = text.toLowerCase();
+                    var idx = lower.indexOf(RETURN_MARKER);
+                    if (idx !== -1) {
+                        var tail = text.slice(idx + RETURN_MARKER.length);
+                        tail = tail.split(/[\n\r<.]/)[0].trim();
+                        tail = tail.replace(/^[\s:—-]+|[\s:—-]+$/g, "");
+                        if (tail) returnText = tail;
+                    }
+                }
+            })
+            .catch(function (e) {
+                console.warn("Не удалось проверить dump.justrcat.lol:", e);
+            });
+        }
+
+        checkDump();
+
+        /* ============================================================
+           3. ЭКРАН "САЙТ УШЁЛ В СОН"
+           ============================================================ */
+        var sleepScreen = document.getElementById("sleep-screen");
+        var sleepReturn = document.getElementById("sleep-return");
+        var sleepRetry  = document.getElementById("sleep-retry");
+
+        function showSleepScreen() {
+            sleepReturn.textContent = returnText
+                ? "Возвращайтесь через " + returnText
+                : "Возвращайтесь позже.";
+            sleepScreen.hidden = false;
+            document.body.style.overflow = "hidden";
+        }
+
+        function hideSleepScreen() {
+            sleepScreen.hidden = true;
+            document.body.style.overflow = "";
+        }
+
+        setTimeout(function () {
+            hidePreloader();
+            if (dumpAsleep) showSleepScreen();
+        }, TOTAL_TIME);
+
+        sleepRetry.addEventListener("click", function () {
+            sleepRetry.disabled = true;
+            sleepRetry.textContent = "Проверяем…";
+            dumpAsleep = false;
+            returnText = "";
+
+            checkDump().then(function () {
+                if (dumpAsleep) showSleepScreen();
+                else hideSleepScreen();
+
+                sleepRetry.disabled = false;
+                sleepRetry.textContent = "Проверить снова";
+            });
+        });
+
+        /* ============================================================
+           4. ПАСХАЛКА В КОНСОЛИ
+           ============================================================ */
         console.log(
-            "%c Привет! %c\n\nПриходи помогать с кодом: https://justrcat.lol/yawork",
+            "%c Привет! чот уже работать и не стоило того блин, удачи",
             "color: #1d6aff; font-size: 32px; font-weight: bold; -webkit-text-stroke: 1px black;",
             "color: #a0a6b2; font-size: 16px; font-weight: 500;"
         );
+    })();
     </script>
 
 </body>
