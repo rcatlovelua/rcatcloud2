@@ -1,0 +1,92 @@
+#!/bin/sh
+# zapret init script for ASUS (mipsel)
+
+ZAPRET_BIN="/opt/bin"
+ZAPRET_ETC="/opt/etc/zapret"
+ZAPRET_FAKE="$ZAPRET_ETC/fake"
+ZAPRET_STR="$ZAPRET_ETC/strategies"
+ZAPRET_LOG="/opt/var/log/zapret.log"
+PIDFILE="/opt/var/run/zapret.pid"
+
+STRATEGY="${ZAPRET_STRATEGY:-tpws/DEFAULT}"
+CONF="$ZAPRET_STR/$STRATEGY.conf"
+
+load_conf() {
+    [ -f "$CONF" ] || { echo "Стратегия не найдена: $CONF"; exit 1; }
+    . "$CONF"
+    [ -z "$MODE" ] && MODE=tpws
+}
+
+# Проверяет, реально ли жив процесс из PIDFILE.
+# Если PID-файл "протухший" (процесс уже мёртв) — удаляет его и возвращает 1.
+is_running() {
+    [ -f "$PIDFILE" ] || return 1
+    if kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
+        return 0
+    else
+        echo "найден сгнивший процессер ид, пытаюсь удалить..."
+        rm -f "$PIDFILE"
+        return 1
+    fi
+}
+
+start() {
+    if is_running; then
+        echo "zapret уже запущен (PID: $(cat "$PIDFILE"))"
+        return 0
+    fi
+
+    mkdir -p "$(dirname "$PIDFILE")" "$(dirname "$ZAPRET_LOG")"
+
+    load_conf
+    case "$MODE" in
+        nfqws)
+            [ -x "$ZAPRET_BIN/nfqws" ] || { echo "nfqws не найден"; exit 1; }
+            "$ZAPRET_BIN/nfqws" $ARGS >>"$ZAPRET_LOG" 2>&1 &
+            echo $! > "$PIDFILE"
+            ;;
+        tpws)
+            [ -x "$ZAPRET_BIN/tpws" ] || { echo "tpws не найден"; exit 1; }
+            "$ZAPRET_BIN/tpws" --port="${PORT:-987}" $ARGS >>"$ZAPRET_LOG" 2>&1 &
+            echo $! > "$PIDFILE"
+            ;;
+        *) echo "Неизвестный MODE: $MODE"; exit 1 ;;
+    esac
+
+    sleep 1
+    if is_running; then
+        echo "zapret запущен (стратегия: $STRATEGY, PID: $(cat "$PIDFILE"))"
+    else
+        rm -f "$PIDFILE"
+        echo "zapret не запустился, смотри $ZAPRET_LOG"
+        exit 1
+    fi
+}
+
+stop() {
+    if [ -f "$PIDFILE" ]; then
+        kill "$(cat "$PIDFILE")" 2>/dev/null || true
+        rm -f "$PIDFILE"
+        echo "zapret остановлен"
+    else
+        echo "zapret не запущен"
+    fi
+    pkill -f "$ZAPRET_BIN/nfqws" 2>/dev/null || true
+    pkill -f "$ZAPRET_BIN/tpws"  2>/dev/null || true
+}
+
+status() {
+    if is_running; then
+        echo "zapret: RUNNING (стратегия: $STRATEGY, PID: $(cat "$PIDFILE"))"
+    else
+        echo "zapret: STOPPED"
+    fi
+}
+
+case "$1" in
+    start)   start ;;
+    stop)    stop ;;
+    restart) stop; sleep 1; start ;;
+    status)  status ;;
+    *) echo "Usage: $0 {start|stop|restart|status}"; exit 1 ;;
+esac
