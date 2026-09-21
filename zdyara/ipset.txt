@@ -1,0 +1,58 @@
+#!/bin/sh
+KERNEL="$(uname -r)"
+MODDIR="/lib/modules/$KERNEL/kernel/net/netfilter"
+LIST="/opt/etc/zapret/lists/ipset-all.txt"
+
+load_modules() {
+    for mod in nfnetlink ipset/ip_set xt_set ipset/ip_set_hash_net; do
+        m="$MODDIR/$mod.ko"
+        [ -f "$m" ] && insmod "$m" 2>/dev/null
+    done
+}
+
+start() {
+    load_modules
+
+    if ! command -v ipset >/dev/null 2>&1; then
+        echo "ipset не найден"
+        exit 1
+    fi
+
+    ipset create zapret hash:net 2>/dev/null
+    if ! ipset list -n 2>/dev/null | grep -qx zapret; then
+        echo "Не удалось создать ipset 'zapret'."
+        echo "Проверьте модули ip_set: KERNEL=$KERNEL, MODDIR=$MODDIR"
+        ls "$MODDIR"/ipset 2>/dev/null || echo "  (директория $MODDIR/ipset не найдена — похоже, версия ядра определена неверно)"
+        exit 1
+    fi
+
+    ipset flush zapret
+
+    if [ ! -f "$LIST" ]; then
+        echo "Список не найден: $LIST"
+        exit 1
+    fi
+
+    sed 's/^/add zapret /' "$LIST" | \
+        grep -vE '^add zapret (#|$)' > /tmp/ipset.restore
+
+    if ! ipset restore -! < /tmp/ipset.restore; then
+        echo "ipset restore завершился с ошибками (см. вывод выше)"
+        exit 1
+    fi
+
+    count=$(ipset list zapret 2>/dev/null | awk -F': ' '/Number of entries/{print $2}')
+    echo "ipset 'zapret' заполнен, записей: ${count:-неизвестно}"
+}
+
+stop() {
+    ipset destroy zapret 2>/dev/null || true
+    echo "ipset 'zapret' удалён"
+}
+
+case "$1" in
+    start)   start ;;
+    stop)    stop ;;
+    restart) stop; start ;;
+    *) echo "Usage: $0 {start|stop|restart}"; exit 1 ;;
+esac
