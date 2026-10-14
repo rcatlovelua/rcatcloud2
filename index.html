@@ -12,28 +12,39 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-mono/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --bg-main: #0b0d10;
-            --bg-card: #12151c;
-            --border-card: #1e2330;
-            --border-card-hover: #2a3245;
+            /* Высококонтрастная монохромная палитра в эстетике референса */
+            --bg-main: #ffffff;
+            --bg-subtle: #f5f5f7;
+            --bg-card: #ffffff;
+            --ink-black: #050505;
+            --ink-charcoal: #17171a;
+            --ink-muted: #52525b;
+            --ink-faint: #8e8e99;
+            --border-raw: #080808;
+            --border-soft: #e2e2e7;
 
-            --color-primary: #1d6aff;
-            --color-primary-hover: #3b82f6;
-            --color-green: #10b981;
-            --color-disabled: #374151;
+            /* Палитра блока предупреждения Neural Expressive */
+            --ne-surface: #090a0f;
+            --ne-surface-elevated: #121521;
+            --ne-border: rgba(255, 255, 255, 0.14);
+            --ne-accent-primary: #ff3b5c;
+            --ne-accent-secondary: #7c5cff;
+            --ne-accent-cyan: #00e5ff;
+            --ne-text: #f8fafc;
+            --ne-text-dim: #94a3b8;
 
-            --text-main: #ffffff;
-            --text-body: #888d96;
-            --text-muted: #6a707c;
-            --text-sub: #a0a6b2;
-            --text-footer: #525866;
+            --font-main: 'Geist Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'Geist Mono', monospace;
+            --font-serif: 'Cormorant Garamond', Georgia, serif;
+            --font-flauta: 'FFFlauta', 'Geist Sans', sans-serif;
+            --font-mc: 'Minecraft', 'Geist Mono', monospace;
 
-            --font-main: 'Geist Sans', 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
-            --font-flauta: 'FFFlauta', monospace, sans-serif;
-            --font-mc: 'Minecraft', monospace;
+            --spring-expressive: cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         @font-face {
@@ -58,46 +69,68 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            border-radius: 0 !important;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
             font-family: var(--font-main);
             background-color: var(--bg-main);
-            color: var(--text-body);
+            color: var(--ink-black);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: 20px;
+            padding: 32px 24px 44px;
             position: relative;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
         }
 
+        /* Деликатная точечная сетка на белом фоне */
         body::before {
             content: '';
-            position: absolute;
-            top: -100px;
-            width: clamp(250px, 40vw, 450px);
-            height: clamp(250px, 40vw, 450px);
-            background: rgba(29, 106, 255, 0.15);
-            filter: blur(140px);
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
             z-index: 0;
+            background-image: radial-gradient(rgba(0, 0, 0, 0.06) 1px, transparent 0);
+            background-size: 24px 24px;
+            opacity: 0.65;
+        }
+
+        .svg-filters {
+            position: absolute;
+            width: 0;
+            height: 0;
             pointer-events: none;
         }
 
-        body::after {
-            content: '';
-            position: absolute;
-            bottom: -100px;
-            width: clamp(250px, 45vw, 500px);
-            height: clamp(250px, 45vw, 500px);
-            background: rgba(29, 106, 255, 0.12);
-            filter: blur(150px);
-            z-index: 0;
-            pointer-events: none;
+        /* =========================================================
+           ТИПОГРАФИКА В СТИЛЕ РЕФЕРЕНСА (STRETCH + VERTICAL BLOOM)
+           ========================================================= */
+        .stretched-display {
+            display: inline-block;
+            font-family: var(--font-main);
+            font-weight: 300;
+            letter-spacing: -0.045em;
+            transform: scaleY(2.35);
+            transform-origin: center center;
+            filter: url(#vertical-bloom);
+            line-height: 0.85;
+            user-select: none;
+        }
+
+        .editorial-prefix {
+            font-family: var(--font-main);
+            font-style: italic;
+            font-weight: 300;
+            letter-spacing: 0.01em;
+            color: var(--ink-muted);
+            font-size: 0.95rem;
         }
 
         main.container {
@@ -105,204 +138,683 @@
             z-index: 1;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 40px;
-            max-width: 900px;
+            align-items: stretch;
+            gap: 48px;
+            max-width: 960px;
             width: 100%;
             margin: auto 0;
         }
 
+        /* =========================================================
+           ПРЕДУПРЕЖДЕНИЕ В СТИЛЕ NEURAL EXPRESSIVE
+           ========================================================= */
+        .neural-alert {
+            position: relative;
+            background: var(--ne-surface);
+            color: var(--ne-text);
+            border-radius: 28px;
+            padding: 28px 32px;
+            overflow: hidden;
+            box-shadow:
+                0 24px 60px -12px rgba(9, 10, 15, 0.28),
+                0 0 0 1px rgba(0, 0, 0, 0.92);
+            transition: transform 0.4s var(--spring-expressive), box-shadow 0.4s var(--spring-expressive);
+        }
+
+        .neural-alert::before {
+            content: '';
+            position: absolute;
+            inset: -40%;
+            background:
+                radial-gradient(circle at 18% 30%, rgba(255, 59, 92, 0.28) 0%, transparent 45%),
+                radial-gradient(circle at 82% 70%, rgba(124, 92, 255, 0.25) 0%, transparent 50%),
+                radial-gradient(circle at 52% 15%, rgba(0, 229, 255, 0.15) 0%, transparent 40%);
+            filter: blur(42px);
+            z-index: 0;
+            animation: neuralDrift 10s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+
+        @keyframes neuralDrift {
+            0% { transform: translate3d(-2%, -2%, 0) scale(1); }
+            100% { transform: translate3d(3%, 4%, 0) scale(1.06); }
+        }
+
+        .neural-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.45;
+            pointer-events: none;
+        }
+
+        .neural-inner {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .neural-badge-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .neural-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 13px;
+            border-radius: 999px;
+            background: rgba(255, 59, 92, 0.16);
+            border: 1px solid rgba(255, 59, 92, 0.42);
+            color: #ff8096;
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .neural-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--ne-accent-primary);
+            box-shadow: 0 0 12px var(--ne-accent-primary);
+            animation: synapticPulse 1.8s infinite cubic-bezier(0.4, 0, 0.6, 1);
+        }
+
+        @keyframes synapticPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.45); opacity: 0.55; }
+        }
+
+        .neural-telemetry {
+            font-family: var(--font-mono);
+            font-size: 0.73rem;
+            color: var(--ne-text-dim);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 4px 11px;
+            border-radius: 999px;
+        }
+
+        .neural-title {
+            font-family: var(--font-main);
+            font-size: clamp(1.2rem, 2.5vw, 1.55rem);
+            font-weight: 600;
+            letter-spacing: -0.025em;
+            line-height: 1.24;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .neural-title span.expressive-em {
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-weight: 600;
+            font-size: 1.14em;
+            background: linear-gradient(90deg, #ff8da1 0%, #c4b5fd 55%, #7dd3fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding-right: 4px;
+        }
+
+        .neural-desc {
+            font-size: 0.92rem;
+            line-height: 1.58;
+            color: #cbd5e1;
+            max-width: 620px;
+        }
+
+        .neural-desc code {
+            font-family: var(--font-mono);
+            font-size: 0.84rem;
+            color: #f8fafc;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 7px;
+            border-radius: 6px;
+        }
+
+        .neural-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+            min-width: 245px;
+        }
+
+        .btn-status-expressive {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 20px;
+            border-radius: 18px;
+            background: #ffffff;
+            color: #090a0f;
+            font-family: var(--font-main);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            letter-spacing: -0.01em;
+            box-shadow: 0 10px 25px -5px rgba(255, 255, 255, 0.25);
+            transition: transform 0.28s var(--spring-expressive), background-color 0.2s ease, box-shadow 0.28s ease;
+        }
+
+        .btn-status-expressive:hover {
+            transform: translateY(-2px) scale(1.015);
+            background: #f1f5f9;
+            box-shadow: 0 16px 32px -6px rgba(255, 59, 92, 0.35);
+        }
+
+        .btn-status-expressive:active {
+            transform: scale(0.98);
+        }
+
+        .btn-status-meta {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            line-height: 1.2;
+        }
+
+        .btn-status-sub {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            font-weight: 500;
+            color: #475569;
+            margin-top: 3px;
+        }
+
+        .btn-status-arrow {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: #090a0f;
+            color: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            transition: transform 0.25s var(--spring-expressive);
+            flex-shrink: 0;
+        }
+
+        .btn-status-expressive:hover .btn-status-arrow {
+            transform: translate(2px, -2px);
+        }
+
+        .btn-probe-node {
+            background: rgba(255, 255, 255, 0.06);
+            color: #cbd5e1;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 14px;
+            padding: 9px 14px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .btn-probe-node:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.28);
+        }
+
+        /* =========================================================
+           HERO SECTION — СИЛУЭТ И РАСТЯНУТАЯ ТИПОГРАФИКА
+           ========================================================= */
         .hero-section {
+            position: relative;
+            display: grid;
+            grid-template-columns: minmax(180px, 240px) 1fr;
+            align-items: center;
+            gap: 48px;
+            width: 100%;
+            padding: 48px 40px;
+            border: 1.5px solid var(--border-raw);
+            background: var(--bg-main);
+        }
+
+        .hero-section::before,
+        .hero-section::after {
+            content: '+';
+            position: absolute;
+            font-family: var(--font-mono);
+            font-size: 14px;
+            color: var(--ink-black);
+            line-height: 1;
+        }
+        .hero-section::before { top: 10px; left: 12px; }
+        .hero-section::after { bottom: 10px; right: 12px; }
+
+        .hero-figure-wrap {
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 40px;
-            width: 100%;
+            min-height: 260px;
         }
 
         .side-image {
             width: 100%;
-            max-width: 240px;
+            max-width: 220px;
             height: auto;
             aspect-ratio: 640 / 889;
             object-fit: contain;
             flex-shrink: 0;
-            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
+            /* Чистый чёрный силуэт как на референсе */
+            filter: brightness(0) contrast(1000%) blur(0.35px);
+            transition: filter 0.45s ease, transform 0.45s var(--spring-expressive);
             user-select: none;
         }
 
+        .hero-figure-wrap:hover .side-image {
+            filter: grayscale(100%) contrast(1.25);
+            transform: scale(1.03);
+        }
+
+        .silhouette-fallback {
+            display: none;
+            width: 190px;
+            height: 240px;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .hero-figure-wrap.is-offline .side-image {
+            display: none;
+        }
+
+        .hero-figure-wrap.is-offline .silhouette-fallback {
+            display: flex;
+        }
+
         .content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
             text-align: left;
-            max-width: 480px;
+            gap: 28px;
+            padding: 16px 0;
+        }
+
+        .hero-title-cluster {
+            display: flex;
+            align-items: baseline;
+            gap: 14px;
+            flex-wrap: wrap;
+            padding: 28px 0 32px;
+        }
+
+        .hero-prefix {
+            font-family: var(--font-main);
+            font-style: italic;
+            font-weight: 300;
+            font-size: clamp(1.1rem, 2vw, 1.5rem);
+            color: var(--ink-black);
+            letter-spacing: -0.01em;
         }
 
         h1 {
-            font-family: var(--font-flauta);
-            font-size: clamp(2.2rem, 5vw, 3.5rem);
-            color: var(--color-primary);
-            margin-bottom: 12px;
-            line-height: 1.1;
+            font-family: var(--font-main);
+            font-weight: 300;
+            font-size: clamp(2.8rem, 6.5vw, 4.6rem);
+            color: var(--ink-black);
+            line-height: 0.85;
+            letter-spacing: -0.055em;
             white-space: nowrap;
-            image-rendering: pixelated;
+            transform: scaleY(2.4);
+            transform-origin: left center;
+            filter: url(#vertical-bloom);
+            margin-right: 8px;
+        }
+
+        .subtitle-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-top: 1px solid var(--border-raw);
+            padding-top: 20px;
+            flex-wrap: wrap;
         }
 
         .subtitle {
-            font-size: clamp(1rem, 2vw, 1.25rem);
-            color: var(--text-sub);
-            font-weight: 500;
-            margin-bottom: 12px;
+            font-family: var(--font-main);
+            font-style: italic;
+            font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+            color: var(--ink-black);
+            font-weight: 300;
+            letter-spacing: -0.015em;
+            transform: scaleY(1.5);
+            transform-origin: left center;
+            filter: url(#vertical-bloom-soft);
         }
 
-        p {
-            font-size: 0.95rem;
-            color: var(--text-muted);
-            line-height: 1.6;
+        .hero-meta-tag {
+            margin-left: auto;
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--ink-muted);
+            border: 1px solid var(--border-raw);
+            padding: 4px 10px;
         }
 
+        /* =========================================================
+           РАЗДЕЛИТЕЛЬ СЕКЦИИ ПРОЕКТОВ
+           ========================================================= */
+        .section-bar {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            border-bottom: 1.5px solid var(--border-raw);
+            padding-bottom: 12px;
+            margin-bottom: -24px;
+        }
+
+        .section-bar-title {
+            font-family: var(--font-main);
+            font-weight: 300;
+            font-size: 1.35rem;
+            letter-spacing: -0.035em;
+            transform: scaleY(1.9);
+            transform-origin: left bottom;
+            filter: url(#vertical-bloom-soft);
+        }
+
+        .section-bar-index {
+            font-family: var(--font-main);
+            font-style: italic;
+            font-size: 0.88rem;
+            color: var(--ink-muted);
+        }
+
+        /* =========================================================
+           КАРТОЧКИ ПРОЕКТОВ
+           ========================================================= */
         .cards-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 24px;
             width: 100%;
-            margin-top: 20px;
         }
 
         .card {
             background-color: var(--bg-card);
-            border: 1px solid var(--border-card);
+            border: 1.5px solid var(--border-raw);
             display: flex;
             flex-direction: column;
             position: relative;
-            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
-            font-family: var(--font-mc);
-            image-rendering: pixelated;
+            transition: transform 0.28s var(--spring-expressive), box-shadow 0.28s var(--spring-expressive);
         }
 
         .card:hover {
-            transform: translateY(-4px);
-            border-color: var(--border-card-hover);
+            transform: translate(-4px, -4px);
+            box-shadow: 6px 6px 0px var(--ink-black);
         }
 
-        .card-stripe {
-            height: 4px;
+        .card-header-strip {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border-raw);
+            background: var(--bg-subtle);
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            color: var(--ink-black);
+        }
+
+        .card-index-stretched {
+            display: inline-block;
+            font-family: var(--font-main);
+            font-weight: 300;
+            font-size: 1.05rem;
+            transform: scaleY(1.8);
+            filter: url(#vertical-bloom-soft);
+            letter-spacing: -0.04em;
+        }
+
+        .card-media-wrap {
+            position: relative;
             width: 100%;
-            background-color: var(--color-primary);
+            height: 176px;
+            border-bottom: 1px solid var(--border-raw);
+            background-color: #f0f0f2;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-
-        .card-stripe.green { background-color: var(--color-green); }
-        .card-stripe.white { background-color: #ffffff; }
 
         .card-image {
             width: 100%;
-            height: 160px;
+            height: 100%;
             object-fit: cover;
-            border-bottom: 1px solid var(--border-card);
-            background-color: #0d0f14;
+            filter: grayscale(100%) contrast(1.25);
+            transition: filter 0.35s ease, transform 0.45s ease;
+        }
+
+        .card:hover .card-image {
+            filter: grayscale(15%) contrast(1.05);
+            transform: scale(1.04);
+        }
+
+        .card-media-fallback {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            color: var(--ink-black);
+            padding: 16px;
+            text-align: center;
+        }
+
+        .card-media-wrap.is-offline .card-image {
+            display: none;
+        }
+
+        .card-media-wrap.is-offline .card-media-fallback {
+            display: flex;
+        }
+
+        .fallback-stretched-word {
+            font-family: var(--font-main);
+            font-weight: 300;
+            font-size: 1.55rem;
+            transform: scaleY(2.25);
+            filter: url(#vertical-bloom);
+            letter-spacing: -0.045em;
+        }
+
+        .fallback-sub {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            color: var(--ink-muted);
         }
 
         .card-body {
-            padding: 20px;
+            padding: 24px 20px 20px;
             display: flex;
             flex-direction: column;
             flex-grow: 1;
         }
 
         .card-title {
-            font-size: 1.2rem;
-            color: var(--text-main);
-            margin-bottom: 8px;
-            line-height: 1.3;
+            font-family: var(--font-main);
+            font-weight: 400;
+            font-size: 1.22rem;
+            color: var(--ink-black);
+            margin-bottom: 14px;
+            line-height: 1.15;
+            letter-spacing: -0.025em;
+            transform: scaleY(1.35);
+            transform-origin: left top;
         }
 
         .card-text {
-            font-size: 0.85rem;
-            color: var(--text-body);
-            line-height: 1.5;
-            margin-bottom: 20px;
+            font-size: 0.88rem;
+            color: var(--ink-muted);
+            line-height: 1.6;
+            margin-top: 6px;
+            margin-bottom: 24px;
             flex-grow: 1;
         }
 
         .card-footer {
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
             align-items: center;
+            padding-top: 14px;
+            border-top: 1px dashed var(--border-soft);
+        }
+
+        .card-footer-tag {
+            font-family: var(--font-main);
+            font-style: italic;
+            font-size: 0.82rem;
+            color: var(--ink-faint);
         }
 
         .card-button-sq {
             width: 42px;
             height: 42px;
-            background-color: var(--color-primary);
-            color: var(--text-main);
+            background-color: var(--ink-black);
+            color: #ffffff;
+            border: 1.5px solid var(--ink-black);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: var(--font-mc);
-            font-size: 1.2rem;
+            font-family: var(--font-mono);
+            font-size: 1.15rem;
             text-decoration: none;
-            transition: background-color 0.2s ease, transform 0.1s ease;
+            transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
             cursor: pointer;
             user-select: none;
         }
 
-        .card-button-sq:hover { background-color: var(--color-primary-hover); }
-        .card-button-sq:active { transform: scale(0.95); }
-
-        .card-button-sq.disabled {
-            background-color: var(--color-disabled);
-            cursor: not-allowed;
-            color: var(--text-muted);
+        .card-button-sq:hover {
+            background-color: #ffffff;
+            color: var(--ink-black);
         }
 
+        .card-button-sq:active {
+            transform: scale(0.94);
+        }
+
+        .card-button-sq.disabled {
+            background-color: var(--bg-subtle);
+            border-color: var(--border-soft);
+            cursor: not-allowed;
+            color: var(--ink-faint);
+        }
+
+        /* =========================================================
+           ПОДВАЛ (FOOTER)
+           ========================================================= */
         footer {
             position: relative;
             z-index: 1;
+            max-width: 960px;
             width: 100%;
-            padding-top: 40px;
+            margin-top: 56px;
+            padding-top: 24px;
+            border-top: 1.5px solid var(--border-raw);
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
             gap: 16px;
             font-size: 0.85rem;
-            color: var(--text-footer);
+            color: var(--ink-muted);
+            flex-wrap: wrap;
+        }
+
+        .footer-brand {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+
+        .footer-brand-stretched {
+            font-family: var(--font-main);
+            font-weight: 300;
+            font-size: 1.1rem;
+            color: var(--ink-black);
+            transform: scaleY(1.85);
+            display: inline-block;
+            filter: url(#vertical-bloom-soft);
+        }
+
+        .footer-links {
+            display: flex;
+            align-items: center;
+            gap: 14px;
             flex-wrap: wrap;
         }
 
         .github-link {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            color: var(--text-body);
+            gap: 8px;
+            color: var(--ink-black);
             text-decoration: none;
-            transition: color 0.2s ease;
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            padding: 7px 13px;
+            border: 1px solid var(--border-raw);
+            transition: background-color 0.2s ease, color 0.2s ease;
         }
 
-        .github-link:hover { color: var(--color-primary); }
+        .github-link:hover {
+            background-color: var(--ink-black);
+            color: #ffffff;
+        }
 
         .github-icon {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             object-fit: contain;
         }
 
         a:focus-visible,
         button:focus-visible {
-            outline: 2px solid var(--color-primary);
-            outline-offset: 2px;
+            outline: 2px solid var(--ink-black);
+            outline-offset: 3px;
         }
 
         /* ==========================================
-           ПРЕЛОАДЕР (волна букв)
+           ПРЕЛОАДЕР (Монохромная растянутая волна)
            ========================================== */
         #preloader {
             position: fixed;
             inset: 0;
-            background: #030303;
+            background: #ffffff;
             z-index: 99999;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: opacity 0.6s ease;
+            gap: 36px;
+            transition: opacity 0.55s ease;
         }
 
         #preloader.hidden {
@@ -314,27 +826,38 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
-            height: 200px;
+            gap: 6px;
+            height: 180px;
         }
 
         .pl-letter {
             display: inline-block;
-            font-family: 'Geist Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-            font-size: 52px;
+            font-family: var(--font-main);
+            font-weight: 300;
+            font-size: 58px;
             line-height: 1;
-            color: #ffffff;
+            color: #000000;
             user-select: none;
             will-change: transform;
+            filter: url(#vertical-bloom);
+        }
+
+        .preloader-sub {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--ink-muted);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
         }
 
         /* ==========================================
-           ЭКРАН "САЙТ УШЁЛ В СОН"
+           ЭКРАН "САЙТ УШЁЛ В СОН" (Neural Expressive)
            ========================================== */
         #sleep-screen {
             position: fixed;
             inset: 0;
-            background: var(--bg-main);
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(14px);
             z-index: 100000;
             display: flex;
             align-items: center;
@@ -346,79 +869,127 @@
         #sleep-screen[hidden] { display: none; }
 
         .sleep-inner {
-            max-width: 480px;
+            max-width: 520px;
+            width: 100%;
+            background: var(--ne-surface);
+            color: var(--ne-text);
+            border-radius: 32px;
+            padding: 40px 32px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 14px;
-        }
-
-        .sleep-icon {
-            font-size: 56px;
-            line-height: 1;
-            filter: drop-shadow(0 8px 16px rgba(0,0,0,0.6));
+            gap: 18px;
+            box-shadow: 0 32px 80px rgba(0, 0, 0, 0.35);
+            position: relative;
+            overflow: hidden;
         }
 
         .sleep-title {
-            font-family: var(--font-flauta);
-            font-size: clamp(1.6rem, 4vw, 2.4rem);
-            color: var(--color-primary);
-            margin: 0;
+            font-family: var(--font-main);
+            font-weight: 300;
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            color: #ffffff;
+            transform: scaleY(1.65);
+            margin: 12px 0;
+            letter-spacing: -0.03em;
         }
 
         .sleep-text {
             font-size: 0.95rem;
-            color: var(--text-body);
+            color: #cbd5e1;
             line-height: 1.6;
             margin: 0;
         }
 
         .sleep-return {
-            font-size: 0.9rem;
-            color: var(--text-sub);
-            background: var(--bg-card);
-            border: 1px solid var(--border-card);
-            padding: 10px 16px;
+            font-size: 0.82rem;
+            color: #ff8096;
+            background: rgba(255, 59, 92, 0.14);
+            border: 1px solid rgba(255, 59, 92, 0.35);
+            border-radius: 999px;
+            padding: 8px 18px;
             margin: 0;
-            font-family: var(--font-mc);
+            font-family: var(--font-mono);
         }
 
         .sleep-return:empty { display: none; }
 
+        .sleep-btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 8px;
+            width: 100%;
+        }
+
         .sleep-retry {
-            margin-top: 6px;
-            padding: 10px 22px;
-            background: var(--color-primary);
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.1);
             color: #fff;
-            border: none;
-            font-family: var(--font-mc);
-            font-size: 0.95rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 14px;
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
             cursor: pointer;
             transition: background-color 0.2s ease, transform 0.1s ease;
         }
 
-        .sleep-retry:hover { background: var(--color-primary-hover); }
+        .sleep-retry:hover { background: rgba(255, 255, 255, 0.18); }
         .sleep-retry:active { transform: scale(0.96); }
-        .sleep-retry:disabled { background: var(--color-disabled); cursor: wait; }
+        .sleep-retry:disabled { opacity: 0.5; cursor: wait; }
 
         @media (max-width: 768px) {
+            .neural-inner {
+                grid-template-columns: 1fr;
+            }
+            .neural-actions {
+                width: 100%;
+            }
             .hero-section {
-                flex-direction: column;
+                grid-template-columns: 1fr;
+                text-align: center;
+                padding: 32px 20px;
+            }
+            .content {
+                align-items: center;
                 text-align: center;
             }
-
-            .content { text-align: center; }
-
-            .side-image { max-width: 170px; }
-
+            .hero-title-cluster {
+                justify-content: center;
+            }
+            h1 {
+                transform-origin: center center;
+            }
+            .subtitle-row {
+                justify-content: center;
+            }
+            .hero-meta-tag {
+                margin-left: 0;
+            }
             footer {
                 flex-direction: column;
-                gap: 8px;
+                align-items: flex-start;
             }
         }
     </style>
 </head>
 <body>
+
+    <!-- SVG-фильтры вертикального размытия для растянутой типографики в духе референса -->
+    <svg class="svg-filters" aria-hidden="true">
+        <defs>
+            <filter id="vertical-bloom" x="-10%" y="-20%" width="120%" height="140%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="0.45 1.35" result="blur" />
+                <feComponentTransfer in="blur" result="sharp">
+                    <feFuncA type="linear" slope="1.15" />
+                </feComponentTransfer>
+            </filter>
+            <filter id="vertical-bloom-soft" x="-10%" y="-20%" width="120%" height="140%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="0.3 0.85" />
+            </filter>
+        </defs>
+    </svg>
 
     <!-- ===== ПРЕЛОАДЕР ===== -->
     <div id="preloader" aria-hidden="true">
@@ -431,52 +1002,147 @@
             <span class="pl-letter">y</span>
             <span class="pl-letter">s</span>
         </div>
+        <div class="preloader-sub">initializing_node // wondays</div>
     </div>
 
     <!-- ===== ЭКРАН "САЙТ УШЁЛ В СОН" ===== -->
     <div id="sleep-screen" hidden>
         <div class="sleep-inner">
-            <div class="sleep-icon">💤</div>
+            <span class="neural-pill">
+                <span class="neural-dot"></span>
+                NEURAL EXPRESSIVE · NODE OFFLINE
+            </span>
             <h2 class="sleep-title">Сайт ушёл в сон</h2>
             <p class="sleep-text">
-                У страницы файлов <strong>dump.justrcat.lol</strong> сейчас перерыв в работе.
+                Файловый сервер <strong>dump.justrcat.lol</strong> был полностью положен на длительное время. Вы можете проверить актуальную телеметрию на странице статуса или продолжить просмотр сайта в автономном режиме.
             </p>
             <p class="sleep-return" id="sleep-return"></p>
-            <button class="sleep-retry" id="sleep-retry" type="button">Проверить снова</button>
+            <div class="sleep-btn-group">
+                <a
+                    href="https://up.statuser.cloud/s/wondays"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="btn-status-expressive"
+                >
+                    <span class="btn-status-meta">
+                        <span>Статус сайта</span>
+                        <span class="btn-status-sub">up.statuser.cloud/s/wondays</span>
+                    </span>
+                    <span class="btn-status-arrow">↗</span>
+                </a>
+                <button class="sleep-retry" id="sleep-retry" type="button">Проверить снова</button>
+                <button class="sleep-retry" id="sleep-dismiss" type="button">Открыть сайт</button>
+            </div>
         </div>
     </div>
 
     <main class="container">
-        <section class="hero-section">
-            <img
-                src="https://dump.justrcat.lol/images/cute-sit-mc.webp"
-                alt="Иллюстрация персонажа wondays"
-                class="side-image"
-                width="640"
-                height="889"
-                loading="eager"
-            >
 
-            <div class="content">
-                <h1>wondays</h1>
-                <div class="subtitle">Чудеса каждый день.</div>
+        <!-- ===== NEURAL EXPRESSIVE: ПРЕДУПРЕЖДЕНИЕ О ПАДЕНИИ ФАЙЛОВОГО СЕРВЕРА ===== -->
+        <section class="neural-alert" role="status" aria-live="polite" aria-label="Предупреждение о состоянии файлового сервера">
+            <canvas class="neural-canvas" id="neural-canvas" aria-hidden="true"></canvas>
+            <div class="neural-inner">
+                <div class="neural-copy">
+                    <div class="neural-badge-row">
+                        <span class="neural-pill">
+                            <span class="neural-dot"></span>
+                            Neural Expressive · Critical Outage
+                        </span>
+                        <span class="neural-telemetry" id="dump-telemetry">node: dump.justrcat.lol // LONG_TERM_DOWN</span>
+                    </div>
+                    <h2 class="neural-title">
+                        Файловый сервер <span class="expressive-em">полностью положен</span> на длительное время
+                    </h2>
+                    <p class="neural-desc">
+                        Хранилище медиафайлов и кастомных шрифтов <code>dump.justrcat.lol</code> сейчас полностью недоступно из-за затяжного сбоя. Сайт переведён в автономный высококонтрастный режим — следить за ходом восстановления можно на странице мониторинга.
+                    </p>
+                </div>
+
+                <div class="neural-actions">
+                    <a
+                        href="https://up.statuser.cloud/s/wondays"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn-status-expressive"
+                        aria-label="Перейти на страницу статуса сайта up.statuser.cloud/s/wondays"
+                    >
+                        <span class="btn-status-meta">
+                            <span>Статус сайта</span>
+                            <span class="btn-status-sub">up.statuser.cloud/s/wondays</span>
+                        </span>
+                        <span class="btn-status-arrow">↗</span>
+                    </a>
+                    <button type="button" class="btn-probe-node" id="inline-probe-btn">
+                        ↻ Пинговать dump.justrcat.lol
+                    </button>
+                </div>
             </div>
         </section>
 
+        <!-- ===== HERO SECTION ===== -->
+        <section class="hero-section">
+            <div class="hero-figure-wrap" id="hero-figure-wrap">
+                <img
+                    src="https://dump.justrcat.lol/images/cute-sit-mc.webp"
+                    alt="Иллюстрация персонажа wondays"
+                    class="side-image"
+                    width="640"
+                    height="889"
+                    loading="eager"
+                    onerror="this.parentElement.classList.add('is-offline')"
+                >
+                <!-- Монохромный силуэт-заглушка при недоступности dump.justrcat.lol -->
+                <div class="silhouette-fallback" aria-hidden="true">
+                    <svg viewBox="0 0 200 240" width="180" height="220" fill="#050505" style="filter: url(#vertical-bloom-soft);">
+                        <path d="M58 44 L106 48 L104 98 L118 82 C142 64 168 78 182 114 C190 135 186 158 178 164 C170 162 164 142 152 126 C138 108 124 106 112 112 L124 140 L108 148 L98 126 L98 156 L104 218 L84 218 L80 206 L64 205 L56 156 L42 148 L44 72 Z" />
+                    </svg>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="hero-title-cluster">
+                    <span class="hero-prefix">index_</span>
+                    <h1>wondays.</h1>
+                </div>
+                <div class="subtitle-row">
+                    <div class="subtitle">Чудеса каждый день.</div>
+                    <span class="hero-meta-tag">archive // projects &amp; mods</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== ЗАГОЛОВОК СЕКЦИИ ПРОЕКТОВ ===== -->
+        <div class="section-bar">
+            <span class="section-bar-title">selected_works</span>
+            <span class="section-bar-index">01 — 03</span>
+        </div>
+
+        <!-- ===== КАРТОЧКИ ПРОЕКТОВ ===== -->
         <section class="cards-grid" aria-label="Проекты">
 
             <article class="card">
-                <div class="card-stripe"></div>
-                <img
-                    src="https://github.com/rcatlovelua/Yahooste/blob/main/.not-for-mod-srcc/yahoostee.jpg?raw=true"
-                    alt="Превью мода Yahooste"
-                    class="card-image"
-                    loading="lazy"
-                >
+                <div class="card-header-strip">
+                    <span><i class="editorial-prefix">mod_</i> <strong class="card-index-stretched">01</strong></span>
+                    <span>MODRINTH // RELEASE</span>
+                </div>
+                <div class="card-media-wrap">
+                    <img
+                        src="https://github.com/rcatlovelua/Yahooste/blob/main/.not-for-mod-srcc/yahoostee.jpg?raw=true"
+                        alt="Превью мода Yahooste"
+                        class="card-image"
+                        loading="lazy"
+                        onerror="this.parentElement.classList.add('is-offline')"
+                    >
+                    <div class="card-media-fallback">
+                        <span class="fallback-stretched-word">yahooste.</span>
+                        <span class="fallback-sub">preview_cached // modrinth</span>
+                    </div>
+                </div>
                 <div class="card-body">
                     <h2 class="card-title">Мод "Yahooste"</h2>
                     <p class="card-text">Yahooste (Yahoo + Paste) — простой мод для сохранения и быстрой вставки фрагментов текста в чат, которые утомительно набирать вручную.</p>
                     <div class="card-footer">
+                        <span class="card-footer-tag">client_utility</span>
                         <a
                             href="https://modrinth.com/mod/yahooste"
                             target="_blank"
@@ -490,17 +1156,28 @@
             </article>
 
             <article class="card">
-                <div class="card-stripe green"></div>
-                <img
-                    src="https://dump.justrcat.lol/images/future_preview.webp"
-                    alt="Превью проекта Broken Dream в Minecraft"
-                    class="card-image"
-                    loading="lazy"
-                >
+                <div class="card-header-strip">
+                    <span><i class="editorial-prefix">world_</i> <strong class="card-index-stretched">02</strong></span>
+                    <span>FLOWERENSE // WIP</span>
+                </div>
+                <div class="card-media-wrap">
+                    <img
+                        src="https://dump.justrcat.lol/images/future_preview.webp"
+                        alt="Превью проекта Broken Dream в Minecraft"
+                        class="card-image"
+                        loading="lazy"
+                        onerror="this.parentElement.classList.add('is-offline')"
+                    >
+                    <div class="card-media-fallback">
+                        <span class="fallback-stretched-word">broken_dream.</span>
+                        <span class="fallback-sub">dump.justrcat.lol // asset_offline</span>
+                    </div>
+                </div>
                 <div class="card-body">
                     <h2 class="card-title">Прошлое будущее из Broken Dream в Minecraft</h2>
                     <p class="card-text">Прошлое будущее — вторая мечта в главе 2 игры Broken Dream. Этот город соответствует популярной эстетике Frutiger Aero. Скоро вы сможете оценить его на сервере Flowerense!</p>
                     <div class="card-footer">
+                        <span class="card-footer-tag">in_progress</span>
                         <span
                             class="card-button-sq disabled"
                             title="Достройка в процессе"
@@ -511,17 +1188,28 @@
             </article>
 
             <article class="card">
-                <div class="card-stripe white"></div>
-                <img
-                    src="https://dump.justrcat.lol/images/yawork.webp"
-                    alt="Превью работы"
-                    class="card-image"
-                    loading="lazy"
-                >
+                <div class="card-header-strip">
+                    <span><i class="editorial-prefix">work_</i> <strong class="card-index-stretched">03</strong></span>
+                    <span>VACANCY // OPEN</span>
+                </div>
+                <div class="card-media-wrap">
+                    <img
+                        src="https://dump.justrcat.lol/images/yawork.webp"
+                        alt="Превью работы"
+                        class="card-image"
+                        loading="lazy"
+                        onerror="this.parentElement.classList.add('is-offline')"
+                    >
+                    <div class="card-media-fallback">
+                        <span class="fallback-stretched-word">yawork.</span>
+                        <span class="fallback-sub">dump.justrcat.lol // asset_offline</span>
+                    </div>
+                </div>
                 <div class="card-body">
                     <h2 class="card-title">Работай на джр</h2>
                     <p class="card-text">Зарплата: Стоны в гс</p>
                     <div class="card-footer">
+                        <span class="card-footer-tag">apply_now</span>
                         <a
                             href="yawork"
                             target="_blank"
@@ -537,17 +1225,36 @@
     </main>
 
     <footer>
-        <span>wondays (MIT-Лицензия)</span>
-        <span>•</span>
-        <a
-            href="https://github.com/rcatlovelua/rcatcloud2"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="github-link"
-        >
-            <span>wondays на GitHub</span>
-            <img src="https://dump.justrcat.lol/images/github-big.svg" alt="" class="github-icon" aria-hidden="true">
-        </a>
+        <div class="footer-brand">
+            <span class="editorial-prefix">edition_</span>
+            <span class="footer-brand-stretched">wondays.</span>
+            <span>(MIT-Лицензия)</span>
+        </div>
+        <div class="footer-links">
+            <a
+                href="https://up.statuser.cloud/s/wondays"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="github-link"
+            >
+                <span>Статус: up.statuser.cloud/s/wondays</span>
+            </a>
+            <a
+                href="https://github.com/rcatlovelua/rcatcloud2"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="github-link"
+            >
+                <span>wondays на GitHub</span>
+                <img
+                    src="https://dump.justrcat.lol/images/github-big.svg"
+                    alt=""
+                    class="github-icon"
+                    aria-hidden="true"
+                    onerror="this.style.display='none'"
+                >
+            </a>
+        </div>
     </footer>
 
     <script>
@@ -555,30 +1262,77 @@
         "use strict";
 
         /* ============================================================
-           1. ПРЕЛОАДЕР: волна букв + смена шрифта
+           0. NEURAL EXPRESSIVE SYNAPTIC WAVE CANVAS
            ============================================================ */
-        var WAVE_HEIGHT = 22;
-        var WAVE_TIME   = 250;
+        var canvas = document.getElementById("neural-canvas");
+        if (canvas && canvas.getContext) {
+            var ctx = canvas.getContext("2d");
+            var nodes = [];
+            var NODE_COUNT = 18;
+
+            function resizeCanvas() {
+                var rect = canvas.parentElement.getBoundingClientRect();
+                canvas.width = rect.width || 800;
+                canvas.height = rect.height || 180;
+            }
+            resizeCanvas();
+            window.addEventListener("resize", resizeCanvas);
+
+            for (var i = 0; i < NODE_COUNT; i++) {
+                nodes.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.45,
+                    vy: (Math.random() - 0.5) * 0.45,
+                    r: 1.5 + Math.random() * 2
+                });
+            }
+
+            function drawNeural() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (var i = 0; i < nodes.length; i++) {
+                    var n = nodes[i];
+                    n.x += n.vx;
+                    n.y += n.vy;
+                    if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
+                    if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
+
+                    ctx.beginPath();
+                    ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+                    ctx.fillStyle = "rgba(255, 110, 140, 0.7)";
+                    ctx.fill();
+
+                    for (var j = i + 1; j < nodes.length; j++) {
+                        var m = nodes[j];
+                        var dx = n.x - m.x;
+                        var dy = n.y - m.y;
+                        var dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < 130) {
+                            ctx.beginPath();
+                            ctx.moveTo(n.x, n.y);
+                            ctx.lineTo(m.x, m.y);
+                            ctx.strokeStyle = "rgba(165, 140, 255, " + (1 - dist / 130) * 0.35 + ")";
+                            ctx.lineWidth = 1;
+                            ctx.stroke();
+                        }
+                    }
+                }
+                requestAnimationFrame(drawNeural);
+            }
+            requestAnimationFrame(drawNeural);
+        }
+
+        /* ============================================================
+           1. ПРЕЛОАДЕР: растянутая волна букв в стиле референса
+           ============================================================ */
+        var WAVE_HEIGHT = 24;
+        var WAVE_TIME   = 240;
         var STAGGER     = (WAVE_TIME * 2) / 14;
-        var TOTAL_TIME  = 6000;
-
-        var FONTS = [
-            "Luckiest Guy", "Bangers", "Creepster", "Fredoka One",
-            "Permanent Marker", "Titan One", "Patrick Hand", "Indie Flower",
-            "Grenze Gotisch", "Denk One", "Special Elite"
-        ];
-
-        var fontLink = document.createElement("link");
-        fontLink.rel = "stylesheet";
-        fontLink.href = "https://fonts.googleapis.com/css2?" +
-            FONTS.map(function (f) { return "family=" + encodeURIComponent(f); }).join("&") +
-            "&display=swap";
-        document.head.appendChild(fontLink);
+        var TOTAL_TIME  = 2400;
 
         var preloader = document.getElementById("preloader");
         var letters   = Array.prototype.slice.call(document.querySelectorAll(".pl-letter"));
-
-        var running = true;
+        var running   = true;
 
         function animateLetter(letter, index) {
             setTimeout(function () {
@@ -586,17 +1340,14 @@
                     if (!running) return;
 
                     letter.style.transition = "transform " + WAVE_TIME + "ms cubic-bezier(0.37, 0, 0.63, 1)";
-                    letter.style.transform  = "translateY(-" + WAVE_HEIGHT + "px)";
+                    letter.style.transform  = "translateY(-" + WAVE_HEIGHT + "px) scaleY(2.65)";
 
                     setTimeout(function () {
                         if (!running) return;
-                        letter.style.fontFamily = '"' + FONTS[Math.floor(Math.random() * FONTS.length)] + '", sans-serif';
-
-                        letter.style.transform = "translateY(0)";
+                        letter.style.transform = "translateY(0) scaleY(2.05)";
 
                         setTimeout(function () {
                             if (!running) return;
-                            letter.style.fontFamily = '"' + FONTS[Math.floor(Math.random() * FONTS.length)] + '", sans-serif';
                             loop();
                         }, WAVE_TIME);
                     }, WAVE_TIME);
@@ -612,27 +1363,34 @@
             preloader.classList.add("hidden");
             setTimeout(function () {
                 preloader.style.display = "none";
-            }, 700);
+            }, 600);
         }
 
         /* ============================================================
-           2. ПРОВЕРКА dump.justrcat.lol ВО ВРЕМЯ АНИМАЦИИ
+           2. ПРОВЕРКА dump.justrcat.lol И ТЕЛЕМЕТРИЯ
            ============================================================ */
-        var DUMP_URL = "https://dump.justrcat.lol/?_=" + Date.now();
         var SLEEP_MARKER  = "Перерыв в работе сайта";
         var RETURN_MARKER = "возвращайтесь через";
 
         var dumpAsleep = false;
         var returnText = "";
+        var telemetryBadge = document.getElementById("dump-telemetry");
+        var inlineProbeBtn = document.getElementById("inline-probe-btn");
 
         function checkDump() {
-            return fetch(DUMP_URL, {
+            var dumpUrl = "https://dump.justrcat.lol/?_=" + Date.now();
+            return fetch(dumpUrl, {
                 method: "GET",
                 cache: "no-store",
                 mode: "cors",
                 credentials: "omit"
             })
-            .then(function (res) { return res.text(); })
+            .then(function (res) {
+                if (!res.ok) {
+                    dumpAsleep = true;
+                }
+                return res.text();
+            })
             .then(function (text) {
                 if (text.indexOf(SLEEP_MARKER) !== -1) {
                     dumpAsleep = true;
@@ -646,8 +1404,17 @@
                         if (tail) returnText = tail;
                     }
                 }
+                if (telemetryBadge) {
+                    telemetryBadge.textContent = dumpAsleep
+                        ? "node: dump.justrcat.lol // OFFLINE_CONFIRMED"
+                        : "node: dump.justrcat.lol // DEGRADED_STATE";
+                }
             })
             .catch(function (e) {
+                dumpAsleep = true;
+                if (telemetryBadge) {
+                    telemetryBadge.textContent = "node: dump.justrcat.lol // UNREACHABLE (DOWN)";
+                }
                 console.warn("Не удалось проверить dump.justrcat.lol:", e);
             });
         }
@@ -655,16 +1422,17 @@
         checkDump();
 
         /* ============================================================
-           3. ЭКРАН "САЙТ УШЁЛ В СОН"
+           3. ЭКРАН "САЙТ УШЁЛ В СОН" И ИНТЕРАКТИВНАЯ ПРОВЕРКА
            ============================================================ */
-        var sleepScreen = document.getElementById("sleep-screen");
-        var sleepReturn = document.getElementById("sleep-return");
-        var sleepRetry  = document.getElementById("sleep-retry");
+        var sleepScreen  = document.getElementById("sleep-screen");
+        var sleepReturn  = document.getElementById("sleep-return");
+        var sleepRetry   = document.getElementById("sleep-retry");
+        var sleepDismiss = document.getElementById("sleep-dismiss");
 
         function showSleepScreen() {
             sleepReturn.textContent = returnText
-                ? "Возвращайтесь через " + returnText
-                : "Возвращайтесь позже.";
+                ? "Ориентировочное время: " + returnText
+                : "Сервер выведен из строя на длительное время.";
             sleepScreen.hidden = false;
             document.body.style.overflow = "hidden";
         }
@@ -676,8 +1444,29 @@
 
         setTimeout(function () {
             hidePreloader();
-            if (dumpAsleep) showSleepScreen();
         }, TOTAL_TIME);
+
+        if (sleepDismiss) {
+            sleepDismiss.addEventListener("click", function () {
+                hideSleepScreen();
+            });
+        }
+
+        if (inlineProbeBtn) {
+            inlineProbeBtn.addEventListener("click", function () {
+                inlineProbeBtn.disabled = true;
+                inlineProbeBtn.textContent = "Пингуем узел…";
+                checkDump().then(function () {
+                    inlineProbeBtn.disabled = false;
+                    inlineProbeBtn.textContent = dumpAsleep
+                        ? "Узел лежит · Открыть сводку"
+                        : "↻ Пинговать dump.justrcat.lol";
+                    if (dumpAsleep) {
+                        showSleepScreen();
+                    }
+                });
+            });
+        }
 
         sleepRetry.addEventListener("click", function () {
             sleepRetry.disabled = true;
@@ -698,9 +1487,8 @@
            4. ПАСХАЛКА В КОНСОЛИ
            ============================================================ */
         console.log(
-            "%c Привет! чот уже работать и не стоило того блин, удачи",
-            "color: #1d6aff; font-size: 32px; font-weight: bold; -webkit-text-stroke: 1px black;",
-            "color: #a0a6b2; font-size: 16px; font-weight: 500;"
+            "%c wondays. // привет! чот уже работать и не стоило того блин, удачи",
+            "background: #050505; color: #ffffff; font-size: 20px; padding: 6px 12px; font-weight: 300; letter-spacing: -0.03em;"
         );
     })();
     </script>
