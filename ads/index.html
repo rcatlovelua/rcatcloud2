@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚕️ wondays ads.</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #050505;
+            color: #ffffff;
+            font-family: 'Montserrat', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Логотип сверху */
+        .logo {
+            position: absolute;
+            top: 40px;
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            z-index: 10;
+        }
+
+        /* Синее выделение для ads. */
+        .blue-text {
+            color: #2f80ed; /* Яркий синий цвет */
+        }
+
+        /* Основной контент */
+        .main-content {
+            text-align: center;
+            z-index: 10;
+            padding: 0 20px;
+        }
+
+        .main-content h1 {
+            font-size: clamp(2rem, 5vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 15px;
+        }
+
+        /* Текст без свечения */
+        .highlight {
+            color: #ffffff;
+        }
+
+        .sub-text {
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            font-weight: 700;
+            color: #e0e0e0;
+            margin-top: 15px;
+        }
+
+        /* Красное свечение на фоне (без фиолетового) */
+        .bg-glow {
+            position: absolute;
+            bottom: -20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120vw;
+            height: 70vh;
+            background: radial-gradient(
+                circle at center bottom,
+                #ff0000 0%,      /* Ярко-красный */
+                #cc0000 30%,     /* Насыщенный красный */
+                #550000 60%,     /* Темно-красный */
+                transparent 80%
+            );
+            filter: blur(100px);
+            opacity: 0.8;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Адаптив для мобилок */
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2rem;
+                top: 30px;
+            }
+            .bg-glow {
+                height: 50vh;
+                filter: blur(70px);
+                opacity: 0.9;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Фоновое свечение -->
+    <div class="bg-glow"></div>
+
+    <!-- Логотип -->
+    <header class="logo">wondays <span class="blue-text">ads.</span></header>
+
+    <!-- Заголовок и текст -->
+    <main class="main-content">
+        <h1>
+            Заявки на рекламу<br>
+            <span class="highlight">временно не принимаются.</span>
+        </h1>
+        <p class="sub-text">Мы вернемся с обновлением</p>
+    </main>
+
+</body>
+</html>
