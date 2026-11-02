@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -17,6 +18,7 @@
 
     <style>
         :root {
+            /* охае датебае почему ты смотришь опенсурс, да он завайбкоденый и что
             /* Высококонтрастная монохромная палитра в эстетике референса */
             --bg-main: #ffffff;
             --bg-subtle: #f5f5f7;
@@ -28,13 +30,13 @@
             --border-raw: #080808;
             --border-soft: #e2e2e7;
 
-            /* Палитра блока предупреждения Neural Expressive */
-            --ne-surface: #090a0f;
-            --ne-surface-elevated: #121521;
+            /* Палитра блока восстановления Neural Expressive (Restored Edition) */
+            --ne-surface: #090c10;
+            --ne-surface-elevated: #111722;
             --ne-border: rgba(255, 255, 255, 0.14);
-            --ne-accent-primary: #ff3b5c;
-            --ne-accent-secondary: #7c5cff;
+            --ne-accent-restored: #10b981;
             --ne-accent-cyan: #00e5ff;
+            --ne-accent-secondary: #7c5cff;
             --ne-text: #f8fafc;
             --ne-text-dim: #94a3b8;
 
@@ -45,6 +47,19 @@
             --font-mc: 'Minecraft', 'Geist Mono', monospace;
 
             --spring-expressive: cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* Инвертированная тема (Ink Mode) */
+        body.ink-mode {
+            --bg-main: #070709;
+            --bg-subtle: #121216;
+            --bg-card: #0c0c10;
+            --ink-black: #f5f5f7;
+            --ink-charcoal: #e4e4e7;
+            --ink-muted: #a1a1aa;
+            --ink-faint: #71717a;
+            --border-raw: #f5f5f7;
+            --border-soft: #27272a;
         }
 
         @font-face {
@@ -84,22 +99,23 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: 32px 24px 44px;
+            padding: 24px 24px 48px;
             position: relative;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
+            transition: background-color 0.35s ease, color 0.35s ease;
         }
 
-        /* Деликатная точечная сетка на белом фоне */
+        /* Деликатная точечная сетка */
         body::before {
             content: '';
             position: fixed;
             inset: 0;
             pointer-events: none;
             z-index: 0;
-            background-image: radial-gradient(rgba(0, 0, 0, 0.06) 1px, transparent 0);
+            background-image: radial-gradient(rgba(128, 128, 128, 0.14) 1px, transparent 0);
             background-size: 24px 24px;
-            opacity: 0.65;
+            opacity: 0.75;
         }
 
         .svg-filters {
@@ -107,6 +123,61 @@
             width: 0;
             height: 0;
             pointer-events: none;
+        }
+
+        /* =========================================================
+           ВЕРХНЯЯ НАВИГАЦИОННАЯ ПАНЕЛЬ (EDITORIAL TOPBAR)
+           ========================================================= */
+        .topbar {
+            position: relative;
+            z-index: 2;
+            max-width: 960px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding-bottom: 18px;
+            margin-bottom: 28px;
+            border-bottom: 1.5px solid var(--border-raw);
+            flex-wrap: wrap;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .topbar-coord {
+            font-family: var(--font-mono);
+            font-size: 0.74rem;
+            color: var(--ink-muted);
+            letter-spacing: 0.04em;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .theme-toggle-btn {
+            background: transparent;
+            color: var(--ink-black);
+            border: 1px solid var(--border-raw);
+            padding: 6px 12px;
+            font-family: var(--font-mono);
+            font-size: 0.74rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            background: var(--ink-black);
+            color: var(--bg-main);
         }
 
         /* =========================================================
@@ -139,25 +210,25 @@
             display: flex;
             flex-direction: column;
             align-items: stretch;
-            gap: 48px;
+            gap: 44px;
             max-width: 960px;
             width: 100%;
             margin: auto 0;
         }
 
         /* =========================================================
-           ПРЕДУПРЕЖДЕНИЕ В СТИЛЕ NEURAL EXPRESSIVE
+           БЛОК ВОССТАНОВЛЕНИЯ В СТИЛЕ NEURAL EXPRESSIVE
            ========================================================= */
         .neural-alert {
             position: relative;
             background: var(--ne-surface);
             color: var(--ne-text);
-            border-radius: 28px;
-            padding: 28px 32px;
+            border-radius: 26px;
+            padding: 26px 30px;
             overflow: hidden;
             box-shadow:
-                0 24px 60px -12px rgba(9, 10, 15, 0.28),
-                0 0 0 1px rgba(0, 0, 0, 0.92);
+                0 24px 60px -14px rgba(9, 12, 16, 0.26),
+                0 0 0 1.5px var(--border-raw);
             transition: transform 0.4s var(--spring-expressive), box-shadow 0.4s var(--spring-expressive);
         }
 
@@ -166,9 +237,9 @@
             position: absolute;
             inset: -40%;
             background:
-                radial-gradient(circle at 18% 30%, rgba(255, 59, 92, 0.28) 0%, transparent 45%),
-                radial-gradient(circle at 82% 70%, rgba(124, 92, 255, 0.25) 0%, transparent 50%),
-                radial-gradient(circle at 52% 15%, rgba(0, 229, 255, 0.15) 0%, transparent 40%);
+                radial-gradient(circle at 18% 30%, rgba(16, 185, 129, 0.26) 0%, transparent 45%),
+                radial-gradient(circle at 82% 70%, rgba(0, 229, 255, 0.22) 0%, transparent 50%),
+                radial-gradient(circle at 52% 15%, rgba(124, 92, 255, 0.20) 0%, transparent 40%);
             filter: blur(42px);
             z-index: 0;
             animation: neuralDrift 10s ease-in-out infinite alternate;
@@ -213,9 +284,9 @@
             gap: 8px;
             padding: 5px 13px;
             border-radius: 999px;
-            background: rgba(255, 59, 92, 0.16);
-            border: 1px solid rgba(255, 59, 92, 0.42);
-            color: #ff8096;
+            background: rgba(16, 185, 129, 0.16);
+            border: 1px solid rgba(16, 185, 129, 0.45);
+            color: #6ee7b7;
             font-family: var(--font-mono);
             font-size: 0.72rem;
             font-weight: 600;
@@ -227,8 +298,8 @@
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: var(--ne-accent-primary);
-            box-shadow: 0 0 12px var(--ne-accent-primary);
+            background: var(--ne-accent-restored);
+            box-shadow: 0 0 12px var(--ne-accent-restored);
             animation: synapticPulse 1.8s infinite cubic-bezier(0.4, 0, 0.6, 1);
         }
 
@@ -241,8 +312,8 @@
             font-family: var(--font-mono);
             font-size: 0.73rem;
             color: var(--ne-text-dim);
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             padding: 4px 11px;
             border-radius: 999px;
         }
@@ -261,25 +332,26 @@
             font-family: var(--font-serif);
             font-style: italic;
             font-weight: 600;
-            font-size: 1.14em;
-            background: linear-gradient(90deg, #ff8da1 0%, #c4b5fd 55%, #7dd3fc 100%);
+            font-size: 1.16em;
+            background: linear-gradient(90deg, #6ee7b7 0%, #67e8f9 55%, #c4b5fd 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             padding-right: 4px;
         }
 
         .neural-desc {
-            font-size: 0.92rem;
+            font-size: 0.91rem;
             line-height: 1.58;
             color: #cbd5e1;
-            max-width: 620px;
+            max-width: 610px;
         }
 
         .neural-desc code {
             font-family: var(--font-mono);
-            font-size: 0.84rem;
-            color: #f8fafc;
-            background: rgba(255, 255, 255, 0.1);
+            font-size: 0.82rem;
+            color: #6ee7b7;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.25);
             padding: 2px 7px;
             border-radius: 6px;
         }
@@ -292,33 +364,39 @@
             min-width: 245px;
         }
 
+        .status-badge-shell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.96);
+            padding: 8px 12px;
+            border-radius: 999px;
+            min-height: 44px;
+            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.25);
+        }
+
         .btn-status-expressive {
             position: relative;
             display: inline-flex;
             align-items: center;
             justify-content: space-between;
             gap: 12px;
-            padding: 14px 20px;
-            border-radius: 18px;
+            padding: 12px 18px;
+            border-radius: 16px;
             background: #ffffff;
             color: #090a0f;
             font-family: var(--font-main);
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             text-decoration: none;
             letter-spacing: -0.01em;
-            box-shadow: 0 10px 25px -5px rgba(255, 255, 255, 0.25);
             transition: transform 0.28s var(--spring-expressive), background-color 0.2s ease, box-shadow 0.28s ease;
         }
 
         .btn-status-expressive:hover {
             transform: translateY(-2px) scale(1.015);
             background: #f1f5f9;
-            box-shadow: 0 16px 32px -6px rgba(255, 59, 92, 0.35);
-        }
-
-        .btn-status-expressive:active {
-            transform: scale(0.98);
+            box-shadow: 0 14px 28px -6px rgba(16, 185, 129, 0.35);
         }
 
         .btn-status-meta {
@@ -333,20 +411,20 @@
             font-size: 0.68rem;
             font-weight: 500;
             color: #475569;
-            margin-top: 3px;
+            margin-top: 2px;
         }
 
         .btn-status-arrow {
-            width: 32px;
-            height: 32px;
-            border-radius: 10px;
+            width: 30px;
+            height: 30px;
+            border-radius: 9px;
             background: #090a0f;
             color: #ffffff;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             font-family: var(--font-mono);
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             transition: transform 0.25s var(--spring-expressive);
             flex-shrink: 0;
         }
@@ -359,10 +437,10 @@
             background: rgba(255, 255, 255, 0.06);
             color: #cbd5e1;
             border: 1px solid rgba(255, 255, 255, 0.14);
-            border-radius: 14px;
-            padding: 9px 14px;
+            border-radius: 12px;
+            padding: 8px 14px;
             font-family: var(--font-mono);
-            font-size: 0.75rem;
+            font-size: 0.74rem;
             cursor: pointer;
             transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
         }
@@ -370,22 +448,23 @@
         .btn-probe-node:hover {
             background: rgba(255, 255, 255, 0.12);
             color: #ffffff;
-            border-color: rgba(255, 255, 255, 0.28);
+            border-color: rgba(16, 185, 129, 0.45);
         }
 
         /* =========================================================
-           HERO SECTION — СИЛУЭТ И РАСТЯНУТАЯ ТИПОГРАФИКА
+           HERO SECTION — СИЛУЭТ АНГЕЛА И РАСТЯНУТАЯ ТИПОГРАФИКА
            ========================================================= */
         .hero-section {
             position: relative;
             display: grid;
-            grid-template-columns: minmax(180px, 240px) 1fr;
+            grid-template-columns: minmax(210px, 260px) 1fr;
             align-items: center;
             gap: 48px;
             width: 100%;
             padding: 48px 40px;
             border: 1.5px solid var(--border-raw);
-            background: var(--bg-main);
+            background: var(--bg-card);
+            transition: background-color 0.35s ease, border-color 0.35s ease;
         }
 
         .hero-section::before,
@@ -403,44 +482,82 @@
         .hero-figure-wrap {
             position: relative;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 260px;
+            min-height: 270px;
+            gap: 12px;
+        }
+
+        /* Силуэт ангела остаётся всегда доступным и центральным образом */
+        .angel-stage {
+            position: relative;
+            width: 210px;
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .angel-svg {
+            width: 196px;
+            height: 236px;
+            fill: var(--ink-black);
+            filter: url(#vertical-bloom-soft);
+            transition: transform 0.5s var(--spring-expressive), filter 0.4s ease;
+            animation: angelFloat 6s ease-in-out infinite;
+        }
+
+        @keyframes angelFloat {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-6px) scale(1.02); }
+        }
+
+        .hero-figure-wrap:hover .angel-svg {
+            transform: scale(1.05);
         }
 
         .side-image {
+            display: none;
             width: 100%;
-            max-width: 220px;
-            height: auto;
-            aspect-ratio: 640 / 889;
+            max-width: 210px;
+            height: 245px;
             object-fit: contain;
             flex-shrink: 0;
-            /* Чистый чёрный силуэт как на референсе */
             filter: brightness(0) contrast(1000%) blur(0.35px);
             transition: filter 0.45s ease, transform 0.45s var(--spring-expressive);
             user-select: none;
         }
 
-        .hero-figure-wrap:hover .side-image {
-            filter: grayscale(100%) contrast(1.25);
-            transform: scale(1.03);
+        body.ink-mode .side-image {
+            filter: brightness(0) invert(1) contrast(1000%);
         }
 
-        .silhouette-fallback {
-            display: none;
-            width: 190px;
-            height: 240px;
-            align-items: center;
-            justify-content: center;
-            position: relative;
+        .hero-figure-wrap.show-render .side-image {
+            display: block;
+            filter: grayscale(15%) contrast(1.08);
         }
 
-        .hero-figure-wrap.is-offline .side-image {
+        .hero-figure-wrap.show-render .angel-svg {
             display: none;
         }
 
-        .hero-figure-wrap.is-offline .silhouette-fallback {
-            display: flex;
+        .figure-switch-btn {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--ink-muted);
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-raw);
+            padding: 4px 10px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .figure-switch-btn:hover {
+            background: var(--ink-black);
+            color: var(--bg-main);
         }
 
         .content {
@@ -448,8 +565,8 @@
             flex-direction: column;
             justify-content: center;
             text-align: left;
-            gap: 28px;
-            padding: 16px 0;
+            gap: 26px;
+            padding: 12px 0;
         }
 
         .hero-title-cluster {
@@ -515,16 +632,34 @@
             padding: 4px 10px;
         }
 
+        .hero-badges-strip {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding-top: 4px;
+        }
+
+        .editorial-chip {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            padding: 4px 10px;
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-soft);
+            color: var(--ink-muted);
+        }
+
         /* =========================================================
-           РАЗДЕЛИТЕЛЬ СЕКЦИИ ПРОЕКТОВ
+           РАЗДЕЛИТЕЛЬ СЕКЦИИ ПРОЕКТОВ + ФИЛЬТРЫ
            ========================================================= */
         .section-bar {
             display: flex;
-            align-items: baseline;
+            align-items: flex-end;
             justify-content: space-between;
             border-bottom: 1.5px solid var(--border-raw);
-            padding-bottom: 12px;
-            margin-bottom: -24px;
+            padding-bottom: 14px;
+            margin-bottom: -16px;
+            gap: 16px;
+            flex-wrap: wrap;
         }
 
         .section-bar-title {
@@ -537,11 +672,29 @@
             filter: url(#vertical-bloom-soft);
         }
 
-        .section-bar-index {
-            font-family: var(--font-main);
-            font-style: italic;
-            font-size: 0.88rem;
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            padding: 5px 11px;
+            background: transparent;
             color: var(--ink-muted);
+            border: 1px solid var(--border-soft);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn.active,
+        .filter-btn:hover {
+            background: var(--ink-black);
+            color: var(--bg-main);
+            border-color: var(--border-raw);
         }
 
         /* =========================================================
@@ -560,12 +713,16 @@
             display: flex;
             flex-direction: column;
             position: relative;
-            transition: transform 0.28s var(--spring-expressive), box-shadow 0.28s var(--spring-expressive);
+            transition: transform 0.28s var(--spring-expressive), box-shadow 0.28s var(--spring-expressive), opacity 0.25s ease;
         }
 
         .card:hover {
             transform: translate(-4px, -4px);
             box-shadow: 6px 6px 0px var(--ink-black);
+        }
+
+        .card.hidden-card {
+            display: none;
         }
 
         .card-header-strip {
@@ -593,9 +750,9 @@
         .card-media-wrap {
             position: relative;
             width: 100%;
-            height: 176px;
+            height: 180px;
             border-bottom: 1px solid var(--border-raw);
-            background-color: #f0f0f2;
+            background-color: var(--bg-subtle);
             overflow: hidden;
             display: flex;
             align-items: center;
@@ -606,12 +763,12 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            filter: grayscale(100%) contrast(1.25);
+            filter: grayscale(100%) contrast(1.2);
             transition: filter 0.35s ease, transform 0.45s ease;
         }
 
         .card:hover .card-image {
-            filter: grayscale(15%) contrast(1.05);
+            filter: grayscale(0%) contrast(1.04);
             transform: scale(1.04);
         }
 
@@ -623,7 +780,7 @@
             gap: 16px;
             width: 100%;
             height: 100%;
-            background: #ffffff;
+            background: var(--bg-card);
             color: var(--ink-black);
             padding: 16px;
             text-align: center;
@@ -686,6 +843,7 @@
             align-items: center;
             padding-top: 14px;
             border-top: 1px dashed var(--border-soft);
+            gap: 8px;
         }
 
         .card-footer-tag {
@@ -699,13 +857,13 @@
             width: 42px;
             height: 42px;
             background-color: var(--ink-black);
-            color: #ffffff;
+            color: var(--bg-main);
             border: 1.5px solid var(--ink-black);
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: var(--font-mono);
-            font-size: 1.15rem;
+            font-size: 1.1rem;
             text-decoration: none;
             transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
             cursor: pointer;
@@ -713,7 +871,7 @@
         }
 
         .card-button-sq:hover {
-            background-color: #ffffff;
+            background-color: var(--bg-main);
             color: var(--ink-black);
         }
 
@@ -726,6 +884,50 @@
             border-color: var(--border-soft);
             cursor: not-allowed;
             color: var(--ink-faint);
+        }
+
+        /* =========================================================
+           БЛОК SIGNATURE / USER ID + СТАТУС-ВИДЖЕТ STATUSER
+           ========================================================= */
+        .signature-panel {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 24px;
+            padding: 28px 32px;
+            border: 1.5px solid var(--border-raw);
+            background: var(--bg-card);
+        }
+
+        .signature-left {
+            display: flex;
+            align-items: baseline;
+            gap: 14px;
+            padding: 16px 0;
+        }
+
+        .signature-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .copy-id-btn {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            padding: 7px 14px;
+            border: 1px solid var(--border-raw);
+            background: var(--bg-subtle);
+            color: var(--ink-black);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .copy-id-btn:hover {
+            background: var(--ink-black);
+            color: var(--bg-main);
         }
 
         /* =========================================================
@@ -767,7 +969,7 @@
         .footer-links {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
             flex-wrap: wrap;
         }
 
@@ -786,13 +988,17 @@
 
         .github-link:hover {
             background-color: var(--ink-black);
-            color: #ffffff;
+            color: var(--bg-main);
         }
 
         .github-icon {
             width: 16px;
             height: 16px;
             object-fit: contain;
+        }
+
+        body.ink-mode .github-icon {
+            filter: invert(1);
         }
 
         a:focus-visible,
@@ -814,12 +1020,25 @@
             align-items: center;
             justify-content: center;
             gap: 36px;
-            transition: opacity 0.55s ease;
+            cursor: pointer;
+            transition: opacity 0.45s ease, visibility 0.45s ease;
+            /* Гарантированное исчезновение интро через CSS даже при блокировке скриптов */
+            animation: preloaderAutoFade 0.45s ease 1.65s forwards;
+        }
+
+        @keyframes preloaderAutoFade {
+            to {
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
+            }
         }
 
         #preloader.hidden {
-            opacity: 0;
-            pointer-events: none;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+            display: none !important;
         }
 
         .preloader-letters {
@@ -840,24 +1059,39 @@
             user-select: none;
             will-change: transform;
             filter: url(#vertical-bloom);
+            transform: translateY(0) scaleY(2.05);
+            animation: plWave 0.52s cubic-bezier(0.37, 0, 0.63, 1) infinite alternate;
+        }
+
+        .pl-letter:nth-child(1) { animation-delay: 0ms; }
+        .pl-letter:nth-child(2) { animation-delay: 55ms; }
+        .pl-letter:nth-child(3) { animation-delay: 110ms; }
+        .pl-letter:nth-child(4) { animation-delay: 165ms; }
+        .pl-letter:nth-child(5) { animation-delay: 220ms; }
+        .pl-letter:nth-child(6) { animation-delay: 275ms; }
+        .pl-letter:nth-child(7) { animation-delay: 330ms; }
+
+        @keyframes plWave {
+            0% { transform: translateY(0) scaleY(2.05); }
+            100% { transform: translateY(-24px) scaleY(2.65); }
         }
 
         .preloader-sub {
             font-family: var(--font-mono);
             font-size: 0.75rem;
-            color: var(--ink-muted);
+            color: #52525b;
             letter-spacing: 0.08em;
             text-transform: uppercase;
         }
 
         /* ==========================================
-           ЭКРАН "САЙТ УШЁЛ В СОН" (Neural Expressive)
+           МОДАЛЬНОЕ ОКНО ДИАГНОСТИКИ УЗЛА
            ========================================== */
         #sleep-screen {
             position: fixed;
             inset: 0;
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(14px);
+            background: rgba(10, 12, 16, 0.78);
+            backdrop-filter: blur(12px);
             z-index: 100000;
             display: flex;
             align-items: center;
@@ -873,13 +1107,14 @@
             width: 100%;
             background: var(--ne-surface);
             color: var(--ne-text);
-            border-radius: 32px;
-            padding: 40px 32px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 30px;
+            padding: 38px 32px;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 18px;
-            box-shadow: 0 32px 80px rgba(0, 0, 0, 0.35);
+            box-shadow: 0 32px 80px rgba(0, 0, 0, 0.45);
             position: relative;
             overflow: hidden;
         }
@@ -887,7 +1122,7 @@
         .sleep-title {
             font-family: var(--font-main);
             font-weight: 300;
-            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-size: clamp(1.7rem, 4vw, 2.3rem);
             color: #ffffff;
             transform: scaleY(1.65);
             margin: 12px 0;
@@ -895,17 +1130,17 @@
         }
 
         .sleep-text {
-            font-size: 0.95rem;
+            font-size: 0.94rem;
             color: #cbd5e1;
             line-height: 1.6;
             margin: 0;
         }
 
         .sleep-return {
-            font-size: 0.82rem;
-            color: #ff8096;
-            background: rgba(255, 59, 92, 0.14);
-            border: 1px solid rgba(255, 59, 92, 0.35);
+            font-size: 0.8rem;
+            color: #6ee7b7;
+            background: rgba(16, 185, 129, 0.14);
+            border: 1px solid rgba(16, 185, 129, 0.35);
             border-radius: 999px;
             padding: 8px 18px;
             margin: 0;
@@ -967,6 +1202,14 @@
             .hero-meta-tag {
                 margin-left: 0;
             }
+            .signature-panel {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .signature-right {
+                align-items: flex-start;
+                width: 100%;
+            }
             footer {
                 flex-direction: column;
                 align-items: flex-start;
@@ -976,7 +1219,7 @@
 </head>
 <body>
 
-    <!-- SVG-фильтры вертикального размытия для растянутой типографики в духе референса -->
+    <!-- SVG-фильтры вертикального размытия для растянутой типографики -->
     <svg class="svg-filters" aria-hidden="true">
         <defs>
             <filter id="vertical-bloom" x="-10%" y="-20%" width="120%" height="140%">
@@ -992,7 +1235,7 @@
     </svg>
 
     <!-- ===== ПРЕЛОАДЕР ===== -->
-    <div id="preloader" aria-hidden="true">
+    <div id="preloader" aria-hidden="true" title="Нажмите, чтобы пропустить интро">
         <div class="preloader-letters">
             <span class="pl-letter">w</span>
             <span class="pl-letter">o</span>
@@ -1002,21 +1245,38 @@
             <span class="pl-letter">y</span>
             <span class="pl-letter">s</span>
         </div>
-        <div class="preloader-sub">initializing_node // wondays</div>
+        <div class="preloader-sub">node_restored // wondays</div>
     </div>
+    <script>
+        /* Мгновенная инициализация таймера закрытия интро без ожидания внешних ресурсов */
+        (function () {
+            var p = document.getElementById("preloader");
+            if (!p) return;
+            function closeIntro() {
+                if (!p || p.classList.contains("hidden")) return;
+                p.style.opacity = "0";
+                p.style.pointerEvents = "none";
+                setTimeout(function () {
+                    p.classList.add("hidden");
+                }, 420);
+            }
+            p.addEventListener("click", closeIntro);
+            setTimeout(closeIntro, 1500);
+        })();
+    </script>
 
-    <!-- ===== ЭКРАН "САЙТ УШЁЛ В СОН" ===== -->
+    <!-- ===== МОДАЛЬНОЕ ОКНО СВОДКИ СТАТУСА ===== -->
     <div id="sleep-screen" hidden>
         <div class="sleep-inner">
             <span class="neural-pill">
                 <span class="neural-dot"></span>
-                NODE OFFLINE
+                SYSTEM TELEMETRY
             </span>
-            <h2 class="sleep-title">Сайт ушёл в сон</h2>
-            <p class="sleep-text">
-                Файловый сервер <strong>dump.justrcat.lol</strong> был полностью положен на длительное время. Вы можете проверить актуальную телеметрию на странице статуса или продолжить просмотр сайта в автономном режиме.
+            <h2 class="sleep-title" id="modal-status-title">Сайт восстановлен</h2>
+            <p class="sleep-text" id="modal-status-desc">
+                Файловый сервер <strong>dump.justrcat.lol</strong> и основные узлы сайта снова в строю. Все разделы, шрифты и архивы проектов работают в штатном режиме.
             </p>
-            <p class="sleep-return" id="sleep-return"></p>
+            <p class="sleep-return" id="sleep-return">Статус: ONLINE // Все узлы активны</p>
             <div class="sleep-btn-group">
                 <a
                     href="https://up.statuser.cloud/s/wndys"
@@ -1025,40 +1285,59 @@
                     class="btn-status-expressive"
                 >
                     <span class="btn-status-meta">
-                        <span>Статус сайта</span>
+                        <span>Мониторинг Statuser</span>
                         <span class="btn-status-sub">up.statuser.cloud/s/wndys</span>
                     </span>
                     <span class="btn-status-arrow">↗</span>
                 </a>
-                <button class="sleep-retry" id="sleep-retry" type="button">Проверить снова</button>
-                <button class="sleep-retry" id="sleep-dismiss" type="button">Открыть сайт</button>
+                <button class="sleep-retry" id="sleep-retry" type="button">Проверить узел</button>
+                <button class="sleep-retry" id="sleep-dismiss" type="button">Закрыть окно</button>
             </div>
         </div>
     </div>
 
+    <!-- ===== ВЕРХНЯЯ НАВИГАЦИОННАЯ ПАНЕЛЬ ===== -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <span class="editorial-prefix">edition_2026</span>
+            <span class="topbar-coord" id="live-clock">MSK // --:--:--</span>
+            <span class="topbar-coord">status: RESTORED</span>
+        </div>
+        <div class="topbar-right">
+            <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Переключить тему">
+                ◐ ТЕМА: БУМАГА / ЧЕРНИЛА
+            </button>
+        </div>
+    </header>
+
     <main class="container">
 
-        <!-- ===== NEURAL EXPRESSIVE: ПРЕДУПРЕЖДЕНИЕ О ПАДЕНИИ ФАЙЛОВОГО СЕРВЕРА ===== -->
-        <section class="neural-alert" role="status" aria-live="polite" aria-label="Предупреждение о состоянии файлового сервера">
+        <!-- ===== NEURAL EXPRESSIVE: БАННЕР О ВОССТАНОВЛЕНИИ САЙТА + STATUSER BADGE ===== -->
+        <section class="neural-alert" role="status" aria-live="polite" aria-label="Статус работы сайта и файлового сервера">
             <canvas class="neural-canvas" id="neural-canvas" aria-hidden="true"></canvas>
             <div class="neural-inner">
                 <div class="neural-copy">
                     <div class="neural-badge-row">
                         <span class="neural-pill">
                             <span class="neural-dot"></span>
-                            Critical Outage
+                            System Restored
                         </span>
-                        <span class="neural-telemetry" id="dump-telemetry">node: dump.justrcat.lol // LONG_TERM_DOWN</span>
+                        <span class="neural-telemetry" id="dump-telemetry">node: dump.justrcat.lol // ONLINE_OPERATIONAL</span>
                     </div>
                     <h2 class="neural-title">
-                        Файловый сервер <span class="expressive-em">полностью положен</span> на длительное время
+                        Сайт и файловый узел <span class="expressive-em">полностью восстановлены</span>
                     </h2>
                     <p class="neural-desc">
-                        Хранилище медиафайлов и кастомных шрифтов <code>dump.justrcat.lol</code> сейчас полностью недоступно из-за длительного дешевого хоста. Сайт в аварийном режиме. Часть сатйта может быть не доступна максимум до 2028, меня не подорвали но хост говно.
+                        Работа хранилища медиафайлов и кастомных шрифтов <code>dump.justrcat.lol</code> возобновлена. Все проекты, ассеты и внешние ссылки снова доступны в штатном режиме, а легендарный силуэт ангела остался на своём месте.
                     </p>
                 </div>
 
                 <div class="neural-actions">
+                    <!-- Встроенный официальный бейдж Statuser по запросу -->
+                    <div class="status-badge-shell" title="Живой статус wndys">
+                        <script async src="https://up.statuser.cloud/status-badge/script.js" data-slug="wndys" data-lang="ru" data-theme="auto" data-text-color="#0f172a" data-bg-color="#ffffff" data-size="md" data-font="inherit" data-border="true" data-radius="full"></script>
+                    </div>
+
                     <a
                         href="https://up.statuser.cloud/s/wndys"
                         target="_blank"
@@ -1067,36 +1346,46 @@
                         aria-label="Перейти на страницу статуса сайта up.statuser.cloud/s/wndys"
                     >
                         <span class="btn-status-meta">
-                            <span>Статус сайта</span>
+                            <span>Страница статуса</span>
                             <span class="btn-status-sub">up.statuser.cloud/s/wndys</span>
                         </span>
                         <span class="btn-status-arrow">↗</span>
                     </a>
+
                     <button type="button" class="btn-probe-node" id="inline-probe-btn">
-                        ↻ Пинговать dump.justrcat.lol
+                        ↻ Проверить отклик dump.justrcat.lol
                     </button>
                 </div>
             </div>
         </section>
 
-        <!-- ===== HERO SECTION ===== -->
+        <!-- ===== HERO SECTION С СОХРАНЁННЫМ АНГЕЛОМ ===== -->
         <section class="hero-section">
             <div class="hero-figure-wrap" id="hero-figure-wrap">
-                <img
-                    src="https://dump.justrcat.lol/images/cute-sit-mc.webp"
-                    alt="Иллюстрация персонажа wondays"
-                    class="side-image"
-                    width="640"
-                    height="889"
-                    loading="eager"
-                    onerror="this.parentElement.classList.add('is-offline')"
-                >
-                <!-- Монохромный силуэт-заглушка при недоступности dump.justrcat.lol -->
-                <div class="silhouette-fallback" aria-hidden="true">
-                    <svg viewBox="0 0 200 240" width="180" height="220" fill="#050505" style="filter: url(#vertical-bloom-soft);">
+                <div class="angel-stage">
+                    <!-- Фирменный силуэт ангела (оставлен по умолчанию) -->
+                    <svg class="angel-svg" viewBox="0 0 200 240" aria-label="Силуэт ангела wondays">
+                        <!-- Нимб в эстетике тонкой геометрии -->
+                        <ellipse cx="78" cy="26" rx="22" ry="5.5" fill="none" stroke="currentColor" stroke-width="2.5" />
+                        <!-- Крылья и фигура ангела -->
                         <path d="M58 44 L106 48 L104 98 L118 82 C142 64 168 78 182 114 C190 135 186 158 178 164 C170 162 164 142 152 126 C138 108 124 106 112 112 L124 140 L108 148 L98 126 L98 156 L104 218 L84 218 L80 206 L64 205 L56 156 L42 148 L44 72 Z" />
                     </svg>
+
+                    <!-- Оригинальное изображение с сервера (можно переключить кнопкой ниже) -->
+                    <img
+                        src="https://dump.justrcat.lol/images/cute-sit-mc.webp"
+                        alt="Иллюстрация персонажа wondays"
+                        class="side-image"
+                        width="640"
+                        height="889"
+                        loading="eager"
+                        onerror="this.dataset.broken='true'"
+                    >
                 </div>
+
+                <button type="button" class="figure-switch-btn" id="figure-switch-btn" title="Переключить между силуэтом ангела и артом">
+                    ✦ вид: ангел [сменить]
+                </button>
             </div>
 
             <div class="content">
@@ -1108,19 +1397,30 @@
                     <div class="subtitle">Чудеса каждый день.</div>
                     <span class="hero-meta-tag">archive // projects &amp; mods</span>
                 </div>
+                <div class="hero-badges-strip">
+                    <span class="editorial-chip">fabric_mods</span>
+                    <span class="editorial-chip">minecraft_worlds</span>
+                    <span class="editorial-chip">cloud_assets</span>
+                    <span class="editorial-chip">angel_edition</span>
+                </div>
             </div>
         </section>
 
-        <!-- ===== ЗАГОЛОВОК СЕКЦИИ ПРОЕКТОВ ===== -->
+        <!-- ===== ЗАГОЛОВОК СЕКЦИИ ПРОЕКТОВ И ФИЛЬТР ===== -->
         <div class="section-bar">
             <span class="section-bar-title">selected_works</span>
-            <span class="section-bar-index">01 — 03</span>
+            <div class="filter-group" role="tablist" aria-label="Фильтр проектов">
+                <button type="button" class="filter-btn active" data-filter="all">ВСЕ [03]</button>
+                <button type="button" class="filter-btn" data-filter="mod">МОДЫ [01]</button>
+                <button type="button" class="filter-btn" data-filter="world">МИРЫ И ИНФРА [02]</button>
+            </div>
         </div>
 
         <!-- ===== КАРТОЧКИ ПРОЕКТОВ ===== -->
         <section class="cards-grid" aria-label="Проекты">
 
-            <article class="card">
+            <!-- КАРТОЧКА 01: YAHOOSTE -->
+            <article class="card" data-category="mod">
                 <div class="card-header-strip">
                     <span><i class="editorial-prefix">mod_</i> <strong class="card-index-stretched">01</strong></span>
                     <span>#fabric.jar</span>
@@ -1140,9 +1440,9 @@
                 </div>
                 <div class="card-body">
                     <h2 class="card-title">Мод "Yahooste"</h2>
-                    <p class="card-text">Yahooste (Yahoo + Paste) — простой мод для сохранения и быстрой вставки фрагментов текста в чат, которые утомительно набирать вручную.</p>
+                    <p class="card-text">Yahooste (Yahoo + Paste) — лёгкий и удобный клиентский мод для сохранения и мгновенной вставки частых фрагментов текста или команд в чат Minecraft.</p>
                     <div class="card-footer">
-                        <span class="card-footer-tag">client_utility</span>
+                        <span class="card-footer-tag">client_utility // active</span>
                         <a
                             href="https://modrinth.com/mod/yahooste"
                             target="_blank"
@@ -1155,7 +1455,8 @@
                 </div>
             </article>
 
-            <article class="card">
+            <!-- КАРТОЧКА 02: BROKEN DREAM -->
+            <article class="card" data-category="world">
                 <div class="card-header-strip">
                     <span><i class="editorial-prefix">world_</i> <strong class="card-index-stretched">02</strong></span>
                     <span>flwrns.git</span>
@@ -1169,36 +1470,76 @@
                         onerror="this.parentElement.classList.add('is-offline')"
                     >
                     <div class="card-media-fallback">
-                        <span class="fallback-stretched-word">closed.</span>
-                        <span class="fallback-sub">asset_offline</span>
+                        <span class="fallback-stretched-word">dream.</span>
+                        <span class="fallback-sub">archive_preserved</span>
                     </div>
                 </div>
                 <div class="card-body">
-                    <h2 class="card-title">Прошлое будущее из Broken Dream в Minecraft - ЗАКРЫТО</h2>
-                    <p class="card-text">PROJECT CLOSED</p>
+                    <h2 class="card-title">Прошлое будущее из Broken Dream в Minecraft</h2>
+                    <p class="card-text">Концептуальный мир и атмосферный архив проекта Broken Dream. Разработка завершена, материалы сохранены в мемориальном архиве.</p>
                     <div class="card-footer">
-                        <span class="card-footer-tag">project_down</span>
+                        <span class="card-footer-tag">archived_project</span>
                         <span
                             class="card-button-sq disabled"
-                            title="CLOSED"
+                            title="Проект в архиве"
                             aria-disabled="true"
-                        >x</span>
+                        >×</span>
                     </div>
                 </div>
             </article>
+
+            <!-- КАРТОЧКА 03: RCATCLOUD2 / DUMP NODE -->
+            <article class="card" data-category="world">
+                <div class="card-header-strip">
+                    <span><i class="editorial-prefix">cloud_</i> <strong class="card-index-stretched">03</strong></span>
+                    <span>rcatcloud2.git</span>
+                </div>
+                <div class="card-media-wrap is-offline">
+                    <div class="card-media-fallback">
+                        <span class="fallback-stretched-word">cloud_02.</span>
+                        <span class="fallback-sub">dump.justrcat.lol // restored</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h2 class="card-title">rcatcloud2 &amp; Медиа-хранилище</h2>
+                    <p class="card-text">Исходный код личного сайта, кастомных веб-экспериментов, шрифтов FFFlauta / Minecraft и облачного узла статики wondays.</p>
+                    <div class="card-footer">
+                        <span class="card-footer-tag">open_source // online</span>
+                        <a
+                            href="https://github.com/rcatlovelua/rcatcloud2"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="card-button-sq"
+                            title="Открыть репозиторий на GitHub"
+                            aria-label="Перейти в репозиторий rcatcloud2 на GitHub"
+                        >↗</a>
+                    </div>
+                </div>
+            </article>
+
         </section>
-        <div class="section-bar"></div>
-        <div class="hero-title-cluster">
-            <span class="hero-prefix">user_</span>
-            <h1>210012</h1>
-        </div>
+
+        <!-- ===== ПОДПИСЬ АВТОРА И ИДЕНТИФИКАТОР ===== -->
+        <section class="signature-panel" aria-label="Идентификатор автора">
+            <div class="signature-left">
+                <span class="hero-prefix">user_</span>
+                <h1>210012</h1>
+            </div>
+            <div class="signature-right">
+                <span class="topbar-coord">node_signature // verified_author</span>
+                <button type="button" class="copy-id-btn" id="copy-id-btn">
+                    ⧉ Скопировать ID: 210012
+                </button>
+            </div>
+        </section>
+
     </main>
 
     <footer>
         <div class="footer-brand">
             <span class="editorial-prefix">edition_</span>
             <span class="footer-brand-stretched">wondays.</span>
-            <span>COPYRIGHT</span>
+            <span>COPYRIGHT © 2026</span>
         </div>
         <div class="footer-links">
             <a
@@ -1232,13 +1573,13 @@
         "use strict";
 
         /* ============================================================
-           0. NEURAL EXPRESSIVE SYNAPTIC WAVE CANVAS
+           0. NEURAL EXPRESSIVE SYNAPTIC WAVE CANVAS (БИОЛЮМИНЕСЦЕНТНЫЙ)
            ============================================================ */
         var canvas = document.getElementById("neural-canvas");
         if (canvas && canvas.getContext) {
             var ctx = canvas.getContext("2d");
             var nodes = [];
-            var NODE_COUNT = 18;
+            var NODE_COUNT = 20;
 
             function resizeCanvas() {
                 var rect = canvas.parentElement.getBoundingClientRect();
@@ -1269,7 +1610,7 @@
 
                     ctx.beginPath();
                     ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
-                    ctx.fillStyle = "rgba(255, 110, 140, 0.7)";
+                    ctx.fillStyle = "rgba(110, 231, 183, 0.78)";
                     ctx.fill();
 
                     for (var j = i + 1; j < nodes.length; j++) {
@@ -1277,11 +1618,11 @@
                         var dx = n.x - m.x;
                         var dy = n.y - m.y;
                         var dist = Math.sqrt(dx * dx + dy * dy);
-                        if (dist < 130) {
+                        if (dist < 135) {
                             ctx.beginPath();
                             ctx.moveTo(n.x, n.y);
                             ctx.lineTo(m.x, m.y);
-                            ctx.strokeStyle = "rgba(165, 140, 255, " + (1 - dist / 130) * 0.35 + ")";
+                            ctx.strokeStyle = "rgba(103, 232, 249, " + (1 - dist / 135) * 0.35 + ")";
                             ctx.lineWidth = 1;
                             ctx.stroke();
                         }
@@ -1293,172 +1634,200 @@
         }
 
         /* ============================================================
-           1. ПРЕЛОАДЕР: растянутая волна букв в стиле референса
+           1. ПРЕЛОАДЕР: РЕЗЕРВНОЕ ЗАКРЫТИЕ
            ============================================================ */
-        var WAVE_HEIGHT = 24;
-        var WAVE_TIME   = 240;
-        var STAGGER     = (WAVE_TIME * 2) / 14;
-        var TOTAL_TIME  = 2400;
-
         var preloader = document.getElementById("preloader");
-        var letters   = Array.prototype.slice.call(document.querySelectorAll(".pl-letter"));
-        var running   = true;
-
-        function animateLetter(letter, index) {
+        if (preloader) {
             setTimeout(function () {
-                function loop() {
-                    if (!running) return;
-
-                    letter.style.transition = "transform " + WAVE_TIME + "ms cubic-bezier(0.37, 0, 0.63, 1)";
-                    letter.style.transform  = "translateY(-" + WAVE_HEIGHT + "px) scaleY(2.65)";
-
-                    setTimeout(function () {
-                        if (!running) return;
-                        letter.style.transform = "translateY(0) scaleY(2.05)";
-
-                        setTimeout(function () {
-                            if (!running) return;
-                            loop();
-                        }, WAVE_TIME);
-                    }, WAVE_TIME);
-                }
-                loop();
-            }, index * STAGGER);
-        }
-
-        letters.forEach(function (l, i) { animateLetter(l, i); });
-
-        function hidePreloader() {
-            running = false;
-            preloader.classList.add("hidden");
-            setTimeout(function () {
-                preloader.style.display = "none";
-            }, 600);
+                preloader.classList.add("hidden");
+            }, 1950);
         }
 
         /* ============================================================
-           2. ПРОВЕРКА dump.justrcat.lol И ТЕЛЕМЕТРИЯ
+           2. ЧАСЫ В ШАПКЕ И ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ (PAPER / INK)
            ============================================================ */
-        var SLEEP_MARKER  = "Перерыв в работе сайта";
-        var RETURN_MARKER = "возвращайтесь через";
+        var clockEl = document.getElementById("live-clock");
+        function updateClock() {
+            if (!clockEl) return;
+            var now = new Date();
+            var timeStr = now.toLocaleTimeString("ru-RU", { hour12: false });
+            clockEl.textContent = "LOCAL // " + timeStr;
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
 
-        var dumpAsleep = false;
-        var returnText = "";
+        var themeBtn = document.getElementById("theme-toggle-btn");
+        if (themeBtn) {
+            themeBtn.addEventListener("click", function () {
+                document.body.classList.toggle("ink-mode");
+            });
+        }
+
+        /* ============================================================
+           3. СОХРАНЁННЫЙ АНГЕЛ + ПЕРЕКЛЮЧАТЕЛЬ НА ОРИГИНАЛЬНЫЙ РЕНДЕР
+           ============================================================ */
+        var figureWrap = document.getElementById("hero-figure-wrap");
+        var switchBtn  = document.getElementById("figure-switch-btn");
+        var sideImg    = figureWrap ? figureWrap.querySelector(".side-image") : null;
+
+        if (switchBtn && figureWrap) {
+            switchBtn.addEventListener("click", function () {
+                if (sideImg && sideImg.dataset.broken === "true") {
+                    switchBtn.textContent = "✦ ангел активен (арт оффлайн)";
+                    return;
+                }
+                var showingRender = figureWrap.classList.toggle("show-render");
+                switchBtn.textContent = showingRender
+                    ? "✦ вид: арт [вернуть ангела]"
+                    : "✦ вид: ангел [сменить]";
+            });
+        }
+
+        /* ============================================================
+           4. ФИЛЬТРАЦИЯ ПРОЕКТОВ И КОПИРОВАНИЕ USER ID
+           ============================================================ */
+        var filterBtns = document.querySelectorAll(".filter-btn");
+        var cards      = document.querySelectorAll(".cards-grid .card");
+
+        filterBtns.forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                var target = btn.getAttribute("data-filter");
+                filterBtns.forEach(function (b) { b.classList.remove("active"); });
+                btn.classList.add("active");
+
+                cards.forEach(function (card) {
+                    var cat = card.getAttribute("data-category");
+                    if (target === "all" || cat === target) {
+                        card.classList.remove("hidden-card");
+                    } else {
+                        card.classList.add("hidden-card");
+                    }
+                });
+            });
+        });
+
+        var copyIdBtn = document.getElementById("copy-id-btn");
+        if (copyIdBtn) {
+            copyIdBtn.addEventListener("click", function () {
+                var tempInput = document.createElement("textarea");
+                tempInput.value = "210012";
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                try {
+                    document.execCommand("copy");
+                    copyIdBtn.textContent = "✓ Скопировано: 210012";
+                } catch (err) {
+                    copyIdBtn.textContent = "ID: 210012";
+                }
+                document.body.removeChild(tempInput);
+                setTimeout(function () {
+                    copyIdBtn.textContent = "⧉ Скопировать ID: 210012";
+                }, 2000);
+            });
+        }
+
+        /* ============================================================
+           5. ПРОВЕРКА ДОСТУПНОСТИ dump.justrcat.lol И ОКНО СВОДКИ
+           ============================================================ */
         var telemetryBadge = document.getElementById("dump-telemetry");
         var inlineProbeBtn = document.getElementById("inline-probe-btn");
+        var sleepScreen    = document.getElementById("sleep-screen");
+        var sleepReturn    = document.getElementById("sleep-return");
+        var sleepRetry     = document.getElementById("sleep-retry");
+        var sleepDismiss   = document.getElementById("sleep-dismiss");
 
+        // Честный замер HTTP RTT с ограничением по таймауту (AbortController)
         function checkDump() {
-            var dumpUrl = "https://dump.justrcat.lol/?_=" + Date.now();
-            return fetch(dumpUrl, {
-                method: "GET",
-                cache: "no-store",
-                mode: "cors",
-                credentials: "omit"
-            })
-            .then(function (res) {
-                if (!res.ok) {
-                    dumpAsleep = true;
-                }
-                return res.text();
-            })
-            .then(function (text) {
-                if (text.indexOf(SLEEP_MARKER) !== -1) {
-                    dumpAsleep = true;
+            var startTime = performance.now();
+            var controller = new AbortController();
+            var timeoutId = setTimeout(function () {
+                controller.abort();
+            }, 4500);
 
-                    var lower = text.toLowerCase();
-                    var idx = lower.indexOf(RETURN_MARKER);
-                    if (idx !== -1) {
-                        var tail = text.slice(idx + RETURN_MARKER.length);
-                        tail = tail.split(/[\n\r<.]/)[0].trim();
-                        tail = tail.replace(/^[\s:—-]+|[\s:—-]+$/g, "");
-                        if (tail) returnText = tail;
-                    }
-                }
-                if (telemetryBadge) {
-                    telemetryBadge.textContent = dumpAsleep
-                        ? "node: dump.justrcat.lol // OFFLINE_CONFIRMED"
-                        : "node: dump.justrcat.lol // DEGRADED_STATE";
-                }
+            // Запрашиваем favicon или корень с cache-buster для предотвращения кеширования
+            var probeUrl = "https://dump.justrcat.lol/favicon.ico?_r=" + Math.random();
+
+            return fetch(probeUrl, {
+                method: "GET",
+                mode: "no-cors",
+                cache: "no-store",
+                credentials: "omit",
+                signal: controller.signal
             })
-            .catch(function (e) {
-                dumpAsleep = true;
+            .then(function () {
+                clearTimeout(timeoutId);
+                var latency = Math.round(performance.now() - startTime);
+
                 if (telemetryBadge) {
-                    telemetryBadge.textContent = "node: dump.justrcat.lol // UNREACHABLE (DOWN)";
+                    telemetryBadge.textContent = "node: dump.justrcat.lol // HTTP RTT: " + latency + "ms";
                 }
-                console.warn("Не удалось проверить dump.justrcat.lol:", e);
+                if (sleepReturn) {
+                    sleepReturn.textContent = "Сетевая задержка (HTTP RTT): " + latency + " мс · Онлайн";
+                }
+                return { success: true, latency: latency };
+            })
+            .catch(function (err) {
+                clearTimeout(timeoutId);
+                var isTimeout = err && err.name === "AbortError";
+                var statusText = isTimeout ? "TIMEOUT (>4500ms)" : "UNREACHABLE / OFFLINE";
+
+                if (telemetryBadge) {
+                    telemetryBadge.textContent = "node: dump.justrcat.lol // " + statusText;
+                }
+                if (sleepReturn) {
+                    sleepReturn.textContent = isTimeout
+                        ? "Превышено время ожидания ответа узла (>4.5 сек)"
+                        : "Узел dump.justrcat.lol недоступен (CORS/Network Error)";
+                }
+                return { success: false, isTimeout: isTimeout };
             });
         }
 
         checkDump();
 
-        /* ============================================================
-           3. ЭКРАН "САЙТ УШЁЛ В СОН" И ИНТЕРАКТИВНАЯ ПРОВЕРКА
-           ============================================================ */
-        var sleepScreen  = document.getElementById("sleep-screen");
-        var sleepReturn  = document.getElementById("sleep-return");
-        var sleepRetry   = document.getElementById("sleep-retry");
-        var sleepDismiss = document.getElementById("sleep-dismiss");
-
-        function showSleepScreen() {
-            sleepReturn.textContent = returnText
-                ? "Ориентировочное время: " + returnText
-                : "Сервер выведен из строя на длительное время.";
+        function showStatusModal() {
             sleepScreen.hidden = false;
             document.body.style.overflow = "hidden";
         }
 
-        function hideSleepScreen() {
+        function hideStatusModal() {
             sleepScreen.hidden = true;
             document.body.style.overflow = "";
         }
 
-        setTimeout(function () {
-            hidePreloader();
-        }, TOTAL_TIME);
-
         if (sleepDismiss) {
-            sleepDismiss.addEventListener("click", function () {
-                hideSleepScreen();
-            });
+            sleepDismiss.addEventListener("click", hideStatusModal);
         }
 
         if (inlineProbeBtn) {
             inlineProbeBtn.addEventListener("click", function () {
                 inlineProbeBtn.disabled = true;
-                inlineProbeBtn.textContent = "Пингуем узел…";
+                inlineProbeBtn.textContent = "Проверяем отклик узла…";
                 checkDump().then(function () {
                     inlineProbeBtn.disabled = false;
-                    inlineProbeBtn.textContent = dumpAsleep
-                        ? "Узел лежит · Открыть сводку"
-                        : "↻ Пинговать dump.justrcat.lol";
-                    if (dumpAsleep) {
-                        showSleepScreen();
-                    }
+                    inlineProbeBtn.textContent = "✓ Узел проверен · Открыть сводку";
+                    showStatusModal();
                 });
             });
         }
 
-        sleepRetry.addEventListener("click", function () {
-            sleepRetry.disabled = true;
-            sleepRetry.textContent = "Проверяем…";
-            dumpAsleep = false;
-            returnText = "";
-
-            checkDump().then(function () {
-                if (dumpAsleep) showSleepScreen();
-                else hideSleepScreen();
-
-                sleepRetry.disabled = false;
-                sleepRetry.textContent = "Проверить снова";
+        if (sleepRetry) {
+            sleepRetry.addEventListener("click", function () {
+                sleepRetry.disabled = true;
+                sleepRetry.textContent = "Пингуем…";
+                checkDump().then(function () {
+                    sleepRetry.disabled = false;
+                    sleepRetry.textContent = "Проверить узел";
+                });
             });
-        });
+        }
 
         /* ============================================================
-           4. ПАСХАЛКА В КОНСОЛИ
+           6. ПАСХАЛКА В КОНСОЛИ
            ============================================================ */
         console.log(
-            "%c wondays. // привет! чот уже работать и не стоило того блин, удачи",
-            "background: #050505; color: #ffffff; font-size: 20px; padding: 6px 12px; font-weight: 300; letter-spacing: -0.03em;"
+            "%c wondays. // сайт восстановлен, ангел на месте! чудных дней ✦",
+            "background: #050505; color: #6ee7b7; font-size: 18px; padding: 6px 12px; font-weight: 400; letter-spacing: -0.02em;"
         );
     })();
     </script>
